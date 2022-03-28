@@ -4,7 +4,6 @@ if (!defined('ROOTPATH'))
     exit;
 
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -21,4 +20,3 @@ if (!defined('ROOTPATH'))
 <body>
 
 <nav>
-
