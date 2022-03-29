@@ -53,12 +53,14 @@ class SystemDB
         $pdo_details = "mysql:host={$this->host};"
             . "dbname={$this->db_name};"
             . "charset={$this->charset};";
+
         try {
             $this->pdo = self::getInstance(
                 $pdo_details,
                 $this->user,
                 $this->password
             );
+
             unset($this->host);
             unset($this->db_name);
             unset($this->password);
@@ -76,16 +78,19 @@ class SystemDB
     {
         if (!isset(self::$instance))
             self::$instance = new PDO($pdo_details, $user, $password);
+
         return self::$instance;
     }
 
     public function query($stmt, $data_array = null)
     {
         $query = $this->pdo->prepare($stmt);
+
         if (!$query) {
             $this->error = $query->errorInfo()[2];
             return false;
         }
+
         $check_exec = $query->execute($query);
         if ($check_exec)
             return $check_exec;
@@ -97,27 +102,85 @@ class SystemDB
         $place_holders = '(';
         $values = array();
         $data = func_get_args();
+
         if (!isset($data[1]) || !is_array($data[1]))
             return;
+
         $j = 1;
         for ($i = 1; $i < count($data); $i++)
             foreach ($data[$i] as $col => $val) {
                 if ($i ===  1)
                     $cols[] = "`$col`";
+
                 if ($j != $i)
                     $place_holders .= '), (';
+
                 $place_holders .= '?, ';
+
                 $values[] = $val;
             }
+
         $cols = implode(', ', $cols);
-        $stmt = "INSERT INOT `$table` ($cols) VALUES $place_holders)";
+
+        $stmt = "INSERT INTO `$table` ($cols) VALUES $place_holders)";
         $insert = $this->query($stmt, $values);
-        if ($insert)
-            if (method_exists(
-                $this->pdo, 'lastInsertId'
-                && $this->pdo->lastInsertId()
-            )
-            $this->last_id = $this->pdo->lastInsertId();
+
+        if ($insert) {
+            if (method_exists($this->pdo, 'lastInsertId')
+                && $this->pdo->lastInsertId())
+                $this->last_id = $this->pdo->lastInsertId();
+            return $insert;
+        }
+
+        return;
+    }
+
+    public function update($table, $where_field, $where_field_val, $values)
+    {
+        if (empty($table) || empty($where_field) || empty($where_field_val))
+            return;
+
+        $stmt = "UPDATE `$table` SET";
+        $set = array();
+        $where = " WHERE `$where_field` = ? ";
+
+        if (!is_array($values))
+            return;
+
+        foreach ($values as $column => $value)
+            $set[] = " `$column` = ?";
+
+        $set = implode(', ', $set);
+
+        $stmt .= $set . $where;
+
+        $values[] = $where_field_value;
+        $values = array_values($values);
+
+        $update = $this->query($stmt, $values);
+
+        if ($update)
+            return $update;
+
+        return;
+    }
+
+    public function delete($table, $where_field, $where_field_value)
+    {
+        if (empty($table) || empty($where_field) || empty($where_field_val))
+            return;
+
+        $stmt = "DELETE FROM `$table`";
+        $where = " WHERE `$where_field` = ? ";
+        $stmt .= $where;
+
+        $values = array($where_field_value);
+
+        $delete = $this->query($stmt, $values);
+
+        if ($delete)
+            return $delete;
+
         return;
     }
 }

@@ -20,6 +20,7 @@ class System
             $this->controller = new HomeController();
 
             $this->controller->index();
+            return;
         }
 
         if (!file_exists(CONTROLLERSPATH . "/$this->controller.php")) {
