@@ -13,8 +13,6 @@ class MainController extends UserLogin
     public $premissionRequired = 'any';
     public $parameters = array();
 
-    public $loggedIn;   // to remove
-
     public function __construct($parameters = array())
     {
         $this->db = new SystemDB();

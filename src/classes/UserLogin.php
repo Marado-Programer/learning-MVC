@@ -1,12 +1,12 @@
 <?php
 
-/*
-  Manipula os dados de user registado, faz login e logout, verifica permissões e
-  redireciona página para user ativo.
+/**
+ * Manipula os dados de user registado, faz login e logout, verifica permissões
+ * e redireciona página para user ativo.
  */
 
 class UserLogin {
-    public $logged_in;
+    public $loggedIn;
     public $userdata;
     public $login_error;
     public $user_name;
