@@ -6,9 +6,10 @@
 
 class ProjetosController extends MainController
 {
-    public $login_required = false;
-    public $permission_required;
-    public $prev_page = false;
+    public $loginRequired = false;
+    public $permissionRequired;
+    public $previousPage = false;
+
     function index()
     {
         $this->title = 'Projetos';
@@ -26,6 +27,7 @@ class ProjetosController extends MainController
     public function adm()
     {
         $this->title = 'Gerenciar Projetos';
+
         $permission_required = 'gerir-projetos';
         if (!$this->loggedIn) {
             $this->logout();

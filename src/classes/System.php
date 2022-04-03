@@ -9,27 +9,29 @@ class System
     private $controller;
     private $action;
     private $parameters;
-    private $notFound = ROOTPATH . '/404.php';
+    private $notFound = NOT_FOUND;
 
     public function __construct()
     {
         $this->getURLData();
 
         if (!$this->controller) {
-            require_once CONTROLLERSPATH . '/HomeController.php';
+            require_once CONTROLLERS_PATH . '/HomeController.php';
+
             $this->controller = new HomeController();
 
             $this->controller->index();
+
             return;
         }
 
-        if (!file_exists(CONTROLLERSPATH . "/$this->controller.php")) {
+        if (!file_exists(CONTROLLERS_PATH . "/$this->controller.php")) {
             require_once $this->notFound;
 
             return;
         }
 
-        require_once CONTROLLERSPATH . "/$this->controller.php";
+        require_once CONTROLLERS_PATH . "/$this->controller.php";
 
         $this->controller = preg_replace('/[^A-Z]/i', '', $this->controller);
 
@@ -57,7 +59,7 @@ class System
 
         require_once $this->notFound;
 
-        return;
+        return null;
     }
 
     public function getURLData()

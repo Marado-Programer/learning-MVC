@@ -7,7 +7,7 @@
 class MainController extends UserLogin
 {
     public $db;
-    public $passhash;
+    public $phpass;
     public $title;
     public $loginRequired = false;
     public $premissionRequired = 'any';
@@ -28,8 +28,8 @@ class MainController extends UserLogin
 
         $model = strtolower($model);
 
-        $modelsPath = ROOTPATH . "/src/models/$model.php";
-        if (file_exists($modelsPath)) {
+        $modelPath = ROOTPATH . "/src/models/$model.php";
+        if (file_exists($modelPath)) {
             require_once $modelPath;
 
             $model = explode('/\//', $model);

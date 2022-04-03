@@ -11,16 +11,15 @@ function checkArray($array, $key)
     return null;
 }
 
-function my_autoloader($class_name)
+function classAutoloader($className)
 {
-    $file = ROOTPATH . '/src/classes/' . $class_name . '.php';
+    $file = ROOT_PATH . '/src/classes/' . $className . '.php';
     if (!file_exists($file)) {
-        require_once ROOTPATH . '/404.php';
-        return;
+        require_once NOT_FOUND;
+        return null;
     }
 
     require_once $file;
 }
-
-spl_autoload_register('my_autoloader');
+spl_autoload_register('classAutoloader');
 

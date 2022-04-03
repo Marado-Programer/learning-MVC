@@ -1,6 +1,6 @@
 <?php
 
-if (!defined('ROOTPATH'))
+if (!defined('ROOT_PATH'))
     exit;
 
 if ($this->loginRequired && !$this->loggedIn)

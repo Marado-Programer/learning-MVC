@@ -9,30 +9,29 @@ class SystemDB
     private static $instance;
 
     public $host = 'localhost',
-        $db_name = '',
+        $dbName = '',
         $user = 'root',
         $password = '',
         $charset = 'uft8',
         $pdo = null,
         $error = null,
         $debug = false,
-        $last_id = null;
+        $lastId = null;
 
     public function __construct(
         $host = null,
-        $db_name = null,
+        $dbName = null,
         $user = null,
         $password = null,
         $charset = null,
         $debug = null
-    )
-    {
+    ) {
         $this->host = defined('DB_HOSTNAME')
             ? DB_HOSTNAME
             : host;
         $this->db_name = defined('DB_NAME')
             ? DB_NAME
-            : db_name;
+            : dbName;
         $this->user = defined('DB_USERNAME')
             ? DB_USERNAME
             : user;
@@ -62,7 +61,7 @@ class SystemDB
             );
 
             unset($this->host);
-            unset($this->db_name);
+            unset($this->dbName);
             unset($this->password);
             unset($this->user);
             unset($this->charset);
@@ -74,15 +73,15 @@ class SystemDB
         }
     }
 
-    public static function getInstance($pdo_details, $user, $password)
+    public static function getInstance($pdoInfo, $user, $password)
     {
         if (!isset(self::$instance))
-            self::$instance = new PDO($pdo_details, $user, $password);
+            self::$instance = new PDO($pdoInfo, $user, $password);
 
         return self::$instance;
     }
 
-    public function query($stmt, $data_array = null)
+    public function query($stmt, $dataArray = null)
     {
         $query = $this->pdo->prepare($stmt);
 
@@ -91,70 +90,76 @@ class SystemDB
             return false;
         }
 
-        $check_exec = $query->execute($query);
-        if ($check_exec)
-            return $check_exec;
+        $checkExec = $query->execute($query);
+        if ($checkExec)
+            return $checkExec;
     }
 
     public function insert($table)
     {
+        
         $cols = array();
-        $place_holders = '(';
+        $placeHolders = '(';
         $values = array();
         $data = func_get_args();
 
-        if (!isset($data[1]) || !is_array($data[1]))
-            return;
+        foreach ($data as $i => $arr) {
+            if ($i = 0)
+                continue;
+            if (!isset($arr) || !is_array($arr))
+                return;
+        }
 
-        $j = 1;
         for ($i = 1; $i < count($data); $i++)
             foreach ($data[$i] as $col => $val) {
                 if ($i ===  1)
                     $cols[] = "`$col`";
 
-                if ($j != $i)
-                    $place_holders .= '), (';
+                if ($i != 1)
+                    $placeHolders .= '), (';
 
-                $place_holders .= '?, ';
+                $placeHolders .= '?, ';
 
                 $values[] = $val;
             }
 
+        $placeHolders = substr($placeHolders, 0, strlen($placeHolders) - 2);
+
         $cols = implode(', ', $cols);
 
-        $stmt = "INSERT INTO `$table` ($cols) VALUES $place_holders)";
+        $stmt = "INSERT INTO `$table`($cols) VALUES $placeHolders)";
         $insert = $this->query($stmt, $values);
 
         if ($insert) {
             if (method_exists($this->pdo, 'lastInsertId')
                 && $this->pdo->lastInsertId())
-                $this->last_id = $this->pdo->lastInsertId();
+                $this->lastId = $this->pdo->lastInsertId();
             return $insert;
         }
 
         return;
     }
 
-    public function update($table, $where_field, $where_field_val, $values)
+    public function update($table, $whereField, $whereFieldVal, $values)
     {
-        if (empty($table) || empty($where_field) || empty($where_field_val))
+        if (empty($table) || empty($whereField) || empty($whereFieldVal))
             return;
 
         $stmt = "UPDATE `$table` SET";
         $set = array();
-        $where = " WHERE `$where_field` = ? ";
+        $where = " WHERE `$whereField` = ? ";
 
         if (!is_array($values))
             return;
 
         foreach ($values as $column => $value)
-            $set[] = " `$column` = ?";
+            $set[] = "`$column` = ?";
 
         $set = implode(', ', $set);
 
         $stmt .= $set . $where;
 
-        $values[] = $where_field_value;
+        $values[] = $whereFieldVal;
         $values = array_values($values);
 
         $update = $this->query($stmt, $values);
@@ -165,16 +170,16 @@ class SystemDB
         return;
     }
 
-    public function delete($table, $where_field, $where_field_value)
+    public function delete($table, $whereField, $whereFieldValue)
     {
-        if (empty($table) || empty($where_field) || empty($where_field_val))
+        if (empty($table) || empty($whereField) || empty($whereFieldVal))
             return;
 
         $stmt = "DELETE FROM `$table`";
-        $where = " WHERE `$where_field` = ? ";
+        $where = " WHERE `$whereField` = ? ";
         $stmt .= $where;
 
-        $values = array($where_field_value);
+        $values = array($whereFieldValue);
 
         $delete = $this->query($stmt, $values);
 
