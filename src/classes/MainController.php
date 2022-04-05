@@ -12,6 +12,7 @@ class MainController extends UserLogin
     public $loginRequired = false;
     public $premissionRequired = 'any';
     public $parameters = array();
+    public $model;
 
     public function __construct($parameters = array())
     {
@@ -26,13 +27,13 @@ class MainController extends UserLogin
         if (!$model)
             return;
 
-        $model = strtolower($model);
+        $model = rtrim($model, '/\//');
 
-        $modelPath = ROOTPATH . "/src/models/$model.php";
+        $modelPath = ROOT_PATH . "/src/models/$model.php";
         if (file_exists($modelPath)) {
             require_once $modelPath;
 
-            $model = explode('/\//', $model);
+            $model = explode('/', $model);
             $model = end($model);
 
             if (class_exists($model))
@@ -40,11 +41,6 @@ class MainController extends UserLogin
 
             return;
         }
-    }
-
-    public function checkUserLogin()
-    {
-
     }
 }
 

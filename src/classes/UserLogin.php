@@ -54,9 +54,9 @@ class UserLogin
             return;
         }
 
-        extract($userdata);
+        extract($userData);
 
-        if (!isset($user) || !isset($userPassword)) {
+        if (!isset($username) || !isset($password)) {
             $this->loggedIn = false;
             $this->loginError = null;
 
@@ -66,8 +66,8 @@ class UserLogin
         }
 
         $query = $this->db->query(
-            'SELECT * FROM `users` WHERE `user` = ? LIMIT 1',
-            array($user)
+            'SELECT * FROM `users` WHERE `username` = ? LIMIT 1',
+            array($username)
         );
 
         if (!$query) {
@@ -81,10 +81,10 @@ class UserLogin
 
         $fetch = $query->fetch(PDO::FETCH_ASSOC);
 
-        $userId = (int) $fetch['userId'];
-        $userName = $fetch['username'];
+        $id = (int) $fetch['id'];
+        $username = $fetch['username'];
 
-        if (empty($userId)) {
+        if (empty($id)) {
             $this->loggedIn = false;
             $this->loginError = 'User do not exists.';
 
@@ -93,8 +93,11 @@ class UserLogin
             return;
         }
 
-        if ($this->phpass->CheckPassword($userPassword, $fetch['userPassword'])) {
-            if (session_id() != $fetch['userSessionId'] && !$post) {
+var_dump($password);
+var_dump($fetch['password']);
+
+        if ($this->passhash->CheckPassword($password, $fetch['password'])) {
+            if (session_id() != $fetch['sessionId'] && !$post) {
                 $this->loggedIn = false;
                 $this->loginError = 'Wrong session ID.';
 
@@ -109,20 +112,20 @@ class UserLogin
 
                 $_SESSION['userData'] = $fetch;
 
-                $_SESSION['userData']['userPassword'] = $userPassword;              /* improve */
+                $_SESSION['userData']['password'] = $password;              /* improve */
 
-                $_SESSION['userData']['userSessionId'] = $sessionId;
+                $_SESSION['userData']['sessionId'] = $sessionId;
 
                 $query = $this->db->query(
-                    'UPDATE `users` SET `userSessionId` = ? WHERE `userId` = ?;',
-                    array($sessionId, $userId)
+                    'UPDATE `users` SET `sessionId` = ? WHERE `id` = ?;',
+                    array($sessionId, $id)
                 );
             }
 
-            $_SESSION['userData']['userPermissions'] = unserialize($fetch['userPermissions']);
+            $_SESSION['userData']['permissions'] = unserialize($fetch['permissions']);
 
             $this->loggedIn = true;
-            $this->userName = $userName;
+            $this->username = $username;
 
             $this->userData = $_SESSION['userData'];
 

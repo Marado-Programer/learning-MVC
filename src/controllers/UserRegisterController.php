@@ -8,16 +8,16 @@ class UserRegisterController extends MainController
 {
     function index()
     {
-        $this->title = 'Home';
+        $this->title = 'User Registation';
 
         $parameters = func_num_args() >= 1 ? func_get_arg(0) : array();
         
-        require ROOTPATH . '/public/views/includes/header.php';
-        require ROOTPATH . '/public/views/includes/nav.php';
+        require ROOT_PATH . '/public/views/includes/header.php';
+        require ROOT_PATH . '/public/views/includes/nav.php';
 
-        require ROOTPATH . '/public/views/user-register/signin.php';
+        require ROOT_PATH . '/public/views/user-register/signin.php'; 
 
-        require ROOTPATH . '/public/views/includes/footer.php';
+        require ROOT_PATH . '/public/views/includes/footer.php';
     }
 }
 

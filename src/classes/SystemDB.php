@@ -12,7 +12,7 @@ class SystemDB
         $dbName = '',
         $user = 'root',
         $password = '',
-        $charset = 'uft8',
+        $charset = 'uft8mb4',
         $pdo = null,
         $error = null,
         $debug = false,
@@ -28,22 +28,22 @@ class SystemDB
     ) {
         $this->host = defined('DB_HOSTNAME')
             ? DB_HOSTNAME
-            : host;
+            : $host;
         $this->db_name = defined('DB_NAME')
             ? DB_NAME
-            : dbName;
-        $this->user = defined('DB_USERNAME')
+            : $dbName;
+        $this->user = defined('DB_USERNAME') 
             ? DB_USERNAME
-            : user;
+            : $user;
         $this->password = defined('DB_USER_PASSWORD')
             ? DB_USER_PASSWORD
-            : password;
+            : $password;
         $this->charset = defined('DB_CHARSET')
             ? DB_CHARSET
-            : charset;
+            : $charset;
         $this->debug = defined('DEBUG')
             ? DEBUG
-            : debug;
+            : $debug;
         $this->connect();
     }
 
@@ -90,9 +90,9 @@ class SystemDB
             return false;
         }
 
-        $checkExec = $query->execute($query);
+        $checkExec = $query->execute($dataArray);
         if ($checkExec)
-            return $checkExec;
+            return $query;
     }
 
     public function insert($table)
@@ -127,7 +127,7 @@ class SystemDB
 
         $cols = implode(', ', $cols);
 
-        $stmt = "INSERT INTO `$table`($cols) VALUES $placeHolders)";
+        $stmt = "INSERT INTO $table($cols) VALUES $placeHolders)";
         $insert = $this->query($stmt, $values);
 
         if ($insert) {

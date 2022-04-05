@@ -4,7 +4,7 @@
  * 
  */
 
-class ProjetosAdmModel extends MainModel
+class ProjectsAdmModel extends MainModel
 {
     public $postsPerPage = 5;
 
@@ -22,18 +22,18 @@ class ProjetosAdmModel extends MainModel
 
         if (is_numeric(checkArray($this->parameters, 0))) {
             $id = array(checkArray($this->parameters, 0));
-            $where = "WHERE projectID = ?";
+            $where = "WHERE `projects`.`id` = ?";
         }
 
         $page = (!empty($this->parameters[1]) ? $this->parameters[1] : 1) - 1;
 
         $offset = $this->postsPerPage * $page;
 
-        if (empty($this->noLimits))
+        if (empty($this->noLimit))
             $queryLimit = "LIMIT $offset, {$this->postsPerPage}";
 
         $query = $this->db->query(
-            "SELECT * FROM project $where ORDER BY projectID DESC $queryLimit",
+            "SELECT * FROM `projects` $where ORDER BY `projects`.`id` DESC $queryLimit",
             $id
         );
 
@@ -65,8 +65,8 @@ class ProjetosAdmModel extends MainModel
                 $_POST['image'] = $image;
 
             $query = $this->db->update(
-                'projects',
-                'projectID',
+                '`projects`',
+                '`projects`.`id`',
                 $projectID,
                 $_POST
             );
@@ -77,7 +77,7 @@ class ProjetosAdmModel extends MainModel
                 HTML;
 
             $query = $this->db->query(
-                'SELECT * FROM projects WHERE projectID = ? LIMIT 1',
+                'SELECT * FROM `projects` WHERE `projects`.`id` = ? LIMIT 1',
                 array($projectID)
             );
 
@@ -109,7 +109,7 @@ class ProjetosAdmModel extends MainModel
 
         $data = checkArray($_POST, 'exe-date');
 
-        $query = $this->db->insert('project', $_POST);
+        $query = $this->db->insert('`projects`', $_POST);
 
         if ($query) {
             $this->form_msg = <<<'HTML'
@@ -139,9 +139,9 @@ class ProjetosAdmModel extends MainModel
 
         $projectID = (int) checkArray($this->parameters, 1);
 
-        $query = $this->db->delete('project' , 'projectID', $projectID);
-        echo '<meta http-equiv="Refresh" content="0; url' . HOME_URI . '/Projects/admin/">';
-        echo '<meta http-equiv="Refresh" content="0; url=' . HOME_URI . '/Projects/admin/" />';
+        $query = $this->db->delete('`projects`' , '`projects`.`id`', $projectID);
+        echo '<meta http-equiv="Refresh" content="0; url' . HOME_URI . '/Projects/adm/">';
+        echo '<meta http-equiv="Refresh" content="0; url=' . HOME_URI . '/Projects/adm/" />';
         echo '<script type="text/javascript">window.location.href = "' . HOME_URI . '/Projects/admin/";</script>';
         header('location: '. HOME_URI . '/Projects/admin/');
     }

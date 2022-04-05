@@ -19,4 +19,3 @@ if (!defined('ROOT_PATH'))
 
 <body>
 
-<nav>
