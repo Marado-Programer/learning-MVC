@@ -2,9 +2,10 @@
 
 All notable changes to this publication will be documented in this file.
 
-## 1.0.1 - 2017-??-??
-The validate command returns an evaluable return code.
+## 0.1.0 - 2017-??-??
+Text
 
-## 1.0.0 - 2017-25-01
+## 0.0.0 - 2022-07-04
 
 First stable release.
+Very incomplete.

@@ -13,13 +13,15 @@ class System
 
     public function __construct()
     {
-        $this->getURLData();
+        $this->fetchGETPath();
 
+        // Set default controller if controller it's unset
         if (!$this->controller) {
             require_once CONTROLLERS_PATH . '/HomeController.php';
 
             $this->controller = new HomeController();
 
+            // All controllers will call the index() by default
             $this->controller->index();
 
             return;
@@ -51,6 +53,7 @@ class System
             return;
         }
 
+        // Again, all controllers will call the index() by default
         if (!$this->action && method_exists($this->controller, 'index')) {
             $this->controller->index($this->parameters);
 
@@ -59,10 +62,16 @@ class System
 
         require_once $this->notFound;
 
-        return null;
+        return;
     }
 
-    public function getURLData()
+    /**
+     * Uses the $_GET['path'] to set the controller, action and parameters.
+     * 
+     * So the URL needs to be like this (with .htaccess): 
+     * http://www.example.com/controller/action/parameter1/parameter2/parameterN
+     */
+    public function fetchGETPath()
     {
         if (isset($_GET['path'])) {
             $path = $_GET['path'];
@@ -71,11 +80,16 @@ class System
             $path = explode('/', $path);
 
             $this->controller = checkArray($path, 0);
+            $this->controller = ucfirst(strtolower($this->controller));
             $this->controller .= 'Controller';
 
             $this->action = checkArray($path, 1);
 
             if (checkArray($path, 2)) {
+                /** 
+                 * we make the this 2 null so when we use array_values()
+                 * they aren't returned in the array.
+                 */
                 unset($path[0]);
                 unset($path[1]);
 

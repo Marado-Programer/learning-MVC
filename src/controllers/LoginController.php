@@ -22,8 +22,7 @@ class LoginController extends MainController
 
     public function delete()
     {
-        $this->logout();
-        $this->gotoLogin();
+        $this->userSession->logout(true);
         return;
     }
 

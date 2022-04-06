@@ -1,7 +1,7 @@
 <?php if (!defined('ROOT_PATH')) exit ?>
 
 <?php
-if ($this->loggedIn)
+if ($this->userSession->user->loggedIn)
 	echo '<p>Already logged in!</p>';
 ?>
 <form method="post">
@@ -14,9 +14,9 @@ if ($this->loggedIn)
 			<td>Password</td>
 			<td><input type="password" name="user-data[password]"></td>
 		</tr>
-        <?php if ($this->loginErrorMessage): ?>
+        <?php if ($this->userSession->loginErrorMessage): ?>
         <tr>
-            <td colspan="2"><?=$this->loginErrorMessage?></td>
+            <td colspan="2"><?=$this->userSession->loginErrorMessage?></td>
         </tr>
         <?php endif ?>
 		<tr>

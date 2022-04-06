@@ -13,7 +13,6 @@ class ProjectsAdmModel extends MainModel
         $this->db = $db;
         $this->controller = $controller;
         $this->parameters = $this->controller->parameters;
-        $this->userData = $this->controller->userData;
     }
 
     public function listProjects()
@@ -140,10 +139,8 @@ class ProjectsAdmModel extends MainModel
         $projectID = (int) checkArray($this->parameters, 1);
 
         $query = $this->db->delete('`projects`' , '`projects`.`id`', $projectID);
-        echo '<meta http-equiv="Refresh" content="0; url' . HOME_URI . '/Projects/adm/">';
-        echo '<meta http-equiv="Refresh" content="0; url=' . HOME_URI . '/Projects/adm/" />';
-        echo '<script type="text/javascript">window.location.href = "' . HOME_URI . '/Projects/admin/";</script>';
-        header('location: '. HOME_URI . '/Projects/admin/');
+
+        redirect(HOME_URI . '/Projects/adm/');
     }
 }
 

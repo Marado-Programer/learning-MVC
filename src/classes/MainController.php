@@ -4,22 +4,23 @@
  *
  */
 
-class MainController extends UserLogin
+class MainController
 {
+    public $userSession;
     public $db;
-    public $phpass;
     public $title;
     public $loginRequired = false;
-    public $premissionRequired = 'any';
+    public $premissionsRequired;
     public $parameters = array();
     public $model;
 
     public function __construct($parameters = array())
     {
         $this->db = new SystemDB();
-        $this->passhash = new PasswordHash(8, false);
+        $this->userSession = new UserSession($this->db);
+        $this->premissionsRequired = PermissionsManager::P_ZERO;
         $this->parameters = $parameters;
-        $this->checkUserLogin();
+        $this->userSession->checkUserLogin();
     }
 
     public function loadModel($model = false)
@@ -42,5 +43,12 @@ class MainController extends UserLogin
             return;
         }
     }
+
+    /*
+    protected function defineGotoURL()
+    {
+        $_SESSION['gotoURL'] = urlencode($_SERVER['PHP_SELF']);
+    }
+    */
 }
 

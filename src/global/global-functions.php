@@ -4,6 +4,7 @@
  * functions that can be used in most of the files
  */
 
+// Verify if the array has an specific key
 function checkArray($array, $key)
 {
     if (isset($array[$key]) && !empty($array[$key]))

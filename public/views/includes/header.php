@@ -14,6 +14,8 @@ if (!defined('ROOT_PATH'))
     <meta name="description" content="">
     <meta name="keywords" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="<?=HOME_URI?>/public/style/css/style.css" rel="stylesheet" />
+    <link href="<?=HOME_URI?>/public/style/css/projects.css" rel="stylesheet" />
     <title><?=$this->title?></title>
 </head>
 
