@@ -17,7 +17,6 @@ class Redirect
 
     final protected function redirect($page = null)              /* improve */
     {
-        var_dump($this->defaultPage);
         if (!isset($page) && $this->useDefault)
             $page = $this->defaultPage;
 

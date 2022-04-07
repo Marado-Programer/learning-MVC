@@ -19,5 +19,6 @@ if (!defined('DEBUG') || DEBUG === false) {
 
 require_once ROOT_PATH . '/src/global/global-functions.php';
 
-new System();
+$sys = new System();
+$sys->act();
 

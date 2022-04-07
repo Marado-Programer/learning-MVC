@@ -10,18 +10,11 @@ class ProjectsController extends MainController
     public $permissionsRequired;
     public $previousPage = false;
 
-    function index()
+    protected function indexMain()
     {
-        $this->title = 'Projects';
-
         $this->model = $this->loadModel('projects/ProjectsAdmModel');
 
-        require ROOT_PATH . '/public/views/includes/header.php';
-        require ROOT_PATH . '/public/views/includes/nav.php';
-
         require ROOT_PATH . '/public/views/projects/home.php';
-
-        require ROOT_PATH . '/public/views/includes/footer.php';
     }
 
     public function adm()

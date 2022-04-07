@@ -4,31 +4,14 @@
  * MVC
  */
 
-class System
+class System extends ControllerGenerator
 {
-    private $controller;
-    private $action;
-    private $parameters;
-    private $notFound = NOT_FOUND;
-
     public function __construct()
     {
         $this->fetchGETPath();
 
-        // Set default controller if controller it's unset
-        if (!$this->controller) {
-            require_once CONTROLLERS_PATH . '/HomeController.php';
-
-            $this->controller = new HomeController();
-
-            // All controllers will call the index() by default
-            $this->controller->index();
-
-            return;
-        }
-
         if (!file_exists(CONTROLLERS_PATH . "/$this->controller.php")) {
-            require_once $this->notFound;
+            require_once NOT_FOUND;
 
             return;
         }
@@ -38,31 +21,21 @@ class System
         $this->controller = preg_replace('/[^A-Z]/i', '', $this->controller);
 
         if (!class_exists($this->controller)) {
-            require_once $this->notFound;
+            require_once NOT_FOUND;
 
             return;
         }
-
-        $this->controller = new $this->controller($this->parameters);
 
         $this->action = preg_replace('/[^A-Z]/i', '', $this->action);
+    }
 
-        if (method_exists($this->controller, $this->action)) {
-            $this->controller->{$this->action}($this->parameters);
-
-            return;
-        }
-
-        // Again, all controllers will call the index() by default
-        if (!$this->action && method_exists($this->controller, 'index')) {
-            $this->controller->index($this->parameters);
-
-            return;
-        }
-
-        require_once $this->notFound;
-
-        return;
+    public function factoryMethod()
+    {
+        return new $this->controller(
+            $this->parameters,
+            stristr($this->controller, 'Controller', true)
+            . isset($this->action) ?: ' - ' . $this->action
+        );
     }
 
     /**
@@ -73,28 +46,26 @@ class System
      */
     public function fetchGETPath()
     {
-        if (isset($_GET['path'])) {
-            $path = $_GET['path'];
-            $path = rtrim($path, '/\//');
-            $path = filter_var($path, FILTER_SANITIZE_URL);
-            $path = explode('/', $path);
+        $path = $_GET['path'] ?? 'Home/index';
+        $path = rtrim($path, '/\//');
+        $path = filter_var($path, FILTER_SANITIZE_URL);
+        $path = explode('/', $path);
 
-            $this->controller = checkArray($path, 0);
-            $this->controller = ucfirst(strtolower($this->controller));
-            $this->controller .= 'Controller';
+        $this->controller = checkArray($path, 0) ?? 'Home';
+        $this->controller = ucfirst(strtolower($this->controller));
+        $this->controller .= 'Controller';
 
-            $this->action = checkArray($path, 1);
+        $this->action = checkArray($path, 1) ?? 'index';
 
-            if (checkArray($path, 2)) {
-                /** 
-                 * we make the this 2 null so when we use array_values()
-                 * they aren't returned in the array.
-                 */
-                unset($path[0]);
-                unset($path[1]);
+        if (checkArray($path, 2)) {
+            /** 
+             * we make the this 2 null so when we use array_values()
+             * they aren't returned in the array.
+             */
+            unset($path[0]);
+            unset($path[1]);
 
-                $this->parameters = array_values($path);
-            }
+            $this->parameters = array_values($path);
         }
     }
 }

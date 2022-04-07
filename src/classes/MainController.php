@@ -4,26 +4,32 @@
  *
  */
 
-class MainController
+abstract class MainController
 {
-    public $userSession;
-    public $db;
-    public $title;
-    public $loginRequired = false;
-    public $premissionsRequired;
+    protected $db;
+    protected $userSession;
+    protected $title;
+    protected $loginRequired = false;
+    protected $premissionsRequired;
     public $parameters = array();
-    public $model;
+    protected $model;
 
-    public function __construct($parameters = array())
-    {
+    public function __construct(
+        $parameters = array(),
+        $title = 'index',
+        $permissions = PermissionsManager::P_ZERO,
+        $loginRequired = false
+    ) {
         $this->db = new SystemDB();
         $this->userSession = new UserSession($this->db);
-        $this->premissionsRequired = PermissionsManager::P_ZERO;
         $this->parameters = $parameters;
+        $this->title = $title;
+        $this->premissionsRequired = $permissions;
+        $this->loginRequired = $loginRequired;
         $this->userSession->checkUserLogin();
     }
 
-    public function loadModel($model = false)
+    protected function loadModel($model = false)
     {
         if (!$model)
             return;
@@ -50,5 +56,19 @@ class MainController
         $_SESSION['gotoURL'] = urlencode($_SERVER['PHP_SELF']);
     }
     */
+
+    final public function index()
+    {
+        $this->parameters = func_num_args() >= 1 ? func_get_arg(0) : array();
+        
+        require VIEWS_PATH . '/includes/header.php';
+        require VIEWS_PATH . '/includes/nav.php';
+
+        $this->indexMain();
+
+        require VIEWS_PATH . '/includes/footer.php';
+    }
+
+    protected abstract function indexMain();
 }
 

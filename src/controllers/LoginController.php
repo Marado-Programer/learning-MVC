@@ -6,18 +6,9 @@
 
 class LoginController extends MainController
 {
-    public function index()
+    protected function indexMain()
     {
-        $this->title = 'Login';
-
-        $parametros = ( func_num_args() >= 1 ) ? func_get_arg(0) : array();
-
-        require VIEWS_PATH . '/includes/header.php';
-        require VIEWS_PATH . '/includes/nav.php';
-
         require VIEWS_PATH . '/login/login.php';
-
-        require VIEWS_PATH . '/includes/footer.php';
     }
 
     public function delete()

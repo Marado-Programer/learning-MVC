@@ -49,13 +49,13 @@ class SystemDB
 
     final protected function connect()
     {
-        $pdo_details = "mysql:host={$this->host};"
+        $pdoDetails = "mysql:host={$this->host};"
             . "dbname={$this->db_name};"
             . "charset={$this->charset};";
 
         try {
             $this->pdo = self::getInstance(
-                $pdo_details,
+                $pdoDetails,
                 $this->user,
                 $this->password
             );
