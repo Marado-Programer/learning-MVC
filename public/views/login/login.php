@@ -16,7 +16,7 @@ if ($this->userSession->user->loggedIn)
 		</tr>
         <?php if ($this->userSession->loginErrorMessage): ?>
         <tr>
-            <td colspan="2"><?=$this->loginErrorMessage?></td>
+            <td colspan="2"><?=$this->userSession->loginErrorMessage?></td>
         </tr>
         <?php endif ?>
 		<tr>
