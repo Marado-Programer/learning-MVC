@@ -5,4 +5,5 @@ if (!defined('ROOT_PATH'))
 
 ?>
 
-<p>whale cum</p>
+<p>Welcome</p>
+
