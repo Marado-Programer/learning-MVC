@@ -2,6 +2,9 @@
 
 All notable changes to this publication will be documented in this file.
 
+## 0.2.1 - 2022-07-09
+User registracion to events of an association.
+
 ## 0.2.0 - 2022-07-09
 Started following the pdf my teacher gave me. The pdf it's on /docs (in portuguese).
 

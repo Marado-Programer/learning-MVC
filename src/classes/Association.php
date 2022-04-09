@@ -13,15 +13,17 @@ class Association
     private $newsCounter = 0;
     private $freeSpaceNews = [];
 
+    public $partners;
+    public $president;
+
     public function __construct(
-        int $id,
         string $name,
         string $address,
         int $telephoneInternationalCodePrefix,
         int $telephoneNumber,
-        int $taxpayerNumber
+        int $taxpayerNumber,
+        User $president
     ) {
-        $this->id = $id;
         $this->name = $name;
         $this->address = $address;
         $this->telephone = [
@@ -29,7 +31,8 @@ class Association
             'number' => $telephoneNumber
         ];
         $this->taxpayerNumber = $taxpayerNumber;
-        $this->news = [];
+        $this->partners = $president;
+        $this->president = $president;
     }
 
     public function addNews(News $news)
@@ -144,6 +147,17 @@ class Association
 
         unset($this->events[$i]);
     }
+
+    public function addPartner(User &$user)
+    {
+        $this->partners[] = $user;
+    }
+
+    public function registPartner(Partner &$partner, int $event)
+    {
+        $this->events[$event]->registrations[] = new Registration($this->events[$event], $partner);
+    }
+
 
     public function getTelephone()
     {

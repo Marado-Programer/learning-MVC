@@ -10,6 +10,8 @@ class Events
 
     public $associations;
 
+    public $registrations;
+
     public function __construct(Association $association, string $title, string $description)
     {
         $this->title = $title;
