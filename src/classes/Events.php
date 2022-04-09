@@ -21,7 +21,7 @@ class Events
 
     public function addAssociation(Association $association)
     {
-        if ($this->associations['ini'] !== $association && in_array($association, $this->associations))
+        if ($this->associations['ini'] !== $association && !in_array($association, $this->associations))
             $this->associations[] = $association;
     }
 
@@ -39,7 +39,7 @@ class Events
 
     public function __toString()
     {
-        return "Event titled {$this->title} by {$this->association['ini']->name}: {$this->description}.\n"
+        return "Event titled {$this->title} by " . $this->associations['ini']->name . ": {$this->description}.\n"
             . "\tNumber of participating associations: " . count($this->associations);
     }
 }
