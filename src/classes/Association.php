@@ -31,7 +31,7 @@ class Association
             'number' => $telephoneNumber
         ];
         $this->taxpayerNumber = $taxpayerNumber;
-        $this->partners = $president;
+        $this->partners[] = $president;
         $this->president = $president;
     }
 
