@@ -8,8 +8,8 @@ class Association
 {
     public $id;
     public $name, $address, $telephone, $taxpayerNumber;
-    private $news = [];
-    private $events = [];
+    public $news = [];
+    public $events = [];
     private $newsCounter = 0;
     private $freeSpaceNews = [];
 
@@ -146,6 +146,16 @@ class Association
         }
 
         unset($this->events[$i]);
+    }
+
+    public function listEvents()
+    {
+        $list = "{$this->name}'s events list (number: " . count($this->events) . "):\n";
+
+        foreach ($this->events as $event)
+            $list .= "\t" . $event;
+
+        return $list . "\n";
     }
 
     public function addPartner(User &$user)
