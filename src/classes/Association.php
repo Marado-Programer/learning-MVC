@@ -171,21 +171,11 @@ class Association
             . "\ttelephone -> " . $this->getTelephone() . "\n"
             . "\ttaxpayer number -> {$this->taxpayerNumber}\n"
             . "\tnumber of news -> {$this->newsCounter}\n"
-            . "\tnumber of news -> " . count($this->events) . "\n\n";
+            . "\tnumber of events -> " . count($this->events) . "\n\n";
     }
 
     /*
     private $images;
-
-    public function changePartner(): void
-    {
-
-    }
-
-    public function insertImages(): void
-    {
-
-    }
 
     public function listPartner(): void
     {
