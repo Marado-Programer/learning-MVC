@@ -97,14 +97,13 @@ class SystemDB
 
     public function insert($table)
     {
-        
         $cols = array();
         $placeHolders = '(';
         $values = array();
         $data = func_get_args();
 
         foreach ($data as $i => $arr) {
-            if ($i = 0)
+            if ($i == 0)
                 continue;
             if (!isset($arr) || !is_array($arr))
                 return;
@@ -112,7 +111,7 @@ class SystemDB
 
         for ($i = 1; $i < count($data); $i++)
             foreach ($data[$i] as $col => $val) {
-                if ($i ===  1)
+                if ($i === 1)
                     $cols[] = "`$col`";
 
                 if ($i != 1)
@@ -129,6 +128,8 @@ class SystemDB
 
         $stmt = "INSERT INTO $table($cols) VALUES $placeHolders)";
         $insert = $this->query($stmt, $values);
+
+        print_r($insert);
 
         if ($insert) {
             if (method_exists($this->pdo, 'lastInsertId')

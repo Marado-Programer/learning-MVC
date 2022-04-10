@@ -8,13 +8,6 @@ class ProjectsAdmModel extends MainModel
 {
     public $postsPerPage = 5;
 
-    public function __construct($db = false, $controller = null)
-    {
-        $this->db = $db;
-        $this->controller = $controller;
-        $this->parameters = $this->controller->parameters;
-    }
-
     public function listProjects()
     {
         $id = $where = $queryLimit = null;

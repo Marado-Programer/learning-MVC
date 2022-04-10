@@ -6,12 +6,13 @@ CREATE USER IF NOT EXISTS `mvcuser`@`localhost` IDENTIFIED BY "mvc1user!passwd";
 GRANT ALL ON `mvcProject`.* TO `mvcuser`@`localhost`;
 
 CREATE TABLE `users`(
-	`id` INT(11) UNSIGNED AUTO_INCREMENT,
-	`username` VARCHAR(255) NOT NULL,
-	`password` VARCHAR(255) NOT NULL,
-	`realName` VARCHAR(255),
+	`id` INT(3) UNSIGNED AUTO_INCREMENT,
+	`username` VARCHAR(64) NOT NULL,
+	`realName` VARCHAR(80),
+	`password` VARCHAR(60) NOT NULL,
+	`email` VARCHAR(320) NOT NULL,
 	`sessionId` VARCHAR(255),
-	`permissions` LONGTEXT,
+	`permissions` INT(11) NOT NULL DEFAULT 0,
 	PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

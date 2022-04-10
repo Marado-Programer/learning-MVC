@@ -14,6 +14,13 @@ class MainModel
     public $parameters;
     public $userdata;
 
+    public function __construct($db = false, $controller = null)
+    {
+        $this->db = $db;
+        $this->controller = $controller;
+        $this->parameters = $this->controller->parameters;
+    }
+
     public function inverte_data($data = null)
     {
         $nova_data = null;

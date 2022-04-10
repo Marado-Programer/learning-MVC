@@ -21,6 +21,7 @@ class UserSession extends Redirect
         $this->db = $db;
         $this->phpass = new PasswordHash(8, false);
         $this->permissionManager = UsersManager::getPermissionsManager();
+        //$this->checkUserLogin();
     }
 
     public function checkUserLogin()

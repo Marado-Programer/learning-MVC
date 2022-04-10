@@ -1,26 +1,27 @@
-<?php
-
-if (!defined('ROOT_PATH'))
-    exit;
-
-?>
+<?php if (!defined('ROOT_PATH')) exit() ?>
 
 <main>
     <section>
-        <form action="#" method="post" id="sign">
-            <label for="username">Username: </label>
-            <input type="text" name="username" required>
-            <br>
-            <label for="email">e-mail: </label>
-            <input type="email" name="email" required>
-            <br>
-            <label for="pass">senha: </label>
-            <input type="password" name="pass" required>
-            <br>
-            <label for="verifyPass">senha(verifica&#xE7;&#xE3;o): </label>
-            <input type="password" name="verifyPass" required>
-            <br>
-            <input type="submit" name="signin" value="Criar conta">
+        <header>
+            <h1>Sign In</h1>
+        </header>
+        <form action="#" method="post">
+            <label for="username">username*: </label>
+            <input type="text" name="register[username]" required \>
+            <br \>
+            <label for="username">real name: </label>
+            <input type="text" name="register[realName]" \>
+            <br \>
+            <label for="email">e-mail*: </label>
+            <input type="email" name="register[email]" required \>
+            <br \>
+            <label for="pass">password*: </label>
+            <input type="password" name="register[password]" required \>
+            <br \>
+            <label for="verifyPass">password(verify)*: </label>
+            <input type="password" name="register[verify-password]" required \>
+            <br \>
+            <input type="submit" name="create" value="Create Account" \>
         </form>
     </section>
 </main>

@@ -6,6 +6,9 @@
 
 class User
 {
+    private static $userCounter = 0;
+    private static $freeIDs = [];
+
     public $loggedIn;
     public $id;
     public $username;
@@ -17,10 +20,33 @@ class User
     public $associations = [];
     public $yourAssociations = [];
 
-    public function __construct()
+    public function __construct(
+        string $username = 'Guest',
+        string $realName = null,
+        string $email = null,
+        int $permissions = PermissionsManager::P_ZERO,
+        bool $loggedIn = false,
+        int $id = null
+    ) {
+        $this->loggedIn = $loggedIn;
+        $this->id = $id ?? $this->loggedIn ? $this->defineID() : -1;
+        $this->permissions = $permissions;
+        $this->username = $username;
+        $this->realName = $realName;
+        $this->email = $email;
+    }
+
+    final protected function defineID()
     {
-        $this->loggedIn = false;
-        $this->permissions = PermissionsManager::P_ZERO;
+        if (empty(self::$freeIDs))
+            $id = self::$userCounter;
+        else {
+            $id = self::$freeIDs[0];
+            unset(self::$freeIDs[0]);
+            self::$freeIDs = array_values(self::$freeIDs);
+        }
+        self::$userCounter++;
+        return $id;
     }
 
     public function enterAssociation(Association &$association)

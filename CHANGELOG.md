@@ -2,6 +2,9 @@
 
 All notable changes to this publication will be documented in this file.
 
+## 0.3.0 - 2022-10-04
+I want to start implementing the classes, user registration.
+
 ## 0.2.2 - 2022-10-04
 Start of the dues system.
 
