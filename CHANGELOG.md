@@ -2,10 +2,13 @@
 
 All notable changes to this publication will be documented in this file.
 
-## 0.2.1 - 2022-07-09
+## 0.2.2 - 2022-10-04
+Start of the dues system.
+
+## 0.2.1 - 2022-09-04
 User registracion to events of an association.
 
-## 0.2.0 - 2022-07-09
+## 0.2.0 - 2022-09-04
 Started following the pdf my teacher gave me. The pdf it's on /docs (in portuguese).
 
 ## 0.1.0 - 2022-07-04

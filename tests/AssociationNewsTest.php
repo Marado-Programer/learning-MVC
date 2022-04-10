@@ -4,12 +4,17 @@
  * 
  */
 
+require_once '../src/classes/User.php';
+require_once '../src/classes/Partner.php';
+require_once '../src/classes/President.php';
 require_once '../src/classes/Association.php';
 require_once '../src/classes/News.php';
 
-$association = new Association(1, 'authntic games', 'Rua bem fixe ngl', 351, 956433278, 123654344);
+$u1 = new User();
 
-echo $association->listNewsSimplified();
+$u1->createAssociation('authntic games', 'Rua bem fixe ngl', 351, 956433278, 123654344);
+
+echo $u1->yourAssociations[0]->listNewsSimplified();
 
 $association->addNews(new News($association, 'Test Title', 'Teste noticia corpo bem fichex'));
 
@@ -32,3 +37,4 @@ $association->addNews($news4);
 echo $association->listNews(false);
 
 echo $association->listNewsById(1);
+

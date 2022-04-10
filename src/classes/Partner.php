@@ -6,6 +6,8 @@
 
 class Partner extends User
 {
+    private $dues = [];
+
     public function listYourAssociations()
     {
         $list = "{$this->username}'s associations where he's president list:\n";
@@ -25,6 +27,11 @@ class Partner extends User
             $this->associations[$i]->president = $user;
         }
         unset($this->associations[$i]);
+    }
+
+    public function recieveDue(Association $association, float $price, DateTime $endDate, DateTime $startDate = null)
+    {
+        $this->dues[] = new Dues($this, $association, $price, $endDate, $startDate);
     }
 }
 

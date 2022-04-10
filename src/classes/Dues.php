@@ -6,23 +6,23 @@
 
 class Dues
 {
-    private $id, $idPartner, $startDate, $endDate, $price;
+    private $startDate, $endDate, $price;
 
     private $partner;
+    private $association;
 
     public function __construct(
-        int $id,
-        Partners $partner,
-        DateTime $startDate,
+        Partner $partner,
+        Association $association,
+        float $price,
         DateTime $endDate,
-        float $price
+        DateTime $startDate = $endDate
     ) {
-        $this->id = $id;
         $this->partner = $partner;
-        $this->idPartner = $this->partner->id;
-        $this->startDate = $startDate;
-        $this->endDate = $endDate;
+        $this->association = $association;
         $this->price = $price;
+        $this->endDate = $endDate;
+        $this->startDate = $startDate;
     }
 
     public function getId()

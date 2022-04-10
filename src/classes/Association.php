@@ -16,6 +16,8 @@ class Association
     public $partners;
     public $president;
 
+    private $priceDue = 5.00;
+
     public function __construct(
         string $name,
         string $address,
@@ -161,6 +163,18 @@ class Association
     public function addPartner(User &$user)
     {
         $this->partners[] = $user;
+        $this->createDue($this->partners[count($this->partners)], new DateTime());
+    }
+
+    public function renewPartner(int $id)
+    {
+        $now = new DateTime();
+        $this->createDue($this->partners[$id], $now->modify('+1 month'), $now);
+    }
+
+    public function createDue(Partner &$user, DateTime $endDate)
+    {
+        $user->recieveDue($this, $this->priceDue, $endDate);
     }
 
     public function registPartner(Partner &$partner, int $event)
@@ -181,7 +195,7 @@ class Association
             . "\ttelephone -> " . $this->getTelephone() . "\n"
             . "\ttaxpayer number -> {$this->taxpayerNumber}\n"
             . "\tnumber of news -> {$this->newsCounter}\n"
-            . "\tnumber of events -> " . count($this->events) . "\n\n";
+            . "\tnumber of events created -> " . count($this->events) . "\n\n";
     }
 
     /*
@@ -203,11 +217,6 @@ class Association
     }
 
     public function insertLinks(): void
-    {
-
-    }
-
-    public function insertQuotas(): void
     {
 
     }
