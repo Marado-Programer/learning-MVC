@@ -1,7 +1,7 @@
 <?php
 
 /**
- * , makes login and logout
+ * makes login and logout
  * and redirect to a certian page
  */
 
@@ -16,17 +16,15 @@ class UserSession extends Redirect
 
     public function __construct($db) {
         parent::__construct(HOME_URI, true);
-
-        $this->user = isset($_SESSION['user']) ? unserialize($_SESSION['user']) : new User();
         $this->db = $db;
         $this->phpass = new PasswordHash(8, false);
         $this->permissionManager = UsersManager::getPermissionsManager();
-        //$this->checkUserLogin();
+        $this->checkUserLogin();
     }
 
     public function checkUserLogin()
     {
-        $this->setUserData();
+        $this->setUser();
 
         // we need an username and a password to login
         if (!isset($this->user->username) || !isset($this->user->password)) {
@@ -48,6 +46,12 @@ class UserSession extends Redirect
         }
 
         $fetchedUser = $query->fetch(PDO::FETCH_ASSOC);
+
+        if (empty($fetchedUser)) {
+            $this->loginError('User do not exists.');
+
+            return;
+        }
 
         $userId = (int) $fetchedUser['id'];
         $userUsername = $fetchedUser['username'];
@@ -85,11 +89,15 @@ class UserSession extends Redirect
                 );
             }
 
-            $this->user->loggedIn = true;
-            $this->user->id = $userId;
-            $this->user->username = $userUsername;
-            $this->user->realName = $fetchedUser['realName'];
-            $this->user->permissions = $fetchedUser['permissions'];
+            $this->user = new User(
+                $userUsername,
+                $this->user->password,
+                $fetchedUser['realName'],
+                $fetchedUser['email'],
+                $fetchedUser['permissions'],
+                true,
+                $userId
+            );
 
             $_SESSION['user'] = serialize($this->user);
 
@@ -107,14 +115,17 @@ class UserSession extends Redirect
         }
     }
 
-    private function setUserData()
+    private function setUser()
     {
+        if (isset($_SESSION['user']))
+            $this->user = unserialize($_SESSION['user']);
+
         /**
          * Verify if already exists a user logged in.
          * If there isn't, we see if someone it's trying to login using a form
          */
 
-        if ($this->user->loggedIn === true) {
+        if (isset($this->user) && $this->user->loggedIn === true) {
             $this->usingPost = false;
 
             return;
@@ -125,13 +136,17 @@ class UserSession extends Redirect
             && !empty($_POST['user-data'])
             && is_array($_POST['user-data'])
         ) {
-            $this->user->username = $_POST['user-data']['username'];
-            $this->user->password = $_POST['user-data']['password'];
+            $this->user = new User(
+                $_POST['user-data']['username'],
+                $_POST['user-data']['password']
+            );
         
             $this->usingPost = true;
 
             return;
         }
+
+        $this->user = new User();
 
         $this->usingPost = false;
     }

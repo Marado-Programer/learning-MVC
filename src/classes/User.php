@@ -22,8 +22,9 @@ class User
 
     public function __construct(
         string $username = 'Guest',
-        string $realName = null,
-        string $email = null,
+        string $password = "\0",
+        string $realName = "\0",
+        string $email = "\0",
         int $permissions = PermissionsManager::P_ZERO,
         bool $loggedIn = false,
         int $id = null
@@ -32,6 +33,7 @@ class User
         $this->id = $id ?? $this->loggedIn ? $this->defineID() : -1;
         $this->permissions = $permissions;
         $this->username = $username;
+        $this->password = $password;
         $this->realName = $realName;
         $this->email = $email;
     }
