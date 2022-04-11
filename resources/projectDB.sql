@@ -11,9 +11,23 @@ CREATE TABLE `users`(
 	`realName` VARCHAR(80),
 	`password` VARCHAR(60) NOT NULL,
 	`email` VARCHAR(320) NOT NULL,
-	`sessionId` VARCHAR(20),
-	`permissions` INT(11) NOT NULL DEFAULT 0,
-	PRIMARY KEY (`id`)
+	`telephone` VARCHAR(15),
+	`sessionId` VARCHAR(128),
+	`permissions` INT(11) UNSIGNED NOT NULL DEFAULT 0,
+	UNIQUE(`username`, `email`, `telephone`),
+	PRIMARY KEY(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `associations`(
+	`id` INT(3) UNSIGNED AUTO_INCREMENT,
+	`name` VARCHAR(64) NOT NULL,
+	`address` VARCHAR(255) NOT NULL,
+	`telephone` VARCHAR(15),
+	`taxpayerNumber` INT(9) UNSIGNED,
+	`president` INT(3) UNSIGNED NOT NULL,
+	UNIQUE(`name`),
+	PRIMARY KEY(`id`),
+	FOREIGN KEY(`president`) REFERENCES `users`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `projects`(

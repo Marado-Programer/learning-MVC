@@ -129,8 +129,6 @@ class SystemDB
         $stmt = "INSERT INTO $table($cols) VALUES $placeHolders)";
         $insert = $this->query($stmt, $values);
 
-        print_r($insert);
-
         if ($insert) {
             if (method_exists($this->pdo, 'lastInsertId')
                 && $this->pdo->lastInsertId())

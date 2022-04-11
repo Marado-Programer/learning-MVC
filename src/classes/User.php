@@ -6,7 +6,7 @@
 
 class User
 {
-    private static $userCounter = 0;
+    private static $userCounter = 1;
     private static $freeIDs = [];
 
     public $loggedIn;
@@ -15,6 +15,7 @@ class User
     public $password;
     public $realName;
     public $email;
+    public $telephone;
     public $permissions;
 
     public $associations = [];
@@ -23,8 +24,9 @@ class User
     public function __construct(
         string $username = 'Guest',
         string $password = "\0",
-        string $realName = "\0",
+        ?string $realName = "\0",
         string $email = "\0",
+        ?string $telephone = "\0",
         int $permissions = PermissionsManager::P_ZERO,
         bool $loggedIn = false,
         int $id = null
@@ -34,6 +36,7 @@ class User
         $this->permissions = $permissions;
         $this->username = $username;
         $this->password = $password;
+        $this->telephone = $telephone;
         $this->realName = $realName;
         $this->email = $email;
     }

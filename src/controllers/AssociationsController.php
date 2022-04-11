@@ -19,8 +19,12 @@ class AssociationsController extends MainController
         )
             return;
 
-        $this->model = $this->loadModel('associations/AssociationsCreateModel.php');
+        $this->model = $this->loadModel('associations/AssociationsCreateModel');
+
+        if (isset($_POST['create']))
+            $this->model->createAssociation();
 
         require VIEWS_PATH . '/associations/index.php';
     }
 }
+

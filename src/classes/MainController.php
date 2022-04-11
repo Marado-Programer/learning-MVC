@@ -7,7 +7,7 @@
 abstract class MainController
 {
     protected $db;
-    protected $userSession;
+    public $userSession;
     protected $title;
     protected $loginRequired = false;
     protected $premissionsRequired;
