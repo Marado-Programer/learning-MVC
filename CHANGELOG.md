@@ -2,6 +2,9 @@
 
 All notable changes to this publication will be documented in this file.
 
+## 0.3.3 - 2022-11-04
+Create associations form.
+
 ## 0.3.2 - 2022-11-04
 Starting associations controller.
 
