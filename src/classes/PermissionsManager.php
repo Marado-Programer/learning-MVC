@@ -8,46 +8,37 @@ final class PermissionsManager
 {
     public const P_ZERO = 0x0;
     
-    public const P_VIEW_PROJECTS = 0x1;
-    public const P_CREATE_PROJECTS = 0x1 << 1;
-    public const P_EDIT_PROJECTS = 0x1 << 2;
-    public const P_DELETE_PROJECTS = 0x1 << 3;
+    public const P_VIEW_ASSOCIATIONS = 0x1;
+    public const P_CREATE_ASSOCIATIONS = 0x1 << 1;
+    public const P_EDIT_ASSOCIATIONS = 0x1 << 2;
+    public const P_DELETE_ASSOCIATIONS = 0x1 << 3;
     
-    public const P_ADMIN_PROJECTS = self::P_VIEW_PROJECTS
-        | self::P_CREATE_PROJECTS
-        | self::P_EDIT_PROJECTS
-        | self::P_DELETE_PROJECTS;
+    public const P_ADMIN_ASSOCIATIONS = self::P_VIEW_ASSOCIATIONS
+        | self::P_CREATE_ASSOCIATIONS
+        | self::P_EDIT_ASSOCIATIONS
+        | self::P_DELETE_ASSOCIATIONS;
     
-    public const P_ALL = self::P_ADMIN_PROJECTS;
+    public const P_ALL = self::P_ADMIN_ASSOCIATIONS;
 
     public function checkPermissions(
-        $userPermissions = self::P_ZERO,
-        $requiredPermissions = self::P_ALL,
-        $strict = true
+        int $userPermissions = self::P_ZERO,
+        int $requiredPermissions = self::P_ALL,
+        bool $strict = true
     ) {
-        if (!is_numeric($userPermissions))
-            return;
-
         return (bool) ($strict
             ? $userPermissions == $requiredPermissions
             : $userPermissions & $requiredPermissions);
     }
 
     public function checkUserPermissions(
-        &$user = null,
-        $requiredPermissions = self::P_ALL,
-        $strict = true
+        User &$user = null,
+        int $requiredPermissions = self::P_ALL,
+        bool $strict = true
     ) {
-        if (!isset($user) || get_class($user) != 'User')
-            return;
-        
-        if (!is_numeric($requiredPermissions))
-            return;
-
         return (bool) (
             $strict
-            ? $user->getPermissions() == $requiredPermissions
-            : $user->getPermissions() & $requiredPermissions
+            ? $user->permissions == $requiredPermissions
+            : $user->permissions & $requiredPermissions
         );
     }
 

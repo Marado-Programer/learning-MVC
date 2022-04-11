@@ -18,6 +18,7 @@ if ($this->loginRequired && !$this->userSession->user->loggedIn)
     <ul>
         <li><a href="<?=HOME_URI?>">Home</a></li>
         <li><a href="<?=HOME_URI?>/userRegister">User register</a></li>
+        <li><a href="<?=HOME_URI?>/associations">Associations</a></li>
         <li><a href="<?=HOME_URI?>/news">Noticias</a></li>
         <li><a href="<?=HOME_URI?>/news/adm">Gerir Noticias</a></li>
         <li><a href="<?=HOME_URI?>/projects">Projetos</a></li>

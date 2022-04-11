@@ -37,7 +37,14 @@ class SignInModel extends MainModel
         if (!$user['realName'])
             unset($user['realName']);
 
-        $this->db->insert('users', $user);
+        $this->db->insert('users', array_merge(
+            $user,
+            [
+                'permissions' =>
+                    PermissionsManager::P_VIEW_ASSOCIATIONS
+                    | PermissionsManager::P_CREATE_ASSOCIATIONS
+            ]
+        ));
     }
 }
 

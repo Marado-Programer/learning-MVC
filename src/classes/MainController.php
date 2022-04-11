@@ -26,7 +26,6 @@ abstract class MainController
         $this->title = $title;
         $this->premissionsRequired = $permissions;
         $this->loginRequired = $loginRequired;
-        $this->userSession->checkUserLogin();
     }
 
     protected function loadModel($model = false)

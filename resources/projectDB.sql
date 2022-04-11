@@ -11,7 +11,7 @@ CREATE TABLE `users`(
 	`realName` VARCHAR(80),
 	`password` VARCHAR(60) NOT NULL,
 	`email` VARCHAR(320) NOT NULL,
-	`sessionId` VARCHAR(255),
+	`sessionId` VARCHAR(20),
 	`permissions` INT(11) NOT NULL DEFAULT 0,
 	PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
