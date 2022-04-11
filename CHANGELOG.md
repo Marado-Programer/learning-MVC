@@ -2,7 +2,10 @@
 
 All notable changes to this publication will be documented in this file.
 
-## 0.3.3 - 2022-11-04
+## 0.3.5 - 2022-11-04
+Search associations. Has a lot of erros, tomorrow I see them.
+
+## 0.3.4 - 2022-11-04
 Can create associations.
 
 ## 0.3.3 - 2022-11-04
