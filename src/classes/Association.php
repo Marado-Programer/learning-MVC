@@ -21,17 +21,13 @@ class Association
     public function __construct(
         string $name,
         string $address,
-        int $telephoneInternationalCodePrefix,
-        int $telephoneNumber,
+        string $telephone,
         int $taxpayerNumber,
         User $president
     ) {
         $this->name = $name;
         $this->address = $address;
-        $this->telephone = [
-            'internacionalCodePrefix' => '+' . $telephoneInternationalCodePrefix,
-            'number' => $telephoneNumber
-        ];
+        $this->telephone = $telephone;
         $this->taxpayerNumber = $taxpayerNumber;
         $this->partners[] = $president;
         $this->president = $president;

@@ -23,11 +23,11 @@ class User
 
     public function __construct(
         string $username = 'Guest',
-        string $password = "\0",
+        ?string $password = "\0",
         ?string $realName = "\0",
         string $email = "\0",
         ?string $telephone = "\0",
-        int $permissions = PermissionsManager::P_ZERO,
+        int $permissions = PermissionsManager::P_VIEW_ASSOCIATIONS,
         bool $loggedIn = false,
         int $id = null
     ) {
@@ -76,18 +76,29 @@ class User
         string $name,
         string $address,
         int $telephoneInternationalCodePrefix,
-        int $telephoneNumber,
-        int $taxpayerNumber
+        int $telephone,
     ) {
         $this->yourAssociations[] = new Association(
             $name,
             $address,
             $telephoneInternationalCodePrefix,
-            $telephoneNumber,
-            $taxpayerNumber,
+            $telephone,
             $this
         );
         $this->associations[] = $this->yourAssociations[count($this->yourAssociations)];
+    }
+
+    public function getPermissions()
+    {
+        return $this->permissions;
+    }
+
+    public function setPermissions(int $permissions = null)
+    {
+        if (!isset($permissions))
+            return;
+
+        $this->permissions = $permissions;
     }
 }
 

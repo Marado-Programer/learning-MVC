@@ -6,12 +6,21 @@
 
 class AssociationsController extends MainController
 {
+    public $associations;
+
+    public function __construct(
+        $parameters = array(),
+        $title = 'index',
+        $permissions = PermissionsManager::P_VIEW_ASSOCIATIONS,
+    ) {
+        parent::__construct($parameters, $title, $permissions);
+        $this->associations = new AssociationsList();
+    }
+
     public function indexMain()
     {
-        $this->premissionsRequired = PermissionsManager::P_VIEW_ASSOCIATIONS;
-
         if (
-            !$this->userSession->permissionManager->checkUserPermissions(
+            !UsersManager::getPermissionsManager()->checkUserPermissions(
                 $this->userSession->user,
                 $this->premissionsRequired,
                 false
@@ -19,8 +28,9 @@ class AssociationsController extends MainController
         )
             return;
 
-        $this->model = $this->loadModel('associations/AssociationsCreateModel');
+        $this->model = $this->loadModel('associations/AssociationsModel');
 
+        $this->model->search();
         if (isset($_POST['create']))
             $this->model->createAssociation();
 

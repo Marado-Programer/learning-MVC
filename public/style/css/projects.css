@@ -1,0 +1,33 @@
+section {
+    display: flex;
+    justify-content: space-around;
+}
+
+section > article {
+    background: #fddbc7 no-repeat center center url("");
+    background-size: cover;
+    position: relative;
+    width: 640px;
+    height: 379px;
+    border: 5px solid black;
+    border-radius: 12px;
+    margin: 12px;
+}
+
+.title-flag {
+    position: absolute;
+    width: calc(100% - 12px - 5px);
+    bottom: 12px;
+    left: -12px;
+    background-color: #2166ac;
+    padding: 16px;
+    border-radius: 0 0 0 12px;
+}
+
+.author::before {
+    content: "[ Author: ";
+}
+
+.author::after {
+    content: " ]";
+}

@@ -94,6 +94,7 @@ class UserSession extends Redirect
                 $this->user->password,
                 $fetchedUser['realName'],
                 $fetchedUser['email'],
+                null,
                 $fetchedUser['permissions'],
                 true,
                 $userId

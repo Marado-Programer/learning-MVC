@@ -42,15 +42,18 @@ final class PermissionsManager
         );
     }
 
-    public function addPermissions(&$user = null)
+    public function addPermissions(User &$user = null)
     {
-        if (!isset($user) || get_class($user) != 'User')
+        if (!isset($user))
             return;
 
         $permissions = func_get_args();
+        $p = $user->getPermissions();
 
         for ($i = 1; $i < count($permissions); $i++)
-            $user->setPermissions($user->getPermissions() | $permissions[$i]);
+            $p |= $permissions[$i];
+
+        $user->setPermissions($p);
     }
     
     public function removePermissions(&$user = null)
@@ -59,8 +62,11 @@ final class PermissionsManager
             return;
 
         $permissions = func_get_args();
+        $p = $user->getPermissions();
 
         for ($i = 1; $i < count($permissions); $i++)
-            $user->setPermissions($user->getPermissions() & ~$permissions[$i]);
+            $p &= ~$permissions[$i];
+
+        $user->setPermissions($p);
     }
 }
