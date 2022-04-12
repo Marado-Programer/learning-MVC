@@ -9,7 +9,6 @@ class UserSession extends Redirect
 {
     public $user;
     public $loginErrorMessage;
-    public $permissionManager;
     private $db;
     private $phpass;
     private $usingPost;
@@ -18,7 +17,6 @@ class UserSession extends Redirect
         parent::__construct(HOME_URI, true);
         $this->db = $db;
         $this->phpass = new PasswordHash(8, false);
-        $this->permissionManager = UsersManager::getPermissionsManager();
         $this->checkUserLogin();
     }
 
@@ -94,7 +92,7 @@ class UserSession extends Redirect
                 $this->user->password,
                 $fetchedUser['realName'],
                 $fetchedUser['email'],
-                null,
+                $fetchedUser['telephone'],
                 $fetchedUser['permissions'],
                 true,
                 $userId

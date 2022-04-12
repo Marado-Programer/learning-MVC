@@ -32,7 +32,7 @@ class User
         int $id = null
     ) {
         $this->loggedIn = $loggedIn;
-        $this->id = $id ?? $this->loggedIn ? $this->defineID() : -1;
+        $this->id = $id ?? ($this->loggedIn ? $this->defineID() : -1);
         $this->permissions = $permissions;
         $this->username = $username;
         $this->password = $password;

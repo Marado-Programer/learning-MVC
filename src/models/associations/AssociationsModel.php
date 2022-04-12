@@ -52,7 +52,7 @@ class AssociationsModel extends MainModel
             null,
             $user['realName'],
             $user['email'],
-            null,
+            $user['telephone'],
             $user['permissions'],
             false,
             $id

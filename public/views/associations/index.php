@@ -8,7 +8,7 @@
 
     <?php
     if (
-        $this->userSession->permissionManager->checkUserPermissions(
+        UsersManager::getPermissionsManager()->checkUserPermissions(
             $this->userSession->user,
             PermissionsManager::P_VIEW_ASSOCIATIONS,
             false
@@ -17,7 +17,7 @@
         require VIEWS_PATH . '/associations/search.php';
 
     if (
-        $this->userSession->permissionManager->checkUserPermissions(
+        UsersManager::getPermissionsManager()->checkUserPermissions(
             $this->userSession->user,
             PermissionsManager::P_VIEW_ASSOCIATIONS,
             false
