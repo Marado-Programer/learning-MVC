@@ -4,7 +4,9 @@ All notable changes to this publication will be documented in this file.
 
 ## 0.3.5 - 2022-12-04
 Search Associations using Iterator.
-I want to add Proxy design pattern with the DB for cache (and controll of SQL queries for security too I think it's a good idea).
+I want to add:
+- a Proxy design pattern with the DB for cache (and controll of SQL queries for security too I think it's a good idea).
+- an filter for the associations.
 
 Start using the Singleton I made for the permissions checking(idk why I wasn't using before).
 
