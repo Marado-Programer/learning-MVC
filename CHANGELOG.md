@@ -2,7 +2,10 @@
 
 All notable changes to this publication will be documented in this file.
 
-## 0.3.5 - 2022-12-04
+## 0.3.7 - 2022-12-04
+More Iterators. Need to do a test on this last one, and a factory method for the iterators.
+
+## 0.3.6 - 2022-12-04
 Search Associations using Iterator.
 I want to add:
 - a Proxy design pattern with the DB for cache (and controll of SQL queries for security too I think it's a good idea).

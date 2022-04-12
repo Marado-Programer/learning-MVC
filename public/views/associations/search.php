@@ -12,10 +12,10 @@
 
 <table>
     <captions>
-        <strong></strong>
+        <strong>Associations List</strong>
         <details>
-            <summary></summary>
-            <p></p>
+            <summary>Filters</summary>
+            <p>Normal</p>
         </details>
     </captions>
     <colgroup> <col /> <col /> <col />
@@ -31,7 +31,7 @@
             <th headers="contacts" scope="col" />Telephone
     <tbody />
 <?php
-    $iterator = $this->associations->getIterator();
+    $iterator = $this->associations->getIterator(AssociationsList::$DEFAULT_ORDER);
     while ($iterator->valid()) {
         $association = $iterator->current();
         require VIEWS_PATH . '/associations/association.php';

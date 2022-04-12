@@ -4,7 +4,7 @@
  *
  */
 
-class AssociationsAlphaOrderIterator implements Iterator
+class AssociationsIterator implements Iterator
 {
     private $list;
     private $pos;
@@ -12,7 +12,7 @@ class AssociationsAlphaOrderIterator implements Iterator
     public function __construct($list)
     {
         $this->list = $list;
-        $this->pos = 0;
+        $this->rewind();
     }
 
     public function current()
@@ -37,7 +37,7 @@ class AssociationsAlphaOrderIterator implements Iterator
 
     public function valid(): bool
     {
-        return isset($this->list->getList()[$this->pos]);
+        return isset($this->list->getList()[$this->key()]);
     }
 
 }

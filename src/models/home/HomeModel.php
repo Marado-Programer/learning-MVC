@@ -4,31 +4,29 @@
  * 
  */
 
-class AssociationsModel extends MainModel
+class HomeModel extends MainModel
 {
-    public function search()
+    public function getUserAssociations()
     {
-        if (
-            !UsersManager::getPermissionsManager()->checkUserPermissions(
-                $this->controller->userSession->user,
-                PermissionsManager::P_VIEW_ASSOCIATIONS,
-                false
-            )
-        )
-            return;
-
-        $associations = $this->db->query('SELECT * FROM `associations`;');
+        $associations = $this->db->query('SELECT * FROM `usersAssociations` WHERE `userID` = ' . $this->controller->userSession->user->id . ';');
 
         if (!$associations)
             return;
 
-        foreach ($associations->fetchAll() as $association) {
-            $this->controller->associations->add($this->instanceAssociation($association));
+        foreach ($associations->fetchAll(PDO::FETCH_ASSOC) as $association) {
+            $this->controller->userAssociations->add($this->instanceAssociationByID($association['userID']));
         }
     }
 
-    private function instanceAssociation(array $association)
+    private function instanceAssociationByID(int $id)
     {
+        $association = $this->db->query("SELECT * FROM `associations` WHERE `id` = $id;");
+
+        if (!$association)
+            return;
+
+        $association = $association->fetch(PDO::FETCH_ASSOC);
+
         return new Association(
             $association['name'],
             $association['address'],
@@ -105,23 +103,5 @@ class AssociationsModel extends MainModel
                 'president' => $this->controller->userSession->user->id
             ]
         ));
-
-        $association = $this->db->query(
-                'SELECT `id` FROM `associations` WHERE `name` = ?;',
-                [
-                    $association['name'],
-                ]
-        )->fetch(PDO::FETCH_ASSOC);
-
-        if (!$association)
-            return;
-
-        $this->db->insert(
-            'usersAssociations',
-            [
-                'associationID' => $association['id'],
-                'userID' => $this->controller->userSession->user->id
-            ]
-        );
     }
 }

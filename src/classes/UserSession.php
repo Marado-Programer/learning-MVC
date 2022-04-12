@@ -67,7 +67,7 @@ class UserSession extends Redirect
              * So if the session id it's diffrent from what's in the DB
              * And you are not logging in using the POST you can't log in
              */
-            if (session_id() != $fetchedUser['sessionId'] && !$this->usingPost) {
+            if (session_id() != $fetchedUser['sessionID'] && !$this->usingPost) {
                 $this->loginError('Wrong session ID.');
 
                 return;

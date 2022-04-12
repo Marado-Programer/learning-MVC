@@ -11,7 +11,7 @@ class AssociationsController extends MainController
     public function __construct(
         $parameters = array(),
         $title = 'index',
-        $permissions = PermissionsManager::P_VIEW_ASSOCIATIONS,
+        $permissions = PermissionsManager::P_VIEW_ASSOCIATIONS
     ) {
         parent::__construct($parameters, $title, $permissions);
         $this->associations = new AssociationsList();
@@ -30,9 +30,10 @@ class AssociationsController extends MainController
 
         $this->model = $this->loadModel('associations/AssociationsModel');
 
-        $this->model->search();
         if (isset($_POST['create']))
             $this->model->createAssociation();
+
+        $this->model->search();
 
         require VIEWS_PATH . '/associations/index.php';
     }
