@@ -37,5 +37,26 @@ class AssociationsController extends MainController
 
         require VIEWS_PATH . '/associations/index.php';
     }
+
+    public function page()
+    {
+        echo "page";
+    }
+
+    public function admnistration()
+    {
+        print_r($this->parameters);
+        if (!isset($this->parameters[0]))
+            return;
+
+        require VIEWS_PATH . '/includes/header.php';
+        require VIEWS_PATH . '/includes/nav.php';
+
+        $this->model = $this->loadModel('associations/AssociationsAdmniModel');
+
+        $this->model->test();
+
+        require VIEWS_PATH . '/includes/footer.php';
+    }
 }
 

@@ -22,9 +22,23 @@ class HomeController extends MainController
         if (!$this->userSession->user->loggedIn)
             return;
 
+        if (isset($_POST['association'])) {
+            $data = $_POST['association'];
+            unset($_POST['association']);
+
+            if ($data['redirect'] == 'page') {
+                $this->userSession->redirect(HOME_URI . '/@' . $data['name']);
+                return;
+            } elseif ($data['redirect'] == 'admin') {
+                $this->userSession->redirect(HOME_URI . '/!' . $data['name']);
+                return;
+            }
+        }
+
         $this->model = $this->loadModel('home/HomeModel');
 
         $this->model->getUserAssociations();
+
         require VIEWS_PATH . '/home/home.php';
     }
 }

@@ -28,7 +28,8 @@ class AssociationsList implements IteratorAggregate
 
     public function getIterator(): Iterator
     {
-        $mode = 0;
+        $mode = func_num_args() > 0 ? func_get_arg(0) : self::$DEFAULT_ORDER;
+        $mode = is_numeric($mode) ? $mode : self::$DEFAULT_ORDER;
 
         switch ($mode) {
             case self::$USERS_FIRST_ORDER:

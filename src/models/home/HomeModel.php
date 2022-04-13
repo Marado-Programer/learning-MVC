@@ -14,7 +14,7 @@ class HomeModel extends MainModel
             return;
 
         foreach ($associations->fetchAll(PDO::FETCH_ASSOC) as $association) {
-            $this->controller->userAssociations->add($this->instanceAssociationByID($association['userID']));
+            $this->controller->userAssociations->add($this->instanceAssociationByID($association['associationID']));
         }
     }
 
@@ -28,6 +28,7 @@ class HomeModel extends MainModel
         $association = $association->fetch(PDO::FETCH_ASSOC);
 
         return new Association(
+            $association['id'],
             $association['name'],
             $association['address'],
             $association['telephone'],

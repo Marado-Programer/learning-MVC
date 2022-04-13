@@ -19,7 +19,7 @@ class AssociationsUsersOrderIterator implements Iterator
 
     public function current()
     {
-        return $this->list->getList()[$this->pos];
+        return $this->list->getList()[$this->key()];
     }
 
     public function key()
@@ -29,13 +29,18 @@ class AssociationsUsersOrderIterator implements Iterator
 
     public function next(): void
     {
+        $add = 0;
         do {
-            $this->pos++;
-            if ($this->key() >= $this->list->getListSize() && !$this->sawUsers) {
-                $this->pos = 0;
-                $this->sawUsers = true;
-            }
-        } while ($this->getCondition());
+            $add++;
+            if ($this->key() + $add >= $this->list->getListSize())
+                if (!$this->sawUsers) {
+                    $this->pos = 0;
+                    $add = 0;
+                    $this->sawUsers = true;
+                } else
+                    break;
+        } while ($this->getCondition($add));
+        $this->pos += $add;
     }
 
     public function rewind(): void
@@ -51,11 +56,18 @@ class AssociationsUsersOrderIterator implements Iterator
         return isset($this->list->getList()[$this->key()]);
     }
 
-    public function getCondition(): bool
+    public function getSawUsers()
     {
+        return $this->sawUsers;
+    }
+
+    public function getCondition(int $add = 0): bool
+    {
+        $cur = $this->list->getList()[$this->key() + $add];
+
         return $this->sawUsers
-            ? $this->current()->president->id == 1
-            : $this->current()->president->id != 1;
+            ? $cur->president->id == 1
+            : $cur->president->id != 1;
     }
 }
 

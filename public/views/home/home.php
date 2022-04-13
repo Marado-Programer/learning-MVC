@@ -14,33 +14,40 @@
 
 <link href="<?=HOME_URI?>/public/style/css/associations.css" rel="stylesheet" />
 
+<form method="post"
+    action="#"
+    id="visit">
+</form>
+
 <table>
-    <captions>
+    <caption>
         <strong>Associations List</strong>
         <details>
             <summary>Filters</summary>
             <p>Normal</p>
         </details>
-    </captions>
-    <colgroup> <col /> <col /> <col />
-    <colgroup> <col />
-    <thead />
-        <tr />
-            <th rowspan="2" scope="col" />Name
-            <th colspan="2" scope="colgroup" id="contacts" />Contacts
-            <th rowspan="2" scope="col" />President
-            <th rowspan="2" scope="col" />Number of Partners
-        <tr />
-            <th headers="contacts" scope="col" />Address
-            <th headers="contacts" scope="col" />Telephone
-    <tbody />
+    </caption>
+    <colgroup> <col> <col> <col> <col>
+    <colgroup> <col> <col>
+    <thead>
+        <tr>
+            <th rowspan="2" scope="col" id="name">Name
+            <th colspan="2" scope="colgroup" id="contacts">Contacts
+            <th rowspan="2" scope="col">President
+            <th rowspan="2" scope="col">Number of Partners
+            <th rowspan="2" class="space">
+            <th rowspan="2" scope="col" class="actions">Actions
+        <tr>
+            <th headers="contacts" scope="col">Address
+            <th headers="contacts" scope="col">Telephone
+    <tbody>
 <?php
     $iterator = $this->userAssociations->getIterator(AssociationsList::$USERS_FIRST_ORDER);
-/*    while ($iterator->valid()) {
+    while ($iterator->valid()) {
         $association = $iterator->current();
-        require VIEWS_PATH . '/associations/association.php';
+        require VIEWS_PATH . '/home/association.php';
         $iterator->next();
-    }*/
+    }
 ?>
 </table>
 

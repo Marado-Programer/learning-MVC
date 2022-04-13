@@ -34,7 +34,7 @@ class System extends ControllerGenerator
         return new $this->controller(
             $this->parameters,
             stristr($this->controller, 'Controller', true)
-            . isset($this->action) ?: ' - ' . $this->action
+            . ($this->action == 'index' ? '' : ' - ' . $this->action)
         );
     }
 

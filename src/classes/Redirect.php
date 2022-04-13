@@ -15,7 +15,7 @@ class Redirect
         $this->useDefault = $useDefault;
     }
 
-    final protected function redirect($page = null)              /* improve */
+    final public function redirect($page = null)              /* improve */
     {
         if (!isset($page) && $this->useDefault)
             $page = $this->defaultPage;

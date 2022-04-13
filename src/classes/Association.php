@@ -19,12 +19,14 @@ class Association
     private $priceDue = 5.00;
 
     public function __construct(
+        int $id,
         string $name,
         string $address,
         string $telephone,
         int $taxpayerNumber,
         User $president
     ) {
+        $this->id = $id;
         $this->name = $name;
         $this->address = $address;
         $this->telephone = $telephone;

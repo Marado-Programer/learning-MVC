@@ -19,10 +19,6 @@ class ProjectsController extends MainController
 
     public function adm()
     {
-        $this->title = 'Gerenciar Projetos';
-
-        $permissionsRequired = PermissionsManager::P_EDIT_PROJECTS | PermissionsManager::P_DELETE_PROJECTS;
-
         $this->model = $this->loadModel('projects/ProjectsAdmModel');
 
         require ROOT_PATH . '/public/views/includes/header.php';

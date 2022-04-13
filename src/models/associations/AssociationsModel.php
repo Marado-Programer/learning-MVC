@@ -30,6 +30,7 @@ class AssociationsModel extends MainModel
     private function instanceAssociation(array $association)
     {
         return new Association(
+            $association['id'],
             $association['name'],
             $association['address'],
             $association['telephone'],

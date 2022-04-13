@@ -11,25 +11,25 @@
 <link href="<?=HOME_URI?>/public/style/css/associations.css" rel="stylesheet" />
 
 <table>
-    <captions>
+    <caption>
         <strong>Associations List</strong>
         <details>
             <summary>Filters</summary>
             <p>Normal</p>
         </details>
-    </captions>
-    <colgroup> <col /> <col /> <col />
-    <colgroup> <col />
-    <thead />
-        <tr />
-            <th rowspan="2" scope="col" />Name
-            <th colspan="2" scope="colgroup" id="contacts" />Contacts
-            <th rowspan="2" scope="col" />President
-            <th rowspan="2" scope="col" />Number of Partners
-        <tr />
-            <th headers="contacts" scope="col" />Address
-            <th headers="contacts" scope="col" />Telephone
-    <tbody />
+    </caption>
+    <colgroup> <col> <col> <col>
+    <colgroup> <col>
+    <thead>
+        <tr>
+            <th rowspan="2" scope="col" id="name">Name
+            <th colspan="2" scope="colgroup" id="contacts">Contacts
+            <th rowspan="2" scope="col">President
+            <th rowspan="2" scope="col">Number of Partners
+        <tr>
+            <th headers="contacts" scope="col">Address
+            <th headers="contacts" scope="col">Telephone
+    <tbody>
 <?php
     $iterator = $this->associations->getIterator(AssociationsList::$DEFAULT_ORDER);
     while ($iterator->valid()) {
