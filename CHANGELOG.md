@@ -2,6 +2,9 @@
 
 All notable changes to this publication will be documented in this file.
 
+## 0.3.8 - 2022-13-04
+Start of the association admnistration panel.
+
 ## 0.3.7 - 2022-12-04
 More Iterators. Need to do a test on this last one, and a factory method for the iterators.
 

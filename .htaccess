@@ -4,13 +4,13 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-l
 
-RewriteRule ^@(.+)$ index.php?path=associations/page/$1 [L]
+RewriteRule ^@([a-zA-Z|_]+)$ index.php?path=associations/page/$1 [L]
 
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-l
 
-RewriteRule ^!(.+)$ index.php?path=associations/admnistration/$1 [L]
+RewriteRule ^@([a-zA-Z|_]+)(\/admin)$ index.php?path=associations/admni/$1 [L]
 
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f

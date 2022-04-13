@@ -30,6 +30,7 @@ class HomeModel extends MainModel
         return new Association(
             $association['id'],
             $association['name'],
+            $association['nickname'],
             $association['address'],
             $association['telephone'],
             $association['taxpayerNumber'],

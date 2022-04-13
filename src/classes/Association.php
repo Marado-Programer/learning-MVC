@@ -7,7 +7,7 @@
 class Association
 {
     public $id;
-    public $name, $address, $telephone, $taxpayerNumber;
+    public $name, $nickname, $address, $telephone, $taxpayerNumber;
     public $news = [];
     public $events = [];
     private $newsCounter = 0;
@@ -21,6 +21,7 @@ class Association
     public function __construct(
         int $id,
         string $name,
+        string $nickname,
         string $address,
         string $telephone,
         int $taxpayerNumber,
@@ -28,6 +29,7 @@ class Association
     ) {
         $this->id = $id;
         $this->name = $name;
+        $this->nickname = $nickname;
         $this->address = $address;
         $this->telephone = $telephone;
         $this->taxpayerNumber = $taxpayerNumber;

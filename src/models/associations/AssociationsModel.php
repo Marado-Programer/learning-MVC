@@ -32,6 +32,7 @@ class AssociationsModel extends MainModel
         return new Association(
             $association['id'],
             $association['name'],
+            $association['nickname'],
             $association['address'],
             $association['telephone'],
             $association['taxpayerNumber'],
@@ -77,12 +78,15 @@ class AssociationsModel extends MainModel
 
         if (
             $this->db->query(
-                'SELECT * FROM `associations` WHERE `name` = ?;',
+                'SELECT * FROM `associations` WHERE `nickname` = ?;',
                 [
-                    $association['name'],
+                    $association['nickname'],
                 ]
             )->fetchAll()
         )
+            return;
+
+        if (!preg_match('/^[A-Z|_]{8,}$/i', $association['nickname']))
             return;
 
         if (!$association['address'])

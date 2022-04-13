@@ -43,18 +43,22 @@ class AssociationsController extends MainController
         echo "page";
     }
 
-    public function admnistration()
+    public function admni()
     {
-        print_r($this->parameters);
         if (!isset($this->parameters[0]))
+            return;
+
+        $this->model = $this->loadModel('associations/AssociationsAdmniModel');
+
+        $association = $this->model->getAssociationByNickname($this->parameters[0]);
+
+        if (!isset($association))
             return;
 
         require VIEWS_PATH . '/includes/header.php';
         require VIEWS_PATH . '/includes/nav.php';
 
-        $this->model = $this->loadModel('associations/AssociationsAdmniModel');
-
-        $this->model->test();
+        require VIEWS_PATH . '/associations/admni.php';
 
         require VIEWS_PATH . '/includes/footer.php';
     }

@@ -1,7 +1,5 @@
 <?php
 // Evita acesso direto a este ficheiro
-if (!defined('ABSPATH'))
-    exit;
 // Configura as URLs
 $adm_uri = HOME_URI . '/projetos/adm/';
 $edit_uri = $adm_uri . 'edit/';

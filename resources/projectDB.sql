@@ -21,6 +21,7 @@ CREATE TABLE `users`(
 CREATE TABLE `associations`(
 	`id` INT(3) UNSIGNED AUTO_INCREMENT,
 	`name` VARCHAR(64) NOT NULL,
+	`nickname` VARCHAR(64) NOT NULL,
 	`address` VARCHAR(255) NOT NULL,
 	`telephone` VARCHAR(15),
 	`taxpayerNumber` INT(9) UNSIGNED NOT NULL,
