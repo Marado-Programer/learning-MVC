@@ -6,6 +6,13 @@
 <h1>Association Admnistrator Panel</h1>
 </header>
 
-<?php require VIEWS_PATH . '/associations/news.php' ?>
+<?php
+if (UsersManager::getPermissionsManager()->checkPermissions(
+    $permissions,
+    PermissionsManager::AP_ADMNI_NEWS,
+    false
+))
+    require VIEWS_PATH . '/associations/news.php';
+?>
 
 </main>

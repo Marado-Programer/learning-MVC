@@ -125,7 +125,8 @@ class AssociationsModel extends MainModel
             'usersAssociations',
             [
                 'associationID' => $association['id'],
-                'userID' => $this->controller->userSession->user->id
+                'userID' => $this->controller->userSession->user->id,
+                'role' => PermissionsManager::AP_PRESIDENT
             ]
         );
     }

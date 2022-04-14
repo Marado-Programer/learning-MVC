@@ -50,4 +50,21 @@ class AssociationsAdmniModel extends MainModel
         );
     }
 
+    public function userAdmniPermissions(User $user, Association $association): int
+    {
+        $role = $this->db->query("SELECT * FROM `usersAssociations` WHERE (`associationID` = {$association->id}) AND (`userID` = {$user->id});");
+        
+        if (!$role)
+            return 0;
+
+        return $role->fetch(PDO::FETCH_ASSOC)['role'];
+    }
+
+    public function createNews()
+    {
+        $association = $this->db->query("SELECT * FROM `news`;");
+
+        if (!$association)
+            return;
+    }
 }

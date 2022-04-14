@@ -2,6 +2,9 @@
 
 All notable changes to this publication will be documented in this file.
 
+## 0.3.9 - 2022-14-04
+New permissions.
+
 ## 0.3.8 - 2022-13-04
 Start of the association admnistration panel.
 

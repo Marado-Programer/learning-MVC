@@ -55,6 +55,15 @@ class AssociationsController extends MainController
         if (!isset($association))
             return;
 
+        $permissions = $this->model->userAdmniPermissions($this->userSession->user, $association);
+
+        if (!UsersManager::getPermissionsManager()->checkPermissions(
+            $permissions,
+            PermissionsManager::AP_PARTNER_ADMNI,
+            false
+        ))
+            return;
+
         require VIEWS_PATH . '/includes/header.php';
         require VIEWS_PATH . '/includes/nav.php';
 

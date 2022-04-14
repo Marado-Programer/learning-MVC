@@ -26,7 +26,7 @@ CREATE TABLE `associations`(
 	`telephone` VARCHAR(15),
 	`taxpayerNumber` INT(9) UNSIGNED NOT NULL,
 	`president` INT(3) UNSIGNED NOT NULL,
-	UNIQUE(`name`, `taxpayerNumber`),
+	UNIQUE(`name`, `nickname`, `taxpayerNumber`),
 	PRIMARY KEY(`id`),
 	FOREIGN KEY(`president`) REFERENCES `users`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -37,13 +37,6 @@ CREATE TABLE `usersAssociations`(
 	`role` INT(6) UNSIGNED NOT NULL DEFAULT 0,
 	PRIMARY KEY(`userID`, `associationID`),
 	FOREIGN KEY(`userID`) REFERENCES `users`(`id`),
-	FOREIGN KEY(`associationID`) REFERENCES `associations`(`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE `associationRoles`(
-	`associationID` INT(3) UNSIGNED,
-	`name` VARCHAR(64) NOT NULL,
-	PRIMARY KEY(`associationID`, `name`),
 	FOREIGN KEY(`associationID`) REFERENCES `associations`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
