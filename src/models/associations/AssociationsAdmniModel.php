@@ -57,14 +57,140 @@ class AssociationsAdmniModel extends MainModel
         if (!$role)
             return 0;
 
-        return $role->fetch(PDO::FETCH_ASSOC)['role'];
+        $role = $role->fetch(PDO::FETCH_ASSOC);
+
+        if (!isset($role['role']))
+            return 0;
+
+        return $role['role'] ?? 0;
     }
 
-    public function createNews()
+    public function createNews(User $user, Association $association)
     {
-        $association = $this->db->query("SELECT * FROM `news`;");
-
-        if (!$association)
+        if (!UsersManager::getPermissionsManager()->checkPermissions(
+            $this->userAdmniPermissions($user, $association),
+            PermissionsManager::AP_CREATE_NEWS,
+            false
+        ))
             return;
+
+        /**
+        * We have this control variables because we want to show the partner the
+        * rectified way to write their things.
+        *
+        * We will correct the partner input because we need it, if there's any
+        * error found the variable will become true and after all the
+        * corrections we test it, if it's true stop the function before creating
+        * a corrupt news, show the corrected version to the partner and point out
+        * errors, else we keep creating the news.
+        */
+        $foundError = false;
+        $errors = [];
+
+        print_r($_FILES['create-image']);
+
+        if (!isset($_POST['create']) || !isset($_FILES['create-image'])) {
+            $foundError = true;
+            $errors[] = 'There\'s nothing to create.';
+        }
+
+        $news = $_POST['create'] ?? [];
+        $news['image'] = $_FILES['create-image'] ?? [];
+
+        if (empty($news)
+            || empty($news['title'])
+            || empty($news['image'])
+            || empty($news['article'])
+        ) {
+            $foundError=true;
+            $errors[] = 'Be sure that all the fields (title, image and article) have input.';
+        }
+
+        if (isset($news['title']))
+            $news['title'] = strip_tags($news['title']);
+
+        if (strlen($news['title']) > 80) {
+            $foundError = true;
+            $errors[] = 'The title was too big, maxlength it\'s 80 bytes.';
+            $errors[] = 'Please revise your title.';
+            $news['title'] = substr($news['title'], 0, 80);
+        } elseif (strlen($news['title']) <= 0) {
+            $foundError = true;
+            $errors[] = 'The title it\'s too much short.';
+            $errors[] = 'Please revise your title.';
+        }
+
+        // list of text-level semantics HTML 5 tags
+        $premittedTags = [
+            'a',
+            'em',
+            'strong',
+            'small',
+            's',
+            'cite',
+            'q',
+            'dfn',
+            'abbr',
+            'ruby',
+            'rt',
+            'rp',
+            'data',
+            'time',
+            'code',
+            'var',
+            'samp',
+            'kbd',
+            'sub',
+            'sup',
+            'i',
+            'b',
+            'u',
+            'mark',
+            'bdi',
+            'bdo',
+            'br',
+            'wbr'
+        ];
+
+        // the article can use only the tags above
+        if (isset($news['article']))
+            $news['article'] = strip_tags($news['article'], $premittedTags);
+
+        // 65535 it's the max bytes that the MySQL TEXT data type can handle
+        if (strlen($news['title']) > 65_535) {
+            $foundError = true;
+            $errors[] = 'The article was too big, maxlength it\'s 65.535 bytes.';
+            $errors[] = 'One good solution it\'s to the news in two or more.';
+            $news['title'] = substr($news['title'], 0, 80);
+        } elseif (strlen($news['title']) <= 0) {
+            $foundError = true;
+            $errors[] = 'The article it\'s too much short.';
+            $errors[] = 'Write something more.';
+        }
+
+        // And there it is. If found error during the function return null and
+        // the errors and corrected input
+        $_SESSION['news'] = serialize($news);
+        if ($foundError) {
+            $_SESSION['news-errors'] = $errors;
+            unset($news, $foundError, $errors);
+            return;
+        }
+
+        if ($news['image']['error'] || is_array($news['image']['error']))
+            return;
+
+        if (!preg_match("/^image/", $news['image']['type'])) {
+
+        }
+
+        // Making paragraphs from the article text
+        $paragraphs = "\0";
+        foreach (explode("\n\r", $news['article']) as $paragraph)
+            $paragraphs .= "<p>$paragraph</p>";
+        $news['article'] = $paragraphs;
+        unset($paragraphs);
+
+        unset($news);
     }
 }

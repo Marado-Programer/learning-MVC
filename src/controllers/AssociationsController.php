@@ -45,6 +45,9 @@ class AssociationsController extends MainController
 
     public function admni()
     {
+        if (!$this->userSession->user->loggedIn)
+            return;
+
         if (!isset($this->parameters[0]))
             return;
 
@@ -64,6 +67,9 @@ class AssociationsController extends MainController
         ))
             return;
 
+        if (isset($_POST['create']))
+            $this->model->createNews($this->userSession->user, $association);
+            
         require VIEWS_PATH . '/includes/header.php';
         require VIEWS_PATH . '/includes/nav.php';
 

@@ -2,6 +2,9 @@
 
 All notable changes to this publication will be documented in this file.
 
+## 0.3.10 - 2022-14-05
+Start news creator.
+
 ## 0.3.9 - 2022-14-04
 New permissions.
 
