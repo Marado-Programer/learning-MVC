@@ -23,7 +23,9 @@
             </label>
             <label> <input type="tel" name="create[number]" /> </label>
         </p>
+        <?php if ($this->userSession->user->telephone): ?>
         <p><label> <input type="radio" name="create[phone]" value="yours" /> use user's phone number </label></p>
+        <?php endif ?>
     </fieldset>
     <p><label>Taxpayer number: <input type="number" name="create[taxpayerNumber]" required /></label></p>
     <p><button>Create</button></p>

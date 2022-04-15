@@ -17,10 +17,16 @@ if (isset($_SESSION['news'])) {
     $create = [];
 
 if (isset($_SESSION['news-errors'])) {
-    $errors = unserialize($_SESSION['news-errors']);
+    $errors = $_SESSION['news-errors'];
     unset($_SESSION['news-errors']);
 } else
     $errors = [];
+
+if (isset($_SESSION['news-created'])) {
+    $created = $_SESSION['news-created'];
+    unset($_SESSION['news-created']);
+} else
+    $created = "\0";
 ?>
 
 <form method="post"
@@ -41,6 +47,11 @@ if (isset($_SESSION['news-errors'])) {
 <?php unset($create) ?>
 
 <aside>
+<?php if (!empty($created)): ?>
+<h4>It Worked!</h4>
+<p><?=$created?></p>
+<?php endif ?>
+<?php unset($created); ?>
 <?php if (!empty($errors)): ?>
 <h4>Errors Found</h4>
 <?php foreach ($errors as $error): ?>

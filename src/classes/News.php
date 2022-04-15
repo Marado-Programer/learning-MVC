@@ -10,13 +10,24 @@ class News
     public $publishTime;
     public $association;
 
-    public function __construct(Association $association, string $title, string $article, string $image = '')
-    {
+    public function __construct(
+        Association $association,
+        Partner $author,
+        string $title,
+        string $image,
+        string $article,
+        DateTime $publishTime,
+        DateTime $lastEditTime,
+        int $id
+    ) {
         $this->association = clone $association;        
+        $this->author = clone $author;
         $this->title = $title;
-        $this->article = $article;
         $this->image = $image;
-        $this->publishTime = new DateTime();
+        $this->article = $article;
+        $this->publishTime = $publishTime;
+        $this->lastEditTime = $lastEditTime;
+        $this->id = $id;
     }
 
     public function readNewsSimple()

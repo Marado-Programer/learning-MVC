@@ -1,6 +1,6 @@
 <?php if (!defined('ROOT_PATH')) exit ?>
 
-<main>
+<main id="top">
 
 <footer>
 
@@ -10,6 +10,7 @@
 </ul>
 
 </footer>
+
 <header>
 <h1>Associations</h1>
 </header>
@@ -36,10 +37,7 @@ if (
 
 <footer>
 
-<ul>
-    <li><a href="#search">search</a></li>
-    <li><a href="#create">create</a></li>
-</ul>
+<p><a href="#top">Go to the top</a></p>
 
 </footer>
 

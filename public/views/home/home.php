@@ -50,6 +50,9 @@
     }
 ?>
 </table>
+<footer>
+<p><a href="<?=HOME_URI?>/associations#create">Create an Association!</a></p>
+</footer>
 
 </article>
 

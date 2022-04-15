@@ -10,6 +10,11 @@
 
 <link href="<?=HOME_URI?>/public/style/css/associations.css" rel="stylesheet" />
 
+<form method="post"
+    action="#"
+    id="visit">
+</form>
+
 <table>
     <caption>
         <strong>Associations List</strong>
@@ -26,6 +31,8 @@
             <th colspan="2" scope="colgroup" id="contacts">Contacts
             <th rowspan="2" scope="col">President
             <th rowspan="2" scope="col">Number of Partners
+            <th rowspan="2" class="space">
+            <th rowspan="2" scope="col" class="actions">Actions
         <tr>
             <th headers="contacts" scope="col">Address
             <th headers="contacts" scope="col">Telephone

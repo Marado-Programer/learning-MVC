@@ -87,8 +87,6 @@ class AssociationsAdmniModel extends MainModel
         $foundError = false;
         $errors = [];
 
-        print_r($_FILES['create-image']);
-
         if (!isset($_POST['create']) || !isset($_FILES['create-image'])) {
             $foundError = true;
             $errors[] = 'There\'s nothing to create.';
@@ -118,6 +116,56 @@ class AssociationsAdmniModel extends MainModel
             $foundError = true;
             $errors[] = 'The title it\'s too much short.';
             $errors[] = 'Please revise your title.';
+        }
+
+        if ($news['image']['tmp_name'] == 'none' || $news['image']['size'] <= 0) {
+            $foundError = true;
+            $errors[] = 'No image found.';
+        }
+
+        // The image size it's in bytes
+        if ($news['image']['size']/(1024**2) > 2) {
+            $foundError = true;
+            $errors[] = 'The image found it\'t too big.';
+        }
+
+        if (!preg_match("/^image\//", $news['image']['type'])) {
+            $foundError = true;
+            $errors[] = 'Not supported file type';
+        }
+
+        if ($news['image']['error'] == UPLOAD_ERR_OK) {
+                $news['image']['name'] = md5(mt_rand(1, 10000).$news['image']['name'])
+                    . substr(
+                        $news['image']['name'],
+                        strpos(
+                            $news['image']['name'],
+                            '.'
+                        )
+                    );
+        } else {
+            switch ($news['image']['error']) {
+                case UPLOAD_ERR_INI_SIZE:
+                case UPLOAD_ERR_FORM_SIZE:
+                    $foundError = true;
+                    $errors[] = 'The image found it\'t too big.';
+                    break;
+                case UPLOAD_ERR_PARTIAL:
+                case UPLOAD_ERR_NO_FILE:
+                case UPLOAD_ERR_NO_TMP_DIR:
+                case UPLOAD_ERR_CANT_WRITE:
+                    $foundError = true;
+                    $errors[] = 'File didn\'t upload correctly.';
+                    break;
+                case UPLOAD_ERR_EXTENSION:
+                    $foundError = true;
+                    $errors[] = 'Invalid image file.';
+                    break;
+                default:
+                    $foundError = true;
+                    $errors[] = 'Unknown error on the image upload.';
+                    break;
+            }
         }
 
         // list of text-level semantics HTML 5 tags
@@ -177,20 +225,48 @@ class AssociationsAdmniModel extends MainModel
             return;
         }
 
-        if ($news['image']['error'] || is_array($news['image']['error']))
-            return;
-
-        if (!preg_match("/^image/", $news['image']['type'])) {
-
-        }
-
         // Making paragraphs from the article text
         $paragraphs = "\0";
         foreach (explode("\n\r", $news['article']) as $paragraph)
-            $paragraphs .= "<p>$paragraph</p>";
+            $paragraphs .= '<p>' . trim($paragraph) . '</p>';
         $news['article'] = $paragraphs;
         unset($paragraphs);
 
-        unset($news);
+        $createdNews = $this->db->insert(
+            'news',
+            [
+                'association' => $association->id,
+                'author' => $user->id,
+                'title' => $news['title'],
+                'image' => $news['image']['name'],
+                'article' => $news['article'],
+                'publishTime' => ($now = new Datetime())->getTimestamp(),
+                'lastEditTime' => $now->getTimestamp()
+            ]
+        );
+
+        unset($now);
+
+        if (!$createdNews) {
+            $errors[] = "Failed to create news";
+            $_SESSION['news-errors'] = $errors;
+            unset($news, $foundError, $errors);
+            return;
+        }
+
+        if (!file_exists(UPLOAD_PATH))
+            mkdir(UPLOAD_PATH, 0755, true);
+
+        if (!move_uploaded_file($news['image']['tmp_name'], UPLOAD_PATH . '/' . $news['image']['name'])) {
+            $errors[] = "Failed uploading file";
+            $_SESSION['news-errors'] = $errors;
+            unset($news, $foundError, $errors);
+            return;
+        }
+
+        $_SESSION['news-created'] = 'A news was created.';
+
+        unset($news, $foundError, $errors, $_SESSION['news']);
     }
 }
+

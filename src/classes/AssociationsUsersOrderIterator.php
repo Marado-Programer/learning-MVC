@@ -63,7 +63,12 @@ class AssociationsUsersOrderIterator implements Iterator
 
     public function getCondition(int $add = 0): bool
     {
-        $cur = $this->list->getList()[$this->key() + $add];
+        $cur = isset($this->list->getList()[$this->key() + $add])
+            ? $this->list->getList()[$this->key() + $add]
+            : null;
+        
+        if (!isset($cur))
+            return false;
 
         return $this->sawUsers
             ? $cur->president->id == 1

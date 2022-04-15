@@ -42,15 +42,16 @@ CREATE TABLE `usersAssociations`(
 
 CREATE TABLE `news`(
 	`id` INT(3) UNSIGNED AUTO_INCREMENT,
-	`publishTime` DATETIME DEFAULT '0000-00-00 00:00:00',
-	`author` INT(3) UNSIGNED NOT NULL,
 	`association` INT(3) UNSIGNED NOT NULL,
+	`author` INT(3) UNSIGNED NOT NULL,
 	`title` VARCHAR(80) NOT NULL,
-	`text` TEXT NOT NULL,
-	`image` VARCHAR(255),
-	PRIMARY KEY (`id`)
-	FOREIGN KEY(`author`) REFERENCES `users`(`id`),
-	FOREIGN KEY(`association`) REFERENCES `associations`(`id`)
+	`image` VARCHAR(255) NOT NULL,
+	`article` TEXT NOT NULL,
+	`publishTime` BIGINT NOT NULL DEFAULT 0,
+	`lastEditTime` BIGINT DEFAULT 0,
+	PRIMARY KEY (`id`),
+	FOREIGN KEY(`association`) REFERENCES `associations`(`id`),
+	FOREIGN KEY(`author`) REFERENCES `users`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `projects`(

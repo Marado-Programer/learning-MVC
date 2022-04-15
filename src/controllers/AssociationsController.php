@@ -30,6 +30,16 @@ class AssociationsController extends MainController
 
         $this->model = $this->loadModel('associations/AssociationsModel');
 
+        if (isset($_POST['association'])) {
+            $data = $_POST['association'];
+            unset($_POST['association']);
+
+            if ($data['redirect'] == 'page') {
+                $this->userSession->redirect(HOME_URI . '/@' . $data['name']);
+                return;
+            }
+        }
+
         if (isset($_POST['create']))
             $this->model->createAssociation();
 
