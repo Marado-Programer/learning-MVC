@@ -47,8 +47,8 @@ CREATE TABLE `news`(
 	`title` VARCHAR(80) NOT NULL,
 	`image` VARCHAR(255) NOT NULL,
 	`article` TEXT NOT NULL,
-	`publishTime` BIGINT NOT NULL DEFAULT 0,
-	`lastEditTime` BIGINT DEFAULT 0,
+	`publishTime` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`lastEditTime` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
 	PRIMARY KEY (`id`),
 	FOREIGN KEY(`association`) REFERENCES `associations`(`id`),
 	FOREIGN KEY(`author`) REFERENCES `users`(`id`)

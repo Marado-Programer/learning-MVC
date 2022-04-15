@@ -4,8 +4,57 @@
  * 
  */
 
-class AssociationsAdmniModel extends MainModel
+class NewsModel extends MainModel
 {
+    public function getNewsByDate($date)
+    {
+        $query = 'SELECT * FROM `news`;';
+        if (isset($date[0])) {
+            $queryDate = (new DateTime())->setTime(0, 0);
+            if ($date[0] == 'today') {
+                $query = 'SELECT * FROM `news`
+                    WHERE (`publishTime` >= ' . $queryDate->format('Y-m-d H:i:s') . ')
+                    AND (`publishTime` < ' . $queryDate->modify('+1 day')->format('Y-m-d H:i:s') . ');';
+            } else {
+                $invalid = false;
+                if ($date[0] >= 1970 && $date[0] < $queryDate->format('Y')) {
+                    $year = $date[0];
+                    $use = 'year';
+                    if (isset($date[1]) && $date[1] >= 1 && $date[1] <= 12) {
+                        $month = ((strlen($date[1]) != 2) ? '0' . $date[1] : $date[1]);
+                        $use = 'month';
+                        if (isset($date[2]) && $date[2] >= 1 && $date[2] <= 31) {
+                            $day = ((strlen($date[2]) != 2) ? '0' . $date[2] : $date[2]);
+                            $use = 'day';
+                        } else
+                            $invalid = true;
+                    } else
+                        $invalid = true;
+                } else
+                    $invalid = true;
+                $year ??= 0;
+                $month ??= 0;
+                $day ??= 0;
+                if (!$invalid) {
+                    $queryDate = $queryDate->setDate($year, $month, $day);
+                    $query = 'SELECT * FROM `news`
+                        WHERE `publishTime` BETWEEN \'' . $queryDate->format('Y-m-d H:i:s') . '\' 
+                        AND \'' . $queryDate->modify('+1 ' . ($use ?? 'year'))->format('Y-m-d H:i:s') . '\';';
+                }
+            }
+        }
+
+        print_r($query);
+
+        $query = $this->db->query($query);
+
+        if (!$query)
+            return;
+
+        print_r($queryDate ?? 0);
+        print_r($query->fetch(PDO::FETCH_ASSOC));
+    }
+
     public function getAssociationByNickname($nickname)
     {
         $association = $this->db->query("SELECT * FROM `associations` WHERE `nickname` = '$nickname';");
@@ -240,8 +289,8 @@ class AssociationsAdmniModel extends MainModel
                 'title' => $news['title'],
                 'image' => $news['image']['name'],
                 'article' => $news['article'],
-                'publishTime' => $now = ((new Datetime())->format('Y-m-d H:i:s')),
-                'lastEditTime' => $now
+                'publishTime' => ($now = new Datetime())->getTimestamp(),
+                'lastEditTime' => $now->getTimestamp()
             ]
         );
 

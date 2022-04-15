@@ -30,7 +30,7 @@ class HomeController extends MainController
                 $this->userSession->redirect(HOME_URI . '/@' . $data['name']);
                 return;
             } elseif ($data['redirect'] == 'admin') {
-                $this->userSession->redirect(HOME_URI . '/@' . $data['name'] . '/admin');
+                $this->userSession->redirect(HOME_URI . '/@' . $data['name'] . '/admni');
                 return;
             }
         }

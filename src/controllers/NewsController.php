@@ -6,19 +6,23 @@
 
 class NewsController extends MainController
 {
+    private $news;
+
+    public function __construct(
+        $parameters = array(),
+        $title = 'index',
+        $permissions = PermissionsManager::P_VIEW_NEWS
+    ) {
+        parent::__construct($parameters, $title, $permissions);
+        $this->news = new NewsList();
+    }
     protected function indexMain()
     {
-        require ROOT_PATH . '/public/views/news/home.php';
-    }
+        $this->model = $this->loadModel('news/NewsModel');
 
-    public function create()
-    {
-        require ROOT_PATH . '/public/views/includes/header.php';
-        require ROOT_PATH . '/public/views/includes/nav.php';
+        $this->model->getNewsByDate($this->parameters);
 
-        require ROOT_PATH . '/public/views/news/home.php';
-
-        require ROOT_PATH . '/public/views/includes/footer.php';
+        require VIEWS_PATH . '/news/home.php';
     }
 }
 

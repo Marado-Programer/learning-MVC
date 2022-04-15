@@ -2,6 +2,9 @@
 
 All notable changes to this publication will be documented in this file.
 
+## 0.3.11 - 2022-14-05
+Can create a news. Start news controller
+
 ## 0.3.10 - 2022-14-05
 Start news creator.
 

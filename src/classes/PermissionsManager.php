@@ -14,15 +14,19 @@ final class PermissionsManager
     
     public const P_VIEW_ASSOCIATIONS = 0x1;
     public const P_CREATE_ASSOCIATIONS = 0x1 << 1;
-    public const P_EDIT_ASSOCIATIONS = 0x1 << 2;
-    public const P_DELETE_ASSOCIATIONS = 0x1 << 3;
+    public const P_DELETE_ASSOCIATIONS = 0x1 << 2;
+
+    public const P_VIEW_NEWS = 0x1 << 3;
+    public const P_DELETE_NEWS = 0x1 << 4;
 
     public const P_ADMNI_ASSOCIATIONS = self::P_VIEW_ASSOCIATIONS
         | self::P_CREATE_ASSOCIATIONS
-        | self::P_EDIT_ASSOCIATIONS
         | self::P_DELETE_ASSOCIATIONS;
+    public const P_ADMNI_NEWS = self::P_VIEW_NEWS
+        | self::P_DELETE_NEWS;
     
-    public const P_ADMNI_ALL = self::P_ADMNI_ASSOCIATIONS;
+    public const P_ADMNI_ALL = self::P_ADMNI_ASSOCIATIONS
+        | self::P_ADMNI_NEWS;
 
     /**
      * Partners premissions
