@@ -19,6 +19,9 @@ final class PermissionsManager
     public const P_VIEW_NEWS = 0x1 << 3;
     public const P_DELETE_NEWS = 0x1 << 4;
 
+    public const P_VIEW_EVENTS = 0x1 << 5;
+    public const P_DELETE_EVENTS = 0x1 << 6;
+
     public const P_ADMNI_ASSOCIATIONS = self::P_VIEW_ASSOCIATIONS
         | self::P_CREATE_ASSOCIATIONS
         | self::P_DELETE_ASSOCIATIONS;
@@ -39,13 +42,22 @@ final class PermissionsManager
     public const AP_EDIT_NEWS = 0x1 << 3;
     public const AP_DELETE_NEWS = 0x1 << 4;
 
+    public const AP_CREATE_EVENTS = 0x1 << 5;
+    public const AP_EDIT_EVENTS = 0x1 << 6;
+    public const AP_DELETE_EVENTS = 0x1 << 7;
+
     public const AP_ADMNI_NEWS = self::AP_CREATE_NEWS
         | self::AP_EDIT_NEWS
         | self::AP_DELETE_NEWS;
 
+    public const AP_ADMNI_EVENTS = self::AP_CREATE_EVENTS
+        | self::AP_EDIT_EVENTS
+        | self::AP_DELETE_EVENTS;
+
     public const AP_PRESIDENT = self::AP_PARTNER
         | self::AP_PARTNER_ADMNI
-        | self::AP_ADMNI_NEWS;
+        | self::AP_ADMNI_NEWS
+        | self::AP_ADMNI_EVENTS;
 
     public function checkPermissions(
         int $userPermissions = self::P_ZERO,

@@ -10,54 +10,74 @@ class NewsModel extends MainModel
     {
         $query = 'SELECT * FROM `news`;';
         if (isset($date[0])) {
-            $queryDate = (new DateTime())->setTime(0, 0);
+            $this->controller->date = (new DateTime())->setTime(0, 0);
             if ($date[0] == 'today') {
-                $query = 'SELECT * FROM `news`
-                    WHERE (`publishTime` >= ' . $queryDate->format('Y-m-d H:i:s') . ')
-                    AND (`publishTime` < ' . $queryDate->modify('+1 day')->format('Y-m-d H:i:s') . ');';
+                $query = 'SELECT * FROM `news`'
+                    . ' WHERE `publishTime`'
+                    . ' BETWEEN \'' . $this->controller->date->format('Y-m-d H:i:s') . '\''
+                    . ' AND \'' . $this->controller->date->modify('+1 day')->format('Y-m-d H:i:s') . '\';';
             } else {
-                $invalid = false;
-                if ($date[0] >= 1970 && $date[0] < $queryDate->format('Y')) {
+                if ($date[0] >= 1970 && $date[0] <= $this->controller->date->format('Y')) {
                     $year = $date[0];
-                    $use = 'year';
+                    $this->controller->use = 'Y';
                     if (isset($date[1]) && $date[1] >= 1 && $date[1] <= 12) {
                         $month = ((strlen($date[1]) != 2) ? '0' . $date[1] : $date[1]);
-                        $use = 'month';
+                        $this->controller->use = 'M';
                         if (isset($date[2]) && $date[2] >= 1 && $date[2] <= 31) {
                             $day = ((strlen($date[2]) != 2) ? '0' . $date[2] : $date[2]);
-                            $use = 'day';
-                        } else
-                            $invalid = true;
-                    } else
-                        $invalid = true;
-                } else
-                    $invalid = true;
-                $year ??= 0;
+                            $this->controller->use = 'D';
+                        }
+                    }
+                }
+                $year ??= $this->controller->date->format('Y');
                 $month ??= 0;
                 $day ??= 0;
-                if (!$invalid) {
-                    $queryDate = $queryDate->setDate($year, $month, $day);
-                    $query = 'SELECT * FROM `news`
-                        WHERE `publishTime` BETWEEN \'' . $queryDate->format('Y-m-d H:i:s') . '\' 
-                        AND \'' . $queryDate->modify('+1 ' . ($use ?? 'year'))->format('Y-m-d H:i:s') . '\';';
-                }
+                $this->controller->date = $this->controller->date->setDate($year, $month, $day);
+                $query = 'SELECT * FROM `news`'
+                    . ' WHERE `publishTime`'
+                    . ' BETWEEN \'' . $this->controller->date->format('Y-m-d H:i:s') . '\''
+                    . ' AND \'' . $this->controller->date->add(new DateInterval('P1' . $this->controller->use))->format('Y-m-d H:i:s') . '\';';
+                $this->controller->date->sub(new DateInterval('P1' . $this->controller->use));
             }
         }
 
-        print_r($query);
+        $news = $this->db->query($query);
 
-        $query = $this->db->query($query);
-
-        if (!$query)
+        if (!$news)
             return;
 
-        print_r($queryDate ?? 0);
-        print_r($query->fetch(PDO::FETCH_ASSOC));
+        foreach ($news->fetchAll(PDO::FETCH_ASSOC) as $article)
+            $this->controller->news->add($this->instanceNews($article));
     }
 
-    public function getAssociationByNickname($nickname)
+    public function getNewsByID($id)
     {
-        $association = $this->db->query("SELECT * FROM `associations` WHERE `nickname` = '$nickname';");
+        $news = $this->db->query("SELECT * FROM `news` WHERE `id` = $id");
+
+        if (!$news)
+            return;
+
+        $this->controller->news->add($this->instanceNews($news->fetch(PDO::FETCH_ASSOC)));
+    }
+
+
+    public function instanceNews(array $news)
+    {
+        return new News(
+            $this->getAssociationByID($news['association']),
+            $this->getPartnerByID($news['author']),
+            $news['title'],
+            $news['image'],
+            $news['article'],
+            DateTime::createFromFormat('Y-m-d H:i:s', $news['publishTime']),
+            DateTime::createFromFormat('Y-m-d H:i:s', $news['lastEditTime']),
+            $news['id']
+        );
+    }
+
+    public function getAssociationByID($id)
+    {
+        $association = $this->db->query("SELECT * FROM `associations` WHERE `id` = $id;");
 
         if (!$association)
             return;
@@ -74,20 +94,23 @@ class NewsModel extends MainModel
             $association['address'],
             $association['telephone'],
             $association['taxpayerNumber'],
-            $this->instanceUserByID($association['president'])
+            $this->getPartnerByID($association['president'])
         );
     }
 
-    private function instanceUserByID(int $id)
+    private function getPartnerByID(int $id)
     {
         $user = $this->db->query("SELECT * FROM `users` WHERE `id` = $id;");
 
         if (!$user)
             return;
 
-        $user = $user->fetch(PDO::FETCH_ASSOC);
+        return $this->instancePartnerByID($user->fetch(PDO::FETCH_ASSOC));
+    }
 
-        return new User(
+    private function instancePartnerByID(array $user)
+    {
+        return new Partner(
             $user['username'],
             null,
             $user['realName'],
@@ -95,227 +118,8 @@ class NewsModel extends MainModel
             $user['telephone'],
             $user['permissions'],
             false,
-            $id
+            $user['id']
         );
-    }
-
-    public function userAdmniPermissions(User $user, Association $association): int
-    {
-        $role = $this->db->query("SELECT * FROM `usersAssociations` WHERE (`associationID` = {$association->id}) AND (`userID` = {$user->id});");
-        
-        if (!$role)
-            return 0;
-
-        $role = $role->fetch(PDO::FETCH_ASSOC);
-
-        if (!isset($role['role']))
-            return 0;
-
-        return $role['role'] ?? 0;
-    }
-
-    public function createNews(User $user, Association $association)
-    {
-        if (!UsersManager::getPermissionsManager()->checkPermissions(
-            $this->userAdmniPermissions($user, $association),
-            PermissionsManager::AP_CREATE_NEWS,
-            false
-        ))
-            return;
-
-        /**
-        * We have this control variables because we want to show the partner the
-        * rectified way to write their things.
-        *
-        * We will correct the partner input because we need it, if there's any
-        * error found the variable will become true and after all the
-        * corrections we test it, if it's true stop the function before creating
-        * a corrupt news, show the corrected version to the partner and point out
-        * errors, else we keep creating the news.
-        */
-        $foundError = false;
-        $errors = [];
-
-        if (!isset($_POST['create']) || !isset($_FILES['create-image'])) {
-            $foundError = true;
-            $errors[] = 'There\'s nothing to create.';
-        }
-
-        $news = $_POST['create'] ?? [];
-        $news['image'] = $_FILES['create-image'] ?? [];
-
-        if (empty($news)
-            || empty($news['title'])
-            || empty($news['image'])
-            || empty($news['article'])
-        ) {
-            $foundError=true;
-            $errors[] = 'Be sure that all the fields (title, image and article) have input.';
-        }
-
-        if (isset($news['title']))
-            $news['title'] = strip_tags($news['title']);
-
-        if (strlen($news['title']) > 80) {
-            $foundError = true;
-            $errors[] = 'The title was too big, maxlength it\'s 80 bytes.';
-            $errors[] = 'Please revise your title.';
-            $news['title'] = substr($news['title'], 0, 80);
-        } elseif (strlen($news['title']) <= 0) {
-            $foundError = true;
-            $errors[] = 'The title it\'s too much short.';
-            $errors[] = 'Please revise your title.';
-        }
-
-        if ($news['image']['tmp_name'] == 'none' || $news['image']['size'] <= 0) {
-            $foundError = true;
-            $errors[] = 'No image found.';
-        }
-
-        // The image size it's in bytes
-        if ($news['image']['size']/(1024**2) > 2) {
-            $foundError = true;
-            $errors[] = 'The image found it\'t too big.';
-        }
-
-        if (!preg_match("/^image\//", $news['image']['type'])) {
-            $foundError = true;
-            $errors[] = 'Not supported file type';
-        }
-
-        if ($news['image']['error'] == UPLOAD_ERR_OK) {
-                $news['image']['name'] = md5(mt_rand(1, 10000).$news['image']['name'])
-                    . substr(
-                        $news['image']['name'],
-                        strpos(
-                            $news['image']['name'],
-                            '.'
-                        )
-                    );
-        } else {
-            switch ($news['image']['error']) {
-                case UPLOAD_ERR_INI_SIZE:
-                case UPLOAD_ERR_FORM_SIZE:
-                    $foundError = true;
-                    $errors[] = 'The image found it\'t too big.';
-                    break;
-                case UPLOAD_ERR_PARTIAL:
-                case UPLOAD_ERR_NO_FILE:
-                case UPLOAD_ERR_NO_TMP_DIR:
-                case UPLOAD_ERR_CANT_WRITE:
-                    $foundError = true;
-                    $errors[] = 'File didn\'t upload correctly.';
-                    break;
-                case UPLOAD_ERR_EXTENSION:
-                    $foundError = true;
-                    $errors[] = 'Invalid image file.';
-                    break;
-                default:
-                    $foundError = true;
-                    $errors[] = 'Unknown error on the image upload.';
-                    break;
-            }
-        }
-
-        // list of text-level semantics HTML 5 tags
-        $premittedTags = [
-            'a',
-            'em',
-            'strong',
-            'small',
-            's',
-            'cite',
-            'q',
-            'dfn',
-            'abbr',
-            'ruby',
-            'rt',
-            'rp',
-            'data',
-            'time',
-            'code',
-            'var',
-            'samp',
-            'kbd',
-            'sub',
-            'sup',
-            'i',
-            'b',
-            'u',
-            'mark',
-            'bdi',
-            'bdo',
-            'br',
-            'wbr'
-        ];
-
-        // the article can use only the tags above
-        if (isset($news['article']))
-            $news['article'] = strip_tags($news['article'], $premittedTags);
-
-        // 65535 it's the max bytes that the MySQL TEXT data type can handle
-        if (strlen($news['title']) > 65_535) {
-            $foundError = true;
-            $errors[] = 'The article was too big, maxlength it\'s 65.535 bytes.';
-            $errors[] = 'One good solution it\'s to the news in two or more.';
-            $news['title'] = substr($news['title'], 0, 80);
-        } elseif (strlen($news['title']) <= 0) {
-            $foundError = true;
-            $errors[] = 'The article it\'s too much short.';
-            $errors[] = 'Write something more.';
-        }
-
-        // And there it is. If found error during the function return null and
-        // the errors and corrected input
-        $_SESSION['news'] = serialize($news);
-        if ($foundError) {
-            $_SESSION['news-errors'] = $errors;
-            unset($news, $foundError, $errors);
-            return;
-        }
-
-        // Making paragraphs from the article text
-        $paragraphs = "\0";
-        foreach (explode("\n\r", $news['article']) as $paragraph)
-            $paragraphs .= '<p>' . trim($paragraph) . '</p>';
-        $news['article'] = $paragraphs;
-        unset($paragraphs);
-
-        $createdNews = $this->db->insert(
-            'news',
-            [
-                'association' => $association->id,
-                'author' => $user->id,
-                'title' => $news['title'],
-                'image' => $news['image']['name'],
-                'article' => $news['article'],
-                'publishTime' => ($now = new Datetime())->getTimestamp(),
-                'lastEditTime' => $now->getTimestamp()
-            ]
-        );
-
-        unset($now);
-
-        if (!$createdNews) {
-            $errors[] = "Failed to create news";
-            $_SESSION['news-errors'] = $errors;
-            unset($news, $foundError, $errors);
-            return;
-        }
-
-        if (!file_exists(UPLOAD_PATH))
-            mkdir(UPLOAD_PATH, 0755, true);
-
-        if (!move_uploaded_file($news['image']['tmp_name'], UPLOAD_PATH . '/' . $news['image']['name'])) {
-            $errors[] = "Failed uploading file";
-            $_SESSION['news-errors'] = $errors;
-            unset($news, $foundError, $errors);
-            return;
-        }
-
-        $_SESSION['news-created'] = 'A news was created.';
-
-        unset($news, $foundError, $errors, $_SESSION['news']);
     }
 }
 

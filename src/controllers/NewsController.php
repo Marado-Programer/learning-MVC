@@ -6,7 +6,9 @@
 
 class NewsController extends MainController
 {
-    private $news;
+    public $news;
+    public $date;
+    public $use;
 
     public function __construct(
         $parameters = array(),
@@ -15,7 +17,10 @@ class NewsController extends MainController
     ) {
         parent::__construct($parameters, $title, $permissions);
         $this->news = new NewsList();
+        $this->date = new DateTime();
+        $this->use = 'Y';
     }
+
     protected function indexMain()
     {
         $this->model = $this->loadModel('news/NewsModel');
@@ -23,6 +28,15 @@ class NewsController extends MainController
         $this->model->getNewsByDate($this->parameters);
 
         require VIEWS_PATH . '/news/home.php';
+    }
+
+    public function article()
+    {
+        $this->model = $this->loadModel('news/NewsModel');
+
+        $this->model->getNewsByID($this->parameters[0]);
+        
+        require VIEWS_PATH . '/news/article.php';
     }
 }
 
