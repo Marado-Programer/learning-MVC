@@ -4,28 +4,36 @@
  *  Singleton for DB connection
  */
 
-class SystemDB
+class DBService implements DBMethods
 {
     private static $instance;
 
-    public $host = 'localhost',
-        $dbName = '',
-        $user = 'root',
-        $password = '',
-        $charset = 'utf8mb4',
-        $pdo = null,
-        $error = null,
-        $debug = false,
-        $lastId = null;
+    private $pdo;
 
-    public function __construct(
-        $host = null,
-        $dbName = null,
-        $user = null,
-        $password = null,
-        $charset = null,
-        $debug = null
-    ) {
+    private PDOConfig $config;
+
+    private function __construct()
+    {
+        $this->config = $this->createConfig();
+        $this->useConfig();
+    }
+
+    public static function getInstance()
+    {
+        if (!isset(self::$instance))
+            self::$instance = new DBService();
+
+        return self::$instance;
+    }
+
+    public function createConfig(
+        string $host = 'localhost',
+        string $dbName = '',
+        string $user = 'root',
+        string $password = '',
+        string $charset = 'utf8mb4',
+        string $debug = true
+    ): PDOConfig {
         $this->host = defined('DB_HOSTNAME')
             ? DB_HOSTNAME
             : $host;
@@ -44,71 +52,74 @@ class SystemDB
         $this->debug = defined('DEBUG')
             ? DEBUG
             : $debug;
-        $this->connect();
+
+        $conf = $this->connect();
+
+        unset(
+            $this->host,
+            $this->dbName,
+            $this->password,
+            $this->user,
+            $this->charset
+        );
+
+        return $conf;
     }
 
-    final protected function connect()
+    private function connect()
     {
-        $pdoDetails = "mysql:host={$this->host};"
+        $dsn = "mysql:host={$this->host};"
             . "dbname={$this->db_name};"
             . "charset={$this->charset};";
 
-        try {
-            $this->pdo = self::getInstance(
-                $pdoDetails,
-                $this->user,
-                $this->password
-            );
+        return new PDOConfig(
+            $dsn,
+            $this->user,
+            $this->password
+        );
+    }
 
-            unset($this->host);
-            unset($this->dbName);
-            unset($this->password);
-            unset($this->user);
-            unset($this->charset);
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    public function setConfig(PDOConfig $config, bool $use = false)
+    {
+        $this->config = $config;
+
+        if ($use)
+            $this->useConfig($this->config);
+    }
+
+    public function useConfig(PDOConfig $config = $this->config)
+    {
+        $dsn = $config->dsn;
+        $username = $config->username;
+        $password = $config->password;
+
+        try {
+            $this->pdo = new PDO($dsn, $username, $password);
         } catch (PDOException $e) {
             if ($this->debug === true)
-                echo "Error: {$e->getMessage()}";
-            else
-                die();
+                return "Error: {$e->getMessage()}";
+            die();
         }
     }
 
-    public static function getInstance(
-        $pdoInfo = 'mysql:host={'
-            . DB_HOSTNAME
-            . '};dbname={'
-            . DB_NAME
-            . ';charset={'
-            . DB_CHARSET
-            .'};',
-        $user = DB_USERNAME,
-        $password = DB_USER_PASSWORD
-    ) {
-        if (!isset(self::$instance))
-            self::$instance = new PDO($pdoInfo, $user, $password);
-
-        return self::$instance;
-    }
-
-    public function query($stmt, $dataArray = null)
+    public function query($statment, $dataArray = null)
     {
-        $query = $this->pdo->prepare($stmt);
+        $checkExec = $statment->execute($dataArray);
 
-        if (!$query) {
-            $this->error = $query->errorInfo()[2];
-            return false;
-        }
-
-        $checkExec = $query->execute($dataArray);
         if ($checkExec)
-            return $query;
+            return $statment;
     }
 
-    public function insert($table)
+    public function insert(string $table)
     {
-        $cols = array();
+        $cols = [];
         $placeHolders = '(';
-        $values = array();
+        $values = [];
         $data = func_get_args();
 
         foreach ($data as $i => $arr) {
@@ -139,8 +150,10 @@ class SystemDB
         $insert = $this->query($stmt, $values);
 
         if ($insert) {
-            if (method_exists($this->pdo, 'lastInsertId')
-                && $this->pdo->lastInsertId())
+            if (
+                method_exists($this->pdo, 'lastInsertId')
+                && $this->pdo->lastInsertId()
+            )
                 $this->lastId = $this->pdo->lastInsertId();
             return $insert;
         }
@@ -197,4 +210,3 @@ class SystemDB
         return;
     }
 }
-

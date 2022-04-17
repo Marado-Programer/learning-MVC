@@ -7,4 +7,6 @@
             <td ><?=$association->president->realName?>
             <td ><?=count($association->partners)?>
             <td class="space"><p><input type="hidden" form="visit" name="association[name]" value="<?=$association->nickname?>" /</p>
-            <td class="actions"><p><button form="visit" name="association[redirect]" value="page">Visit page</button>
+            <td class="actions"><p><button form="visit" name="association[redirect]" value="page">Visit page</button><?php if (UserSession::getUser()->loggedIn): ?><br />
+            <button name="association[redirect]" value="enter">Enter Association</button><?php endif ?></p>
+

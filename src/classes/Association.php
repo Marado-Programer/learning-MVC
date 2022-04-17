@@ -202,10 +202,10 @@ class Association
         return $list . "\n";
     }
 
-    public function addPartner(User &$user)
+    public function addPartner(User $user)
     {
         $this->partners[] = $user;
-        $this->createDue($this->partners[count($this->partners)], new DateTime());
+        //$this->createDue($this->partners[count($this->partners)], new DateTime());
     }
 
     public function renewPartner(int $id)

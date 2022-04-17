@@ -29,7 +29,7 @@ class AssociationsModel extends MainModel
 
     private function instanceAssociation(array $association)
     {
-        return new Association(
+        $association = new Association(
             $association['id'],
             $association['name'],
             $association['nickname'],
@@ -38,6 +38,22 @@ class AssociationsModel extends MainModel
             $association['taxpayerNumber'],
             $this->instanceUserByID($association['president'])
         );
+
+        foreach($this->getAssociationPartners($association->id) as $partner)
+            $association->addPartner($this->instanceUserByID($partner['userID']));
+
+        return $association;
+    }
+
+    private function getAssociationPartners($id)
+    {
+        $user = $this->db->query("SELECT * FROM `usersAssociations` WHERE `associationID` = $id;");
+
+        if (!$user)
+            return;
+
+        return $user->fetchAll(PDO::FETCH_ASSOC);
+
     }
 
     private function instanceUserByID(int $id)
