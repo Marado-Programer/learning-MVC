@@ -8,7 +8,7 @@ class EventsModel extends MainModel
 {
     public function getEvents()
     {
-        $events = $this->db->query("SELECT * FROM `events`;");
+        $events = $this->db->query('SELECT * FROM `events`;');
 
         if (!$events)
             return;
@@ -16,7 +16,45 @@ class EventsModel extends MainModel
         foreach ($events->fetchAll(PDO::FETCH_ASSOC) as $event)
             $this->controller->events->add($this->instanceEvent($event));
     }
+    
+    public function getEventByID(int $id)
+    {
+        $events = $this->db->query(
+            "SELECT * FROM `events`
+            WHERE `id` = $id;"
+        );
 
+        if (!$events)
+            return;
+
+        $this->controller->events->add($event = $this->instanceEvent($events->fetch(PDO::FETCH_ASSOC)));
+
+        return $event;
+    }
+
+    public function getEventsByAssociationID(int $id)
+    {
+        $events = $this->db->query(
+            "SELECT * FROM `events`
+            WHERE `id` NOT IN (
+                SELECT `eventID` FROM `associationsEvents`
+                WHERE `associationID` = $id
+                GROUP BY `eventID`
+            );"
+        );
+
+        if (!$events)
+            return;
+
+        foreach ($events->fetchAll(PDO::FETCH_ASSOC) as $event)
+            $this->controller->events->add($this->instanceEvent($event));
+    }
+    
+    public function joinAssociationToEvent(int $idEvent, int $idAssociation)
+    {
+        $event = $this->getEventByID($idEvent);
+        $event->addAssociation($this->getAssociationByID($idAssociation));
+    }
 
     private function instanceEvent(array $event)
     {

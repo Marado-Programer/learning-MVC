@@ -6,8 +6,14 @@
 <h3>Enter Event</h3>
 </header>
 
-<iframe>
+<form method="post"
+    action="<?=HOME_URI?>/events/simple"
+    enctype="multipart/form-data"
+    target="events-iframe">
+    <button name="search-events" value="<?=$association->id?>">Search for events</button>
+</form>
 
+<iframe srcdoc="<p>Search them</p>" name="events-iframe" width="640" height="379">
 </iframe>
 
 </section>

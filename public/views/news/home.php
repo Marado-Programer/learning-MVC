@@ -9,7 +9,7 @@
     $iterator = $this->news->getIterator(NewsList::$NEWER_ORDER);
     while ($iterator->valid()) {
         $news = $iterator->current();
-        echo '<li><a href="', HOME_URI . '/article/' . $news->id, '">', $news->title, '</a></li>';
+        echo '<li>' . $news . '</li><hr />';
         $iterator->next();
     }
 ?>

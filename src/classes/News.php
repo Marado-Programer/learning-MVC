@@ -37,10 +37,8 @@ class News
 
     public function __toString()
     {
-        return "(#{$this->id})News --- {$this->title}:\n"
-            . "\tarticle -> {$this->article}\n"
-            . "\timage -> {$this->image}\n"
-            . "\tpublish time -> " . $this->publishTime->format('Y-m-d H:i:s') . "\n"
-            . "\tassociation -> {$this->association->name}\n\n";
+        return "<p><a href=\"" . HOME_URI . '/article/' . $this->id . '">' . "(#{$this->id})News --- {$this->title}:</a></p><ul>\n"
+            . "\t<li>publish time -> " . $this->publishTime->format('Y-m-d H:i:s') . "</li>\n"
+            . "\t<li>association -> <a href=\"" . HOME_URI . '/@' . $this->association->nickname . '">' . $this->association->name . "</a></li></ul>\n\n";
     }
 }

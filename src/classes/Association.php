@@ -102,7 +102,14 @@ class Association
 
     public function createEvent(string $title, string $description, DateTime $endDate)
     {
-        $createdEvent = (new SystemDB())->insert(
+        $db = new SystemDB();
+
+        if (!$db->pdo)
+            die('Connection error');
+
+        $db->pdo->beginTransaction();
+
+        $createdEvent = $db->insert(
             'events',
             [
                 'association' => $this->id,
@@ -111,12 +118,32 @@ class Association
                 'endDate' => $endDate->format('Y-m-d H:i:s')
             ]
         );
-        
-        if (!$createdEvent) {
-            $_SESSION['news-errors'][] = "Failed to create news";
-            return;
+
+        $event = $db->query("SELECT `id` FROM `events` WHERE `association` = $this->id AND `title` = '$title' AND `description` = '$description' AND `endDate` = '" . $endDate->format('Y-m-d H:i:s') . '\';');
+
+        if (!$event) {
+            $_SESSION['news-errors'][] = "Failed to create event";
+            $db->pdo->rollBack();
+            die('Internal error');
         }
 
+        $createdAssociationEvent = $db->insert(
+            'associationsEvents',
+            [
+                'associationID' => $this->id,
+                'eventID' => $event->fetch(PDO::FETCH_ASSOC)['id'],
+                'isCreator' => true,
+            ]
+        );
+        
+        if (!$createdEvent || !$createdAssociationEvent) {
+            $_SESSION['news-errors'][] = "Failed to create event";
+            $db->pdo->rollBack();
+            die('Internal error');
+        }
+
+        $db->pdo->commit();
+        
         $this->events[] = new Events($this, $title, $description, $endDate, null);
     }
 

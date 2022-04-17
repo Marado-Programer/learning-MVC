@@ -10,7 +10,7 @@ class Events
 
     public $associations = [];
 
-    public $registrations;
+    public $registrations = [];
 
     public DateTime $endDate;
 
@@ -25,6 +25,29 @@ class Events
 
     public function addAssociation(Association $association)
     {
+        $db = new SystemDB();
+
+        if (!$db->pdo)
+            die('Connection error');
+
+        $db->pdo->beginTransaction();
+
+        $associationAddiction = $db->insert(
+            'associationsEvents',
+            [
+                'eventID' => $this->id,
+                'AssociationID' => $association->id,
+                'isCreator' => 0
+            ]
+        );
+
+        if (!$associationAddiction) {
+            $db->pdo->rollBack();
+            die('Failed to add association to event');
+        }
+
+        $db->pdo->commit();
+        
         if ($this->associations['ini'] !== $association && !in_array($association, $this->associations))
             $this->associations[] = $association;
     }
@@ -43,7 +66,9 @@ class Events
 
     public function __toString()
     {
-        return "Event titled {$this->title} by " . $this->associations['ini']->name . ": {$this->description}.\n"
-            . "\tNumber of participating associations: " . count($this->associations);
+        return "<p>Event titled {$this->title}:</p><ul>\n"
+            . "\t<li>Description: " . $this->description . "</li>\n"
+            . "\t<li>Number of participating associations: " . count($this->associations) . "</li>\n"
+            . "\t<li>Number of registrations: " . count($this->registrations) . "</li></ul>\n\n";
     }
 }

@@ -2,6 +2,9 @@
 
 All notable changes to this publication will be documented in this file.
 
+## 0.3.14 - 2022-17-05
+Association can become part of events.
+
 ## 0.3.13 - 2022-16-05
 Start Events system.
 

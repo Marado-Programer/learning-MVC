@@ -52,14 +52,11 @@ class EventsEndFirstOrderIterator implements Iterator
                         break;
                     }
                 }
-        echo '<hr />';
-        print_r($this->order[$this->pos]);
-        echo '<hr />';
     }
 
     public function valid(): bool
     {
-        return isset($this->list->getList()[$this->key()]);
+        return isset($this->order[$this->pos]) && null !== $this->current();
     }
 }
 
