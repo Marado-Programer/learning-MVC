@@ -4,29 +4,28 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-l
 
-RewriteRule ^@([a-zA-Z|_]+)$ index.php?path=associations/page/$1 [L]
+RewriteRule ^@([a-zA-Z|_]+)\/?$ index.php?path=associations/page/$1 [L]
 
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-l
 
-RewriteRule ^@([a-zA-Z|_]+)\/admni$ index.php?path=associations/admni/$1 [L]
+RewriteRule ^@([a-zA-Z|_]+)\/admni\/?$ index.php?path=associations/admni/$1 [L]
 
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-l
 
-RewriteRule ^news\/(.+)$ index.php?path=news/index/$1 [L]
+RewriteRule ^news\/(.+)\/?$ index.php?path=news/index/$1 [L]
 
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-l
 
-RewriteRule ^article\/(.+)$ index.php?path=news/article/$1 [L]
+RewriteRule ^article\/(.+)\/?$ index.php?path=news/article/$1 [L]
 
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-l
 
 RewriteRule ^(.+)$ index.php?path=$1 [L]
-

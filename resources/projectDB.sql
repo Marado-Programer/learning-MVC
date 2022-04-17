@@ -54,6 +54,16 @@ CREATE TABLE `news`(
 	FOREIGN KEY(`author`) REFERENCES `users`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE `events`(
+	`id` INT(3) UNSIGNED AUTO_INCREMENT,
+	`title` VARCHAR(80) NOT NULL,
+	`description` VARCHAR(280) NOT NULL,
+	`association` INT(3) UNSIGNED NOT NULL,
+	`endDate` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+	PRIMARY KEY (`id`),
+	FOREIGN KEY(`association`) REFERENCES `associations`(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE `projects`(
 	`id` INT(11) UNSIGNED AUTO_INCREMENT,
 	`description` VARCHAR(150),

@@ -43,14 +43,16 @@ final class PermissionsManager
     public const AP_DELETE_NEWS = 0x1 << 4;
 
     public const AP_CREATE_EVENTS = 0x1 << 5;
-    public const AP_EDIT_EVENTS = 0x1 << 6;
-    public const AP_DELETE_EVENTS = 0x1 << 7;
+    public const AP_ENTER_EVENTS = 0x1 << 6;
+    public const AP_EDIT_EVENTS = 0x1 << 7;
+    public const AP_DELETE_EVENTS = 0x1 << 8;
 
     public const AP_ADMNI_NEWS = self::AP_CREATE_NEWS
         | self::AP_EDIT_NEWS
         | self::AP_DELETE_NEWS;
 
     public const AP_ADMNI_EVENTS = self::AP_CREATE_EVENTS
+        | self::AP_ENTER_EVENTS
         | self::AP_EDIT_EVENTS
         | self::AP_DELETE_EVENTS;
 

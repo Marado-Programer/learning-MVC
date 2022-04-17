@@ -3,18 +3,18 @@
 if (!defined('ROOT_PATH'))
     exit;
 
-if ($this->loginRequired && !$this->userSession->user->loggedIn)
+if ($this->loginRequired && !UserSession::getUser()->loggedIn)
     return;
 ?>
 
 <nav>
 
-<?php if ($this->userSession->user->loggedIn): ?>
+<?php if (UserSession::getUser()->loggedIn): ?>
     <a href="<?=HOME_URI?>/login/delete/">Logout</a>
 <?php else: ?>
     <a href="<?=HOME_URI?>/login/">Login</a>
 <?php endif ?>
-    <p>Welcome <?=$this->userSession->user->username?></p>
+    <p>Welcome <?=UserSession::getUser()->username?></p>
     <ul>
         <li><a href="<?=HOME_URI?>">Home</a></li>
         <li><a href="<?=HOME_URI?>/userRegister">Sign In</a></li>

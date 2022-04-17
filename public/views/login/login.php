@@ -1,7 +1,7 @@
 <?php if (!defined('ROOT_PATH')) exit ?>
 
 <?php
-if ($this->userSession->user->loggedIn)
+if (UserSession::getUser()->loggedIn)
 	echo '<p>Already logged in!</p>';
 ?>
 <form method="post">

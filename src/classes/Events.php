@@ -8,15 +8,19 @@ class Events
 {
     public $id, $title, $description;
 
-    public $associations;
+    public $associations = [];
 
     public $registrations;
 
-    public function __construct(Association $association, string $title, string $description)
+    public DateTime $endDate;
+
+    public function __construct(Association $association, string $title, string $description, DateTime $endDate, ?int $id)
     {
         $this->title = $title;
         $this->description = $description;
-        $this->associations = ['ini' => $association];
+        $this->associations['ini'] = $association;
+        $this->endDate = $endDate;
+        $this->id = $id;
     }
 
     public function addAssociation(Association $association)

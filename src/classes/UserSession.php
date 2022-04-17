@@ -7,7 +7,7 @@
 
 class UserSession extends Redirect
 {
-    public $user;
+    private static $user;
     public $loginErrorMessage;
     private $db;
     private $phpass;
@@ -25,7 +25,7 @@ class UserSession extends Redirect
         $this->setUser();
 
         // we need an username and a password to login
-        if (!isset($this->user->username) || !isset($this->user->password)) {
+        if (!isset(self::$user->username) || !isset(self::$user->password)) {
             $this->loginError();
 
             return;
@@ -33,7 +33,7 @@ class UserSession extends Redirect
 
         $query = $this->db->query(
             'SELECT * FROM `users` WHERE `users`.`username` = ? LIMIT 1',
-            array($this->user->username)
+            array(self::$user->username)
         );
 
         // non-existent username
@@ -61,7 +61,7 @@ class UserSession extends Redirect
         }
 
         // Right password for the user
-        if ($this->phpass->CheckPassword($this->user->password, $fetchedUser['password'])) {
+        if ($this->phpass->CheckPassword(self::$user->password, $fetchedUser['password'])) {
             /**
              * You can only be logged in 1 browser a time.
              * So if the session id it's diffrent from what's in the DB
@@ -87,9 +87,9 @@ class UserSession extends Redirect
                 );
             }
 
-            $this->user = new User(
+            self::$user = new User(
                 $userUsername,
-                $this->user->password,
+                self::$user->password,
                 $fetchedUser['realName'],
                 $fetchedUser['email'],
                 $fetchedUser['telephone'],
@@ -98,7 +98,7 @@ class UserSession extends Redirect
                 $userId
             );
 
-            $_SESSION['user'] = serialize($this->user);
+            $_SESSION['user'] = serialize(self::$user);
 
             if (isset($_SESSION['gotoURL'])) {
                 $gotoURL = urldecode($_SESSION['gotoURL']);
@@ -117,14 +117,14 @@ class UserSession extends Redirect
     private function setUser()
     {
         if (isset($_SESSION['user']))
-            $this->user = unserialize($_SESSION['user']);
+            self::$user = unserialize($_SESSION['user']);
 
         /**
          * Verify if already exists a user logged in.
          * If there isn't, we see if someone it's trying to login using a form
          */
 
-        if (isset($this->user) && $this->user->loggedIn === true) {
+        if (isset(self::$user) && self::$user->loggedIn === true) {
             $this->usingPost = false;
 
             return;
@@ -135,7 +135,7 @@ class UserSession extends Redirect
             && !empty($_POST['user-data'])
             && is_array($_POST['user-data'])
         ) {
-            $this->user = new User(
+            self::$user = new User(
                 $_POST['user-data']['username'],
                 $_POST['user-data']['password']
             );
@@ -145,9 +145,14 @@ class UserSession extends Redirect
             return;
         }
 
-        $this->user = new User();
+        self::$user = new User();
 
         $this->usingPost = false;
+    }
+
+    public static function getUser()
+    {
+        return self::$user ?? new User();
     }
 
     // Steps to do if an error occurs while loging in
@@ -165,7 +170,7 @@ class UserSession extends Redirect
     {
         // remove all user data
         unset($_SESSION['user']);
-        $this->user = new User();
+        self::$user = new User();
 
         // new session id for new log in
         session_regenerate_id();

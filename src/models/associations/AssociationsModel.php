@@ -9,8 +9,8 @@ class AssociationsModel extends MainModel
     public function search()
     {
         if (
-            !UsersManager::getPermissionsManager()->checkUserPermissions(
-                $this->controller->userSession->user,
+            !UsersManager::getPermissionsManager()->checkPermissions(
+                UserSession::getUser()->permissions,
                 PermissionsManager::P_VIEW_ASSOCIATIONS,
                 false
             )
@@ -64,8 +64,8 @@ class AssociationsModel extends MainModel
     public function createAssociation()
     {
         if (
-            !UsersManager::getPermissionsManager()->checkUserPermissions(
-                $this->controller->userSession->user,
+            !UsersManager::getPermissionsManager()->checkPermissions(
+                UserSession::getUser()->permissions,
                 PermissionsManager::P_CREATE_ASSOCIATIONS,
                 false
             )
@@ -86,7 +86,7 @@ class AssociationsModel extends MainModel
         )
             return;
 
-        if (!preg_match('/^[A-Z|_]{8,}$/i', $association['nickname']))
+        if (!preg_match('/^[A-Z_]{8,}$/i', $association['nickname']))
             return;
 
         if (!$association['address'])
@@ -107,7 +107,7 @@ class AssociationsModel extends MainModel
         $this->db->insert('associations', array_merge(
             $association,
             [
-                'president' => $this->controller->userSession->user->id
+                'president' => UserSession::getUser()->id
             ]
         ));
 
@@ -125,7 +125,7 @@ class AssociationsModel extends MainModel
             'usersAssociations',
             [
                 'associationID' => $association['id'],
-                'userID' => $this->controller->userSession->user->id,
+                'userID' => UserSession::getUser()->id,
                 'role' => PermissionsManager::AP_PRESIDENT
             ]
         );

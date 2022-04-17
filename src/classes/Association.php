@@ -100,9 +100,24 @@ class Association
         return $this->news[$id];
     }
 
-    public function createEvent(string $title, string $description)
+    public function createEvent(string $title, string $description, DateTime $endDate)
     {
-        $this->events[] = new Events($this, $title, $description);
+        $createdEvent = (new SystemDB())->insert(
+            'events',
+            [
+                'association' => $this->id,
+                'title' => $title,
+                'description' => $description,
+                'endDate' => $endDate->format('Y-m-d H:i:s')
+            ]
+        );
+        
+        if (!$createdEvent) {
+            $_SESSION['news-errors'][] = "Failed to create news";
+            return;
+        }
+
+        $this->events[] = new Events($this, $title, $description, $endDate, null);
     }
 
     public function useEvent(Events $event)

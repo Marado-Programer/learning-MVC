@@ -73,8 +73,17 @@ class SystemDB
         }
     }
 
-    public static function getInstance($pdoInfo, $user, $password)
-    {
+    public static function getInstance(
+        $pdoInfo = 'mysql:host={'
+            . DB_HOSTNAME
+            . '};dbname={'
+            . DB_NAME
+            . ';charset={'
+            . DB_CHARSET
+            .'};',
+        $user = DB_USERNAME,
+        $password = DB_USER_PASSWORD
+    ) {
         if (!isset(self::$instance))
             self::$instance = new PDO($pdoInfo, $user, $password);
 

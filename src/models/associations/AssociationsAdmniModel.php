@@ -65,10 +65,10 @@ class AssociationsAdmniModel extends MainModel
         return $role['role'] ?? 0;
     }
 
-    public function createNews(User $user, Association $association)
+    public function createNews(Association $association)
     {
         if (!UsersManager::getPermissionsManager()->checkPermissions(
-            $this->userAdmniPermissions($user, $association),
+            $this->userAdmniPermissions(UserSession::getUser(), $association),
             PermissionsManager::AP_CREATE_NEWS,
             false
         ))
@@ -205,12 +205,12 @@ class AssociationsAdmniModel extends MainModel
             $news['article'] = strip_tags($news['article'], $premittedTags);
 
         // 65535 it's the max bytes that the MySQL TEXT data type can handle
-        if (strlen($news['title']) > 65_535) {
+        if (strlen($news['article']) > 65_535) {
             $foundError = true;
             $errors[] = 'The article was too big, maxlength it\'s 65.535 bytes.';
             $errors[] = 'One good solution it\'s to the news in two or more.';
-            $news['title'] = substr($news['title'], 0, 80);
-        } elseif (strlen($news['title']) <= 0) {
+            $news['article'] = substr($news['article'], 0, 65_535);
+        } elseif (strlen($news['article']) <= 0) {
             $foundError = true;
             $errors[] = 'The article it\'s too much short.';
             $errors[] = 'Write something more.';
@@ -236,7 +236,7 @@ class AssociationsAdmniModel extends MainModel
             'news',
             [
                 'association' => $association->id,
-                'author' => $user->id,
+                'author' => UserSession::getUser()->id,
                 'title' => $news['title'],
                 'image' => $news['image']['name'],
                 'article' => $news['article'],
@@ -267,6 +267,97 @@ class AssociationsAdmniModel extends MainModel
         $_SESSION['news-created'] = 'A news was created.';
 
         unset($news, $foundError, $errors, $_SESSION['news']);
+    }
+
+    public function createEvent(Association &$association)
+    {
+        if (!UsersManager::getPermissionsManager()->checkPermissions(
+            $this->userAdmniPermissions(UserSession::getUser(), $association),
+            PermissionsManager::AP_CREATE_EVENTS,
+            false
+        ))
+            return;
+
+        /**
+        * We have this control variables because we want to show the partner the
+        * rectified way to write their things.
+        *
+        * We will correct the partner input because we need it, if there's any
+        * error found the variable will become true and after all the
+        * corrections we test it, if it's true stop the function before creating
+        * a corrupt news, show the corrected version to the partner and point out
+        * errors, else we keep creating the news.
+        */
+        $foundError = false;
+        $errors = [];
+
+        if (!isset($_POST['event'])) {
+            $foundError = true;
+            $errors[] = 'There\'s nothing to create.';
+        }
+
+        $event = $_POST['event'] ?? [];
+
+        if (empty($event)
+            || empty($event['title'])
+            || empty($event['description'])
+            || empty($event['endDate'])
+        ) {
+            $foundError=true;
+            $errors[] = 'Be sure that all the fields (title and description) have input.';
+        }
+
+        if (isset($event['title']))
+            $event['title'] = strip_tags($event['title']);
+
+        if (strlen($event['title']) > 80) {
+            $foundError = true;
+            $errors[] = 'The title was too big, maxlength it\'s 80 bytes.';
+            $errors[] = 'Please revise your title.';
+            $event['title'] = substr($event['title'], 0, 80);
+        } elseif (strlen($event['title']) <= 0) {
+            $foundError = true;
+            $errors[] = 'The title it\'s too much short.';
+            $errors[] = 'Please revise your title.';
+        }
+
+        // the article can use only the tags above
+        if (isset($event['description']))
+            $event['description'] = strip_tags($event['description']);
+
+        if (strlen($event['description']) > 280) {
+            $foundError = true;
+            $errors[] = 'The article was too big, maxlength it\'s 280 bytes.';
+            $event['description'] = substr($event['description'], 0, 280);
+        } elseif (strlen($event['description']) <= 0) {
+            $foundError = true;
+            $errors[] = 'The article it\'s too much short.';
+            $errors[] = 'Write something more.';
+        }
+
+        $event['endDate'] = DateTime::createFromFormat('Y-m-d\TH:i', $event['endDate']);
+
+        if ($event['endDate'] < new DateTime()) {
+            $foundError = true;
+            $errors[] = 'The date has already passed.';
+        }
+
+        // And there it is. If found error during the function return null and
+        // the errors and corrected input
+        $_SESSION['event'] = serialize($event);
+        if ($foundError) {
+            $_SESSION['news-errors'] = $errors;
+            unset($event, $foundError, $errors);
+            return;
+        }
+
+        $association->createEvent($event['title'], $event['description'], $event['endDate']);
+
+        unset($event);
+
+        $_SESSION['event-created'] = 'An event was created.';
+
+        unset($foundError, $errors, $_SESSION['event']);
     }
 }
 

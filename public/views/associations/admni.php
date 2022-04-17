@@ -21,7 +21,7 @@ if (UsersManager::getPermissionsManager()->checkPermissions(
     PermissionsManager::AP_ADMNI_EVENTS,
     false
 ))
-    require VIEWS_PATH . '/associations/news.php';
+    require VIEWS_PATH . '/associations/events.php';
 ?>
 
 </main>

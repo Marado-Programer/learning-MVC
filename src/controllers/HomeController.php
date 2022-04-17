@@ -19,7 +19,7 @@ class HomeController extends MainController
 
     protected function indexMain()
     {
-        if (!$this->userSession->user->loggedIn)
+        if (!UserSession::getUser()->loggedIn)
             return;
 
         if (isset($_POST['association'])) {

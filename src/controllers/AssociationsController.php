@@ -20,8 +20,8 @@ class AssociationsController extends MainController
     public function indexMain()
     {
         if (
-            !UsersManager::getPermissionsManager()->checkUserPermissions(
-                $this->userSession->user,
+            !UsersManager::getPermissionsManager()->checkPermissions(
+                UserSession::getUser()->permissions,
                 $this->premissionsRequired,
                 false
             )
@@ -55,7 +55,7 @@ class AssociationsController extends MainController
 
     public function admni()
     {
-        if (!$this->userSession->user->loggedIn)
+        if (!UserSession::getUser()->loggedIn)
             return;
 
         if (!isset($this->parameters[0]))
@@ -68,7 +68,7 @@ class AssociationsController extends MainController
         if (!isset($association))
             return;
 
-        $permissions = $this->model->userAdmniPermissions($this->userSession->user, $association);
+        $permissions = $this->model->userAdmniPermissions(UserSession::getUser(), $association);
 
         if (!UsersManager::getPermissionsManager()->checkPermissions(
             $permissions,
@@ -78,8 +78,11 @@ class AssociationsController extends MainController
             return;
 
         if (isset($_POST['create']))
-            $this->model->createNews($this->userSession->user, $association);
-            
+            $this->model->createNews($association);
+
+        if (isset($_POST['event']))
+            $this->model->createEvent($association);
+
         require VIEWS_PATH . '/includes/header.php';
         require VIEWS_PATH . '/includes/nav.php';
 

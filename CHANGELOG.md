@@ -2,11 +2,14 @@
 
 All notable changes to this publication will be documented in this file.
 
+## 0.3.13 - 2022-16-05
+Start Events system.
+
 ## 0.3.12 - 2022-16-05
-``Finished'' news controller
+``Finished'' news controller.
 
 ## 0.3.11 - 2022-15-05
-Can create a news. Start news controller
+Can create a news. Start news controller.
 
 ## 0.3.10 - 2022-14-05
 Start news creator.

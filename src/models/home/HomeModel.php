@@ -8,12 +8,13 @@ class HomeModel extends MainModel
 {
     public function getUserAssociations()
     {
-        $associations = $this->db->query('SELECT * FROM `usersAssociations` WHERE `userID` = ' . $this->controller->userSession->user->id . ';');
+        $associations = $this->db->query('SELECT * FROM `usersAssociations` WHERE `userID` = ' . UserSession::getUser()->id . ';');
 
         if (!$associations)
             return;
 
         foreach ($associations->fetchAll(PDO::FETCH_ASSOC) as $association) {
+            print_r($association);
             $this->controller->userAssociations->add($this->instanceAssociationByID($association['associationID']));
         }
     }
