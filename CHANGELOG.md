@@ -2,6 +2,9 @@
 
 All notable changes to this publication will be documented in this file.
 
+## 0.3.16 - 2022-18-05
+Can enter association.
+
 ## 0.3.15 - 2022-17-05
 Trying to create a new DB system.
 

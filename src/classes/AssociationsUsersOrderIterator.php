@@ -71,8 +71,8 @@ class AssociationsUsersOrderIterator implements Iterator
             return false;
 
         return $this->sawUsers
-            ? $cur->president->id == UserSession::getUser()->id
-            : $cur->president->id != UserSession::getUser()->id;
+            ? $cur->partners['president']->id == UserSession::getUser()->id
+            : $cur->partners['president']->id != UserSession::getUser()->id;
     }
 }
 

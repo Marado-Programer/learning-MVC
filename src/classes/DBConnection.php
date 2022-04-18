@@ -11,12 +11,32 @@ class DBConnection implements DBMethods
     private $cache = [];
     private $error;
 
-    public function __construct(DBService $service)
+    public function __construct()
     {
-        $this->connection = $service;
+        $this->connection = DBService::getInstance();
     }
 
-    public function query($statment, $dataArray = null)
+    public function checkConnection()
+    {
+        return (bool) $this->connection;
+    }
+
+    public function beginTransaction()
+    {
+        $this->connection->beginTransaction();
+    }
+
+    public function commit()
+    {
+        $this->connection->commit();
+    }
+
+    public function rollBack()
+    {
+        $this->connection->rollBack();
+    }
+
+    public function query($statment, array $dataArray)
     {
         $query = $this->connection->pdo->prepare($statment);
 
@@ -26,11 +46,21 @@ class DBConnection implements DBMethods
         }
 
         if (!isset($this->cache[$query])) {
-            $result = $this->connection->query($query, $dataArray);
+            $result = $this->connection->query($statment, $dataArray);
             $this->cache[$query] = $result;
         }
 
         return $this->cache[$query];
+    }
+
+    public function insert(string $table, array ...$inserts) {
+        $this->connection->insert($table, $inserts);
+    }
+
+    public function resultToCache(PDOStatement $query, $result, $force = false)
+    {
+        if (!isset($this->cache[$query]) || $force)
+            $this->cache[$query] = $result;
     }
 
     public function getErrors()

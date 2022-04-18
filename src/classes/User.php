@@ -18,9 +18,6 @@ class User
     public $telephone;
     public $permissions;
 
-    public $associations = [];
-    public $yourAssociations = [];
-
     public function __construct(
         string $username = 'Guest',
         ?string $password = "\0",
@@ -56,36 +53,105 @@ class User
 
     public function enterAssociation(Association &$association)
     {
-        if (in_array($association, $this->yourAssociations)) {
-            echo "error: you are the president of this association, already in it";
-
-            return;
-        }
-
-        if (in_array($association, $this->associations)) {
-            echo "error: already in this association";
-
-            return;
-        }
-
-        $association->addPartner($this);
+        $association->createPartner($this);
         $this->associations[] = $association;
     }
 
     public function createAssociation(
+        ?int $id,
         string $name,
+        string $nickname,
         string $address,
-        int $telephoneInternationalCodePrefix,
-        int $telephone,
+        string $telephone,
+        int $taxpayerNumber
     ) {
-        $this->yourAssociations[] = new Association(
+        $db = new SystemDB();
+
+        if (!$db->pdo)
+            die('Connection error');
+
+        $db->pdo->beginTransaction();
+
+        $createdAssoc = $db->insert('associations',
+            [
+                'id' => $id,
+                'name' => $name,
+                'nickname' => $nickname,
+                'address' => $address,
+                'telephone' => $telephone,
+                'taxpayerNumber' => $taxpayerNumber,
+                'president' => $this->id
+            ]
+        );
+
+        if (!$createdAssoc) {
+            $db->pdo->rollBack();
+            die('Failed to create association 1');
+        }
+
+        $createdAssocID = $db->query(
+                'SELECT `id` FROM `associations` WHERE `nickname` = ?;',
+                [
+                    $nickname,
+                ]
+        )->fetch(PDO::FETCH_ASSOC);
+
+        if (!$createdAssocID) {
+            $db->pdo->rollBack();
+            die('Failed to create association');
+        }
+
+        $userAssoc = $db->insert(
+            'usersAssociations',
+            [
+                'associationID' => $createdAssocID['id'],
+                'userID' => $this->id,
+                'role' => PermissionsManager::AP_PRESIDENT
+            ]
+        );
+
+        if (!$userAssoc) {
+            $db->pdo->rollBack();
+            die('Failed to create association');
+        }
+
+        $db->pdo->commit();
+
+        $newAssoc = new Association(
+            $id,
             $name,
+            $nickname,
             $address,
-            $telephoneInternationalCodePrefix,
             $telephone,
+            $taxpayerNumber,
             $this
         );
-        $this->associations[] = $this->yourAssociations[count($this->yourAssociations)];
+
+        $this->yourAssociations[] = $newAssoc;
+        $this->associations[] = $newAssoc;
+
+        return $newAssoc;
+    }
+
+    public function initAssociation(
+        int $id,
+        string $name,
+        string $nickname,
+        string $address,
+        string $telephone,
+        int $taxpayerNumber
+    ) {
+        $newAssoc = new Association(
+            $id,
+            $name,
+            $nickname,
+            $address,
+            $telephone,
+            $taxpayerNumber,
+            $this
+        );
+
+        return $newAssoc;
     }
 
     public function getPermissions()
@@ -99,6 +165,12 @@ class User
             return;
 
         $this->permissions = $permissions;
+    }
+
+    public function __clone()
+    {
+        $this->loggedIn = false;
+        $this->password = "";
     }
 }
 

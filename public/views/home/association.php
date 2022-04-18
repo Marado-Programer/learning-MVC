@@ -4,7 +4,7 @@
             <th scope="row"><?=$association->name?>
             <td ><?=$association->address?>
             <td ><?=$association->telephone?>
-            <td ><?=$association->president->realName?>
+            <td ><?=$association->partners['president']->realName?>
             <td ><?=count($association->partners)?>
             <form method="post"
                 action="#">

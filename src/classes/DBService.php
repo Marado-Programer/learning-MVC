@@ -32,7 +32,7 @@ class DBService implements DBMethods
         string $user = 'root',
         string $password = '',
         string $charset = 'utf8mb4',
-        string $debug = true
+        bool $debug = true
     ): PDOConfig {
         $this->host = defined('DB_HOSTNAME')
             ? DB_HOSTNAME
@@ -92,11 +92,14 @@ class DBService implements DBMethods
             $this->useConfig($this->config);
     }
 
-    public function useConfig(PDOConfig $config = $this->config)
+    public function useConfig(PDOConfig $config = null)
     {
-        $dsn = $config->dsn;
-        $username = $config->username;
-        $password = $config->password;
+        if (!isset($config))
+            $config = $this->config;
+
+        $dsn = $config->getDsn();
+        $username = $config->getUsername();
+        $password = $config->getPassword();
 
         try {
             $this->pdo = new PDO($dsn, $username, $password);
@@ -107,34 +110,55 @@ class DBService implements DBMethods
         }
     }
 
-    public function query($statment, $dataArray = null)
+    public function beginTransaction()
     {
-        $checkExec = $statment->execute($dataArray);
-
-        if ($checkExec)
-            return $statment;
+        $this->pdo->beginTransaction();
     }
 
-    public function insert(string $table)
+    public function commit()
+    {
+        $this->pdo->commit();
+    }
+
+    public function rollBack()
+    {
+        $this->pdo->rollBack();
+    }
+
+    public function query($statment, array $dataArray = null)
+    {
+        $query = $this->pdo->prepare($statment);
+
+        if (!$query) {
+            $this->error = $query->errorInfo()[2];
+            return false;
+        }
+
+        print_r($dataArray);
+
+        $checkExec = $query->execute($dataArray);
+
+        if ($checkExec)
+            return $query;
+    }
+
+    public function insert(string $table, array ...$inserts)
     {
         $cols = [];
         $placeHolders = '(';
         $values = [];
-        $data = func_get_args();
 
-        foreach ($data as $i => $arr) {
-            if ($i == 0)
-                continue;
+        foreach ($inserts as $arr) {
             if (!isset($arr) || !is_array($arr))
                 return;
         }
 
-        for ($i = 1; $i < count($data); $i++)
-            foreach ($data[$i] as $col => $val) {
-                if ($i === 1)
+        for ($i = 0; $i < count($inserts); $i++)
+            foreach ($inserts[$i] as $col => $val) {
+                if ($i === 0)
                     $cols[] = "`$col`";
 
-                if ($i != 1)
+                if ($i != 0)
                     $placeHolders .= '), (';
 
                 $placeHolders .= '?, ';
@@ -173,8 +197,8 @@ class DBService implements DBMethods
         if (!is_array($values))
             return;
 
-        foreach ($values as $column => $value)
-            $set[] = "`$column` = ?";
+        for ($i = 0; $i > count($values); $i++)
+            $set[] = "`$i` = ?";
 
         $set = implode(', ', $set);
 

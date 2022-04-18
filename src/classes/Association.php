@@ -14,12 +14,11 @@ class Association
     private $freeSpaceNews = [];
 
     public $partners;
-    public $president;
 
     private $priceDue = 5.00;
 
     public function __construct(
-        int $id,
+        ?int $id,
         string $name,
         string $nickname,
         string $address,
@@ -33,8 +32,7 @@ class Association
         $this->address = $address;
         $this->telephone = $telephone;
         $this->taxpayerNumber = $taxpayerNumber;
-        $this->partners[] = $president;
-        $this->president = $president;
+        $this->partners['president'] = $president;
     }
 
     public function addNews(News $news)
@@ -202,10 +200,38 @@ class Association
         return $list . "\n";
     }
 
-    public function addPartner(User $user)
+    public function createPartner(User $user)
     {
+        $db = new SystemDB();
+
+        if (!$db->pdo)
+            die('Connection error');
+
+        $db->pdo->beginTransaction();
+
+        $createdRole = $db->insert(
+            'usersAssociations',
+            [
+                'userID' => $user->id,
+                'associationID' => $this->id,
+                'role' => PermissionsManager::AP_PARTNER,
+            ]
+        );
+
+        if (!$createdRole) {
+            $db->pdo->rollBack();
+            die('Could not enter event.');
+        }
+
+        $db->pdo->commit();
+        
         $this->partners[] = $user;
         //$this->createDue($this->partners[count($this->partners)], new DateTime());
+    }
+
+    public function initPartner(User $user)
+    {
+        $this->partners[] = $user;
     }
 
     public function renewPartner(int $id)

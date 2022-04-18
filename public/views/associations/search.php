@@ -10,11 +10,6 @@
 
 <link href="<?=HOME_URI?>/public/style/css/associations.css" rel="stylesheet" />
 
-<form method="post"
-    action="#"
-    id="visit">
-</form>
-
 <table>
     <caption>
         <strong>Associations List</strong>

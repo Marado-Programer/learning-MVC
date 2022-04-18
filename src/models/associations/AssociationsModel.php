@@ -22,25 +22,27 @@ class AssociationsModel extends MainModel
         if (!$associations)
             return;
 
-        foreach ($associations->fetchAll() as $association) {
+        foreach ($associations->fetchAll(PDO::FETCH_ASSOC) as $association) {
             $this->controller->associations->add($this->instanceAssociation($association));
         }
     }
 
     private function instanceAssociation(array $association)
     {
-        $association = new Association(
+        $user = UserSession::getUser();
+        $president = $user->id == $association['president'] ? $user : $this->instanceUserByID($association['president']);
+        $association = $president->initAssociation(
             $association['id'],
             $association['name'],
             $association['nickname'],
             $association['address'],
             $association['telephone'],
-            $association['taxpayerNumber'],
-            $this->instanceUserByID($association['president'])
+            $association['taxpayerNumber']
         );
 
         foreach($this->getAssociationPartners($association->id) as $partner)
-            $association->addPartner($this->instanceUserByID($partner['userID']));
+            if ($partner['userID'] != $president->id)
+                $association->initPartner($this->instanceUserByID($partner['userID']));
 
         return $association;
     }
@@ -120,30 +122,28 @@ class AssociationsModel extends MainModel
 
         unset($association['phone'], $association['int'], $association['number']);
 
-        $this->db->insert('associations', array_merge(
-            $association,
-            [
-                'president' => UserSession::getUser()->id
-            ]
-        ));
 
-        $association = $this->db->query(
-                'SELECT `id` FROM `associations` WHERE `name` = ?;',
-                [
-                    $association['name'],
-                ]
-        )->fetch(PDO::FETCH_ASSOC);
+        $association = UserSession::getUser()->createAssociation(
+            null,
+            $association['name'],
+            $association['nickname'],
+            $association['address'],
+            $association['telephone'],
+            $association['taxpayerNumber'],
+        );
+
+        $association->createPartner(UserSession::getUser());
+    }
+
+    public function enterAssocition($id)
+    {
+        $association = $this->db->query("SELECT * FROM `associations` WHERE `id` = $id;")->fetch(PDO::FETCH_ASSOC);
 
         if (!$association)
             return;
 
-        $this->db->insert(
-            'usersAssociations',
-            [
-                'associationID' => $association['id'],
-                'userID' => UserSession::getUser()->id,
-                'role' => PermissionsManager::AP_PRESIDENT
-            ]
-        );
+        $association = $this->instanceAssociation($association);
+
+        UserSession::getUser()->enterAssociation($association);
     }
 }
