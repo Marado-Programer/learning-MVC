@@ -6,7 +6,9 @@
         $button = '<p><button name="asAssociation" value="' . $_POST['search-events'] . '">Make part of this Event</button></p>';
         $aAttrs = ' target="_blank" rel="noopener noreferrer"';
     } elseif (UserSession::getUser()->loggedIn)
-        $button = '<p><button name="asPartner">Buy ticket</button></p>';
+        foreach ($event->associations as $association)
+            if (in_array(clone UserSession::getUser(), $association->partners))
+                $button = '<p><button name="asPartner">Buy ticket</button></p>';
 ?>
 <li>
     <form method="post"
@@ -19,3 +21,4 @@
     </form>
     <hr />
 </li>
+

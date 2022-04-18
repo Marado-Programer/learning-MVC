@@ -2,6 +2,15 @@
 
 All notable changes to this publication will be documented in this file.
 
+## 0.3.17 - 2022-18-05
+Can enter event.
+
+Errors found:
+- Partners(president) of Association Object are Users;
+- Recursion on registrations because registrations has an event as events has registrations;
+- Buying tickets/enter events duplicates the event on the view;
+- Buying tickets button appears after other assoc enters it and you are a part of it;
+
 ## 0.3.16 - 2022-18-05
 Can enter association.
 

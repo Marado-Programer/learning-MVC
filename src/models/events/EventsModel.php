@@ -56,10 +56,32 @@ class EventsModel extends MainModel
         $event->addAssociation($this->getAssociationByID($idAssociation));
     }
 
+    public function joinPartnerToEvent(int $idEvent, Partner $user)
+    {
+        $event = $this->getEventByID($idEvent);
+
+        $user->enterEvent($event);
+    }
+
     private function instanceEvent(array $event)
     {
-        return new Events(
-            $this->getAssociationByID($event['association']),
+        $association = $this->db->query("SELECT * FROM `associations` WHERE `id` = " . $event['association'] . ";")->fetch(PDO::FETCH_ASSOC);
+
+        if (!$association)
+            return;
+        
+        $partner = $this->getPartnerByID($association['president']);
+        
+        $association = $partner->initAssociation(
+            $association['id'],
+            $association['name'],
+            $association['nickname'],
+            $association['address'],
+            $association['telephone'],
+            $association['taxpayerNumber'],
+        );
+
+        return $association->initEvent(
             $event['title'],
             $event['description'],
             DateTime::createFromFormat('Y-m-d H:i:s', $event['endDate']),
@@ -93,16 +115,43 @@ class EventsModel extends MainModel
     private function getPartnerByID(int $id)
     {
         $user = $this->db->query("SELECT * FROM `users` WHERE `id` = $id;");
+        
+        $db = new SystemDB();
+
+        if (!$db->pdo)
+            die('Connection error');
+
+        $db->pdo->beginTransaction();
+
+        $userRoles = $db->query("SELECT `role` FROM `usersAssociations` WHERE `userID` = $id;")->fetchAll(PDO::FETCH_ASSOC);
+
+        if (!$userRoles) {
+            $db->pdo->rollBack();
+            die('Internal error');
+        }
+
+        $db->pdo->commit();
+
+        if (count($userRoles) > 0)
+            $isPresident = false;
+            foreach ($userRoles as $role) 
+                if (UsersManager::getPermissionsManager()->checkPermissions(
+                    $role['role'],
+                    PermissionsManager::AP_PRESIDENT,
+                    false
+                ))
+                    $isPresident = true;
 
         if (!$user)
             return;
 
-        return $this->instancePartnerByID($user->fetch(PDO::FETCH_ASSOC));
+        return $this->instancePartnerByID($user->fetch(PDO::FETCH_ASSOC), $isPresident);
     }
 
-    private function instancePartnerByID(array $user)
+    private function instancePartnerByID(array $user, $isPresident)
     {
-        return new Partner(
+        $class = $isPresident ? 'President' : 'Partner';
+        return new $class(
             $user['username'],
             null,
             $user['realName'],

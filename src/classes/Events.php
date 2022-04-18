@@ -21,6 +21,43 @@ class Events
         $this->associations['ini'] = $association;
         $this->endDate = $endDate;
         $this->id = $id;
+        $this->getRegistrations();
+    }
+
+    public function getRegistrations()
+    {
+        $db = new SystemDB();
+
+        if (!$db->pdo)
+            die('Connection error');
+
+        $registrations = $db->query("SELECT * FROM `registrations` WHERE `eventID` = $this->id;")->fetchAll(PDO::FETCH_ASSOC);
+
+        if (!$registrations)
+            return;
+
+        foreach ($registrations as $registration) {
+            $users = $db->query("SELECT * FROM `users` WHERE `id` = " . $registration['partnerID'] . ';')->fetchAll(PDO::FETCH_ASSOC);
+        
+            if (!$users)
+                return;
+            
+            foreach ($users as $user) {
+                $this->registrations[] = new Registration(
+                    $this,
+                    new Partner(
+                        $user['username'],
+                        null,
+                        $user['realName'],
+                        $user['email'],
+                        $user['telephone'],
+                        $user['permissions'],
+                        false,
+                        $user['id']
+                    )
+                );
+            }
+        }
     }
 
     public function addAssociation(Association $association)
@@ -62,6 +99,33 @@ class Events
                 }
             $this->associations = array_values($this->associations);
         }
+    }
+
+    public function createRegistration(Partner $partner)
+    {
+        $db = new SystemDB();
+
+        if (!$db->pdo)
+            die('Connection error');
+
+        $db->pdo->beginTransaction();
+
+        $associationAddiction = $db->insert(
+            'registrations',
+            [
+                'eventID' => $this->id,
+                'partnerID' => $partner->id,
+            ]
+        );
+
+        if (!$associationAddiction) {
+            $db->pdo->rollBack();
+            die('Failed to add registration to event');
+        }
+
+        $db->pdo->commit();
+
+        $this->registrations[] = new Registration($this, $partner);
     }
 
     public function __toString()

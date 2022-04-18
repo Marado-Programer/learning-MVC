@@ -24,6 +24,8 @@ class UserSession extends Redirect
     {
         $this->setUser();
 
+        $extends = "User";
+
         // we need an username and a password to login
         if (!isset(self::$user->username) || !isset(self::$user->password)) {
             $this->loginError();
@@ -33,6 +35,7 @@ class UserSession extends Redirect
 
         $query = $this->db->query(
             'SELECT * FROM `users` WHERE `users`.`username` = ? LIMIT 1',
+            //'SELECT * FROM `users` INNER JOIN `usersAssociations` ON `users`.`id` = `usersAssociations`.`userID` WHERE `users`.`username` = ? LIMIT 1',
             array(self::$user->username)
         );
 
@@ -87,7 +90,25 @@ class UserSession extends Redirect
                 );
             }
 
-            self::$user = new User(
+            $db = new SystemDB();
+
+            if (!$db->pdo)
+                die('Connection error');
+
+            $userRoles = $db->query("SELECT `role` FROM `usersAssociations` WHERE `userID` = " . self::$user->id . ";")->fetchAll(PDO::FETCH_ASSOC);
+
+            if (count($userRoles) > 0) {
+                $extends = "Partner";
+                foreach ($userRoles as $role) 
+                    if (UsersManager::getPermissionsManager()->checkPermissions(
+                        $role['role'],
+                        PermissionsManager::AP_PRESIDENT,
+                        false
+                    ))
+                        $extends = 'President';
+            }
+
+            self::$user = new $extends(
                 $userUsername,
                 self::$user->password,
                 $fetchedUser['realName'],
@@ -123,7 +144,7 @@ class UserSession extends Redirect
          * Verify if already exists a user logged in.
          * If there isn't, we see if someone it's trying to login using a form
          */
-
+        
         if (isset(self::$user) && self::$user->loggedIn === true) {
             $this->usingPost = false;
 

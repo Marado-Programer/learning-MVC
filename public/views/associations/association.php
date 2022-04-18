@@ -10,5 +10,7 @@
                 action="#">
             <td class="space"><p><input type="hidden" name="association[id]" value="<?=$association->id?>" /></p>
             <td class="actions"><p><a href="<?=HOME_URI?>/@<?=$association->nickname?>">Visit page</a><?php if (UserSession::getUser()->loggedIn && !in_array(clone UserSession::getUser(), $association->partners)): ?><br />
-            <button name="association[action]" value="enter">Enter Association</button><?php endif ?></p>
+            <button name="association[action]" value="enter">Enter Association</button><?php endif ?><?php if (UserSession::getUser()->loggedIn && $association->checkIfAdmin(clone UserSession::getUser())): ?><br />
+            <a href="<?=HOME_URI?>/@<?=$association->nickname?>/admni">Admnistrator Panel</a><?php endif ?></p>
             </form>
+

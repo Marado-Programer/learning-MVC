@@ -73,6 +73,14 @@ CREATE TABLE `associationsEvents`(
 	FOREIGN KEY(`associationID`) REFERENCES `associations`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE `registrations`(
+	`eventID` INT(3) UNSIGNED,
+	`partnerID` INT(3) UNSIGNED,
+	PRIMARY KEY(`eventID`, `partnerID`),
+	FOREIGN KEY(`eventID`) REFERENCES `events`(`id`),
+	FOREIGN KEY(`partnerID`) REFERENCES `users`(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE `projects`(
 	`id` INT(11) UNSIGNED AUTO_INCREMENT,
 	`description` VARCHAR(150),

@@ -18,10 +18,5 @@ class President extends Partner
     {
         unset($this->associations[$i]);
     }
-
-    public function enterEvent(int $association, int $event)
-    {
-        $this->associations[$association]->registPartner($this, $event);
-    }
 }
 

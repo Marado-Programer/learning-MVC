@@ -9,7 +9,6 @@ class Association
     public $id;
     public $name, $nickname, $address, $telephone, $taxpayerNumber;
     public $news = [];
-    public $events = [];
     private $newsCounter = 0;
     private $freeSpaceNews = [];
 
@@ -33,6 +32,53 @@ class Association
         $this->telephone = $telephone;
         $this->taxpayerNumber = $taxpayerNumber;
         $this->partners['president'] = $president;
+        $this->getPartners();
+    }
+
+    private function getPartners()
+    {
+        $db = new SystemDB();
+
+        if (!$db->pdo)
+            die('Connection error');
+
+        $associationsPartners = $db->query("SELECT * FROM `usersAssociations` WHERE `associationID` = $this->id AND `userID` != " . $this->partners['president']->id . ";")->fetchAll(PDO::FETCH_ASSOC);
+
+        if (!$associationsPartners)
+            return;
+
+        foreach ($associationsPartners as $partner) {
+            $users = $db->query("SELECT * FROM `users` WHERE `id` = " . $partner['userID'] . ';')->fetchAll(PDO::FETCH_ASSOC);
+        
+            if (!$users)
+                return;
+            
+            foreach ($users as $user) {
+                $userRoles = $db->query("SELECT `role` FROM `usersAssociations` WHERE `userID` = " . $user['id'] . ";")->fetchAll(PDO::FETCH_ASSOC);
+
+                if (count($userRoles) > 0) {
+                    $extends = "Partner";
+                    foreach ($userRoles as $role) 
+                        if (UsersManager::getPermissionsManager()->checkPermissions(
+                            $role['role'],
+                            PermissionsManager::AP_PRESIDENT,
+                            false
+                        ))
+                            $extends = 'President';
+                }
+
+                $this->partners[] = new $extends(
+                    $user['username'],
+                    null,
+                    $user['realName'],
+                    $user['email'],
+                    $user['telephone'],
+                    $user['permissions'],
+                    false,
+                    $user['id']
+                );
+            }
+        }
     }
 
     public function addNews(News $news)
@@ -141,8 +187,13 @@ class Association
         }
 
         $db->pdo->commit();
-        
-        $this->events[] = new Events($this, $title, $description, $endDate, null);
+    }
+    
+    public function initEvent(string $title, string $description, DateTime $endDate, int $id)
+    {
+        $event = new Events($this, $title, $description, $endDate, $id);
+
+        return $event;
     }
 
     public function useEvent(Events $event)
@@ -250,6 +301,30 @@ class Association
         $this->events[$event]->registrations[] = new Registration($this->events[$event], $partner);
     }
 
+    public function checkIfAdmin(User $user)
+    {
+        $db = new SystemDB();
+
+        if (!$db->pdo)
+            die('Connection error');
+
+        $db->pdo->beginTransaction();
+
+        $role = $db->query("SELECT * FROM `usersAssociations` WHERE `userID` = $user->id AND `associationID` = $this->id;")->fetchAll(PDO::FETCH_ASSOC)[0];
+
+        if (!$role) {
+            $db->pdo->rollBack();
+            die('Could not check permission');
+        }
+
+        $db->pdo->commit();
+
+        return UsersManager::getPermissionsManager()->checkPermissions(
+            $role['role'],
+            PermissionsManager::AP_PARTNER_ADMNI,
+            false
+        );
+    }
 
     public function getTelephone()
     {

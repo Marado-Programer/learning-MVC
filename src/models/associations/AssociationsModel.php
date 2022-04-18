@@ -29,7 +29,7 @@ class AssociationsModel extends MainModel
 
     private function instanceAssociation(array $association)
     {
-        $user = UserSession::getUser();
+        $user = clone UserSession::getUser();
         $president = $user->id == $association['president'] ? $user : $this->instanceUserByID($association['president']);
         $association = $president->initAssociation(
             $association['id'],
@@ -40,22 +40,7 @@ class AssociationsModel extends MainModel
             $association['taxpayerNumber']
         );
 
-        foreach($this->getAssociationPartners($association->id) as $partner)
-            if ($partner['userID'] != $president->id)
-                $association->initPartner($this->instanceUserByID($partner['userID']));
-
         return $association;
-    }
-
-    private function getAssociationPartners($id)
-    {
-        $user = $this->db->query("SELECT * FROM `usersAssociations` WHERE `associationID` = $id;");
-
-        if (!$user)
-            return;
-
-        return $user->fetchAll(PDO::FETCH_ASSOC);
-
     }
 
     private function instanceUserByID(int $id)
@@ -131,8 +116,6 @@ class AssociationsModel extends MainModel
             $association['telephone'],
             $association['taxpayerNumber'],
         );
-
-        $association->createPartner(UserSession::getUser());
     }
 
     public function enterAssocition($id)

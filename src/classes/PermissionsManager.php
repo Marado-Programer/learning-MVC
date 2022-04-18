@@ -65,7 +65,7 @@ final class PermissionsManager
         int $userPermissions = self::P_ZERO,
         int $requiredPermissions,
         bool $strict = true
-    ) {
+    ): bool {
         return (bool) (
             $strict
             ? $userPermissions == $requiredPermissions
@@ -77,7 +77,7 @@ final class PermissionsManager
         User &$user = null,
         int $requiredPermissions,
         bool $strict = true
-    ) {
+    ): bool {
         return (bool) (
             $strict
             ? $user->permissions == $requiredPermissions

@@ -33,5 +33,9 @@ class Partner extends User
     {
         $this->dues[] = new Dues($this, $association, $price, $endDate, $startDate);
     }
+
+    public function enterEvent(Events $event) {
+        $event->createRegistration($this);
+    }
 }
 

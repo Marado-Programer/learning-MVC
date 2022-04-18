@@ -26,11 +26,16 @@ class EventsController extends MainController
         else
             $this->model->getEvents();
 
-        if (isset($_POST['asAssociation']))
-            $this->model->joinAssociationToEvent($_POST['event']['id'], $_POST['asAssociation']);
-        elseif (isset($_POST['asPartner']))
-            $this->model->joinPartnerToEvent();
+        if (isset($_POST['event'])) {
+            $event = $_POST['event'];
+            if (isset($_POST['asAssociation']))
+                $this->model->joinAssociationToEvent($event['id'], $_POST['asAssociation']);
+            elseif (isset($_POST['asPartner']))
+                if (($user = UserSession::getUser()) instanceof Partner)
+                    $this->model->joinPartnerToEvent($event['id'], $user);
+        }
         
+
         require VIEWS_PATH . '/events/index.php';
     }
 
