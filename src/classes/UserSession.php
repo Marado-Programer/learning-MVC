@@ -95,7 +95,7 @@ class UserSession extends Redirect
             if (!$db->pdo)
                 die('Connection error');
 
-            $userRoles = $db->query("SELECT `role` FROM `usersAssociations` WHERE `userID` = " . self::$user->id . ";")->fetchAll(PDO::FETCH_ASSOC);
+            $userRoles = $db->query("SELECT `role` FROM `usersAssociations` WHERE `user` = " . self::$user->id . ";")->fetchAll(PDO::FETCH_ASSOC);
 
             if (count($userRoles) > 0) {
                 $extends = "Partner";
@@ -128,11 +128,10 @@ class UserSession extends Redirect
             }
 
             return;
-        } else {
-            $this->loginError('Password does not match.');
-
-            return;
         }
+        $this->loginError('Password does not match.');
+
+        return;
     }
 
     private function setUser()

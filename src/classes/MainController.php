@@ -59,7 +59,7 @@ abstract class MainController
     final public function index()
     {
         $this->parameters = func_num_args() >= 1 ? func_get_arg(0) : array();
-        
+
         require VIEWS_PATH . '/includes/header.php';
         require VIEWS_PATH . '/includes/nav.php';
 

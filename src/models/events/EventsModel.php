@@ -37,9 +37,9 @@ class EventsModel extends MainModel
         $events = $this->db->query(
             "SELECT * FROM `events`
             WHERE `id` NOT IN (
-                SELECT `eventID` FROM `associationsEvents`
-                WHERE `associationID` = $id
-                GROUP BY `eventID`
+                SELECT `event` FROM `associationsEvents`
+                WHERE `association` = $id
+                GROUP BY `event`
             );"
         );
 
@@ -65,7 +65,7 @@ class EventsModel extends MainModel
 
     private function instanceEvent(array $event)
     {
-        $association = $this->db->query("SELECT * FROM `associations` WHERE `id` = " . $event['association'] . ";")->fetch(PDO::FETCH_ASSOC);
+        $association = $this->db->query("SELECT * FROM `associationWPresident` WHERE `id` = " . $event['association'] . ";")->fetch(PDO::FETCH_ASSOC);
 
         if (!$association)
             return;

@@ -13,15 +13,20 @@ if (UsersManager::getPermissionsManager()->checkPermissions(
     false
 ))
     require VIEWS_PATH . '/associations/news.php';
-?>
 
-<?php
 if (UsersManager::getPermissionsManager()->checkPermissions(
     $permissions,
     PermissionsManager::AP_ADMNI_EVENTS,
     false
 ))
     require VIEWS_PATH . '/associations/events.php';
+
+if (UsersManager::getPermissionsManager()->checkPermissions(
+    $permissions,
+    PermissionsManager::AP_ADMNI_IMAGES,
+    false
+))
+    require VIEWS_PATH . '/associations/images.php';
 ?>
 
 </main>

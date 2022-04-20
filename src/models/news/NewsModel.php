@@ -6,6 +6,16 @@
 
 class NewsModel extends MainModel
 {
+    public function getNews()
+    {
+        $news = $this->db->query('SELECT * FROM `news`;');
+
+        if (!$news)
+            return;
+
+        foreach ($news->fetchAll(PDO::FETCH_ASSOC) as $aNews)
+            $this->controller->news->add($this->instanceNews($aNews));
+    }
     public function getNewsByDate($date)
     {
         $query = 'SELECT * FROM `news`;';
@@ -60,7 +70,6 @@ class NewsModel extends MainModel
         $this->controller->news->add($this->instanceNews($news->fetch(PDO::FETCH_ASSOC)));
     }
 
-
     public function instanceNews(array $news)
     {
         return new News(
@@ -77,7 +86,7 @@ class NewsModel extends MainModel
 
     public function getAssociationByID($id)
     {
-        $association = $this->db->query("SELECT * FROM `associations` WHERE `id` = $id;");
+        $association = $this->db->query("SELECT * FROM `associationWPresident` WHERE `id` = $id;");
 
         if (!$association)
             return;

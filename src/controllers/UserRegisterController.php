@@ -8,7 +8,7 @@ class UserRegisterController extends MainController
 {
     function indexMain()
     {
-        require ROOT_PATH . '/public/views/user-register/signin.php'; 
+        require VIEWS_PATH . '/user-register/sign-up.php'; 
 
         $this->model = $this->loadModel('user-register/SignInModel');
 

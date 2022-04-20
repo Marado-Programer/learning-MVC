@@ -31,6 +31,7 @@ if (
         PermissionsManager::P_VIEW_ASSOCIATIONS,
         false
     )
+    && UserSession::getUser()->loggedIn
 )
     require VIEWS_PATH . '/associations/create.php';
 ?>

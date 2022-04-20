@@ -1,5 +1,4 @@
 <?php if (!defined('ROOT_PATH')) exit ?>
-
         <tr>
             <th scope="row" id="name"><?=$association->name?>
             <td ><?=$association->address?>

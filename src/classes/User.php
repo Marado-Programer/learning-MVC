@@ -6,9 +6,6 @@
 
 class User
 {
-    private static $userCounter = 1;
-    private static $freeIDs = [];
-
     public $loggedIn;
     public $id;
     public $username;
@@ -18,6 +15,8 @@ class User
     public $telephone;
     public $permissions;
 
+    private $userDues = [];
+
     public function __construct(
         string $username = 'Guest',
         ?string $password = "\0",
@@ -26,29 +25,71 @@ class User
         ?string $telephone = "\0",
         int $permissions = PermissionsManager::P_VIEW_ASSOCIATIONS,
         bool $loggedIn = false,
-        int $id = null
+        int $id = -1
     ) {
         $this->loggedIn = $loggedIn;
-        $this->id = $id ?? ($this->loggedIn ? $this->defineID() : -1);
+        $this->id = $id;
         $this->permissions = $permissions;
         $this->username = $username;
         $this->password = $password;
         $this->telephone = $telephone;
         $this->realName = $realName;
         $this->email = $email;
+        if (isset($this->id))
+            $this->getDues();
     }
 
-    final protected function defineID()
+    public function getDues()
     {
-        if (empty(self::$freeIDs))
-            $id = self::$userCounter;
-        else {
-            $id = self::$freeIDs[0];
-            unset(self::$freeIDs[0]);
-            self::$freeIDs = array_values(self::$freeIDs);
+        $db = new SystemDB();
+
+        if (!$db->pdo)
+            die('Connection error');
+
+        $userDues = $db->query('SELECT * FROM `dues` WHERE `partner` = ' . $this->id . ';');
+
+        if (!$userDues)
+            return;
+        
+        foreach ($userDues->fetchAll(PDO::FETCH_ASSOC) as $due)
+            $this->userDues[] = new Dues(
+                $this,
+                $due['association'],
+                $due['price'],
+                DateTime::createFromFormat('Y-m-d H:i:s', $due['endDate']),
+                DateTime::createFromFormat('Y-m-d H:i:s', $due['startDate'])
+            );
+    }
+
+    public function receiveDue(Association $association, float $price, DateTime $endDate, ?DateTime $startDate = null)
+    {
+        if (!isset($startDate))
+            $startDate = $endDate;
+
+        $db = new SystemDB();
+
+        if (!$db->pdo)
+            die('Connection error');
+
+        $db->pdo->beginTransaction();
+
+        $createdDue = $db->insert(
+            'dues',
+            [
+                'association' => $association->id,
+                'partner' => $this->id,
+                'price' => $price,
+                'startDate' => $startDate->format('Y-m-d H-i-s'),
+                'endDate' => $endDate->format('Y-m-d H-i-s')
+            ]
+        );
+
+        if (!$createdDue) {
+            $db->pdo->rollBack();
+            die('Could not create due.');
         }
-        self::$userCounter++;
-        return $id;
+
+        $db->pdo->commit();
     }
 
     public function enterAssociation(Association &$association)
@@ -58,7 +99,6 @@ class User
     }
 
     public function createAssociation(
-        ?int $id,
         string $name,
         string $nickname,
         string $address,
@@ -74,19 +114,17 @@ class User
 
         $createdAssoc = $db->insert('associations',
             [
-                'id' => $id,
                 'name' => $name,
                 'nickname' => $nickname,
                 'address' => $address,
                 'telephone' => $telephone,
                 'taxpayerNumber' => $taxpayerNumber,
-                'president' => $this->id
             ]
         );
 
         if (!$createdAssoc) {
             $db->pdo->rollBack();
-            die('Failed to create association 1');
+            die('Failed to create association');
         }
 
         $createdAssocID = $db->query(
@@ -94,18 +132,20 @@ class User
                 [
                     $nickname,
                 ]
-        )->fetch(PDO::FETCH_ASSOC);
+        );
 
         if (!$createdAssocID) {
             $db->pdo->rollBack();
             die('Failed to create association');
         }
+        
+        $assocID = $createdAssocID->fetch(PDO::FETCH_ASSOC)['id'];
 
         $userAssoc = $db->insert(
             'usersAssociations',
             [
-                'associationID' => $createdAssocID['id'],
-                'userID' => $this->id,
+                'association' => $assocID,
+                'user' => $this->id,
                 'role' => PermissionsManager::AP_PRESIDENT
             ]
         );
@@ -118,23 +158,21 @@ class User
         $db->pdo->commit();
 
         $newAssoc = new Association(
-            $id,
+            $assocID,
             $name,
             $nickname,
             $address,
             $telephone,
             $taxpayerNumber,
-            $this
         );
 
-        $this->yourAssociations[] = $newAssoc;
-        $this->associations[] = $newAssoc;
+        $newAssoc->createPartner($this);
 
         return $newAssoc;
     }
 
     public function initAssociation(
-        int $id,
+        ?int $id,
         string $name,
         string $nickname,
         string $address,
@@ -148,8 +186,9 @@ class User
             $address,
             $telephone,
             $taxpayerNumber,
-            $this
         );
+
+        $newAssoc->initPartner($this);
 
         return $newAssoc;
     }
@@ -165,6 +204,11 @@ class User
             return;
 
         $this->permissions = $permissions;
+    }
+
+    public function addDue(Dues $due)
+    {
+        $this->userDues[] = $due;
     }
 
     public function __clone()

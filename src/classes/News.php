@@ -17,17 +17,17 @@ class News
         string $image,
         string $article,
         DateTime $publishTime,
-        DateTime $lastEditTime,
-        int $id
+        ?DateTime $lastEditTime = null,
+        ?int $id = null
     ) {
-        $this->association = clone $association;        
-        $this->author = clone $author;
+        $this->association = $association;        
+        $this->author = $author;
         $this->title = $title;
         $this->image = $image;
         $this->article = $article;
         $this->publishTime = $publishTime;
-        $this->lastEditTime = $lastEditTime;
-        $this->id = $id;
+        $this->lastEditTime = $lastEditTime ?? $publishTime;
+        $this->id = $id ?? -1;
     }
 
     public function readNewsSimple()

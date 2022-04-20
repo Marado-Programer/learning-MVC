@@ -37,5 +37,14 @@ class Partner extends User
     public function enterEvent(Events $event) {
         $event->createRegistration($this);
     }
+
+    public function createNews(
+        Association $association,
+        string $title,
+        array $image,
+        string $article
+    ) {
+        $association->publishNews(clone $this, $title, $image, $article);
+    }
 }
 

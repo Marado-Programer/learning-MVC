@@ -8,21 +8,75 @@ class Dues
 {
     private $startDate, $endDate, $price;
 
-    private $partner;
     private $association;
 
     public function __construct(
-        Partner $partner,
-        Association $association,
+        User $user,
+        Association|int $association,
         float $price,
         DateTime $endDate,
-        DateTime $startDate = $endDate
+        DateTime $startDate
     ) {
-        $this->partner = $partner;
+        if (is_numeric($association))
+            $association = $this->instanceAssociation($association);
         $this->association = $association;
         $this->price = $price;
         $this->endDate = $endDate;
         $this->startDate = $startDate;
+        $this->deliver($user);
+    }
+
+    public function instanceAssociation($id)
+    {
+        $db = new SystemDB();
+
+        if (!$db->pdo)
+            return;
+
+        $associationData = $db->query(
+            'SELECT * FROM `associationWPresident` WHERE `id` = ?',
+            [$id]
+        );
+
+        if (!$associationData)
+            return;
+
+        $association = $associationData->fetch(PDO::FETCH_ASSOC);
+
+        if (($user = clone UserSession::getUser())->id != $association['president']) {
+            $userData = $db->query(
+                'SELECT * FROM `users` WHERE `id` = ?',
+                [$association['president']]
+            );
+
+            if (!$userData)
+                return;
+
+            $userDataFetched = $userData->fetch(PDO::FETCH_ASSOC);
+
+            $user = new User(
+                $userDataFetched['username'],
+                null,
+                $userDataFetched['realName'],
+                $userDataFetched['email'],
+                $userDataFetched['telephone'],
+                PermissionsManager::P_ZERO
+            );
+        }
+
+        return $user->initAssociation(
+            $association['id'],
+            $association['name'],
+            $association['nickname'],
+            $association['address'],
+            $association['telephone'],
+            $association['taxpayerNumber'],
+        );
+    }
+
+    private function deliver(User $user)
+    {
+        $user->addDue($this);
     }
 
     public function getId()

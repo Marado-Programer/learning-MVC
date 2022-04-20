@@ -17,21 +17,23 @@ class AssociationsModel extends MainModel
         )
             return;
 
-        $associations = $this->db->query('SELECT * FROM `associations`;');
+        $associations = $this->db->query("
+            SELECT * FROM `associations`
+            INNER JOIN `usersAssociations`
+            ON `associations`.`id` = `usersAssociations`.`association`;");
 
         if (!$associations)
             return;
 
-        foreach ($associations->fetchAll(PDO::FETCH_ASSOC) as $association) {
+        foreach ($associations->fetchAll(PDO::FETCH_ASSOC) as $association)
             $this->controller->associations->add($this->instanceAssociation($association));
-        }
     }
 
     private function instanceAssociation(array $association)
     {
         $user = clone UserSession::getUser();
-        $president = $user->id == $association['president'] ? $user : $this->instanceUserByID($association['president']);
-        $association = $president->initAssociation(
+        $president = $user->id == $association['user'] ? $user : $this->instanceUserByID($association['user']);
+        return $president->initAssociation(
             $association['id'],
             $association['name'],
             $association['nickname'],
@@ -39,8 +41,6 @@ class AssociationsModel extends MainModel
             $association['telephone'],
             $association['taxpayerNumber']
         );
-
-        return $association;
     }
 
     private function instanceUserByID(int $id)
@@ -95,7 +95,7 @@ class AssociationsModel extends MainModel
         if (!$association['address'])
             unset($association['address']);
 
-        if ($association['phone'] == 'yours' && !isset($this->controller->userSession->user->telephone))
+        if ($association['phone'] == 'yours' && !isset(UserSession::getUser()->telephone))
             return;
 
         if ($association['phone'] == 'new' && !isset($association['int'], $association['number']))
@@ -103,13 +103,11 @@ class AssociationsModel extends MainModel
 
         $association['telephone'] = $association['phone'] == 'new'
             ? '+' . $association['int'] . ' ' . $association['number']
-            : $this->controller->userSession->user->telephone;
+            : UserSession::getUser()->telephone;
 
         unset($association['phone'], $association['int'], $association['number']);
 
-
         $association = UserSession::getUser()->createAssociation(
-            null,
             $association['name'],
             $association['nickname'],
             $association['address'],
@@ -127,6 +125,6 @@ class AssociationsModel extends MainModel
 
         $association = $this->instanceAssociation($association);
 
-        UserSession::getUser()->enterAssociation($association);
+        $association->createPartner(UserSession::getUser());
     }
 }

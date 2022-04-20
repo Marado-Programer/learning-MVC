@@ -23,7 +23,6 @@ class Association
         string $address,
         string $telephone,
         int $taxpayerNumber,
-        User $president
     ) {
         $this->id = $id;
         $this->name = $name;
@@ -31,30 +30,28 @@ class Association
         $this->address = $address;
         $this->telephone = $telephone;
         $this->taxpayerNumber = $taxpayerNumber;
-        $this->partners['president'] = $president;
-        $this->getPartners();
     }
 
-    private function getPartners()
+    public function getPartners()
     {
         $db = new SystemDB();
 
         if (!$db->pdo)
             die('Connection error');
 
-        $associationsPartners = $db->query("SELECT * FROM `usersAssociations` WHERE `associationID` = $this->id AND `userID` != " . $this->partners['president']->id . ";")->fetchAll(PDO::FETCH_ASSOC);
+        $associationsPartners = $db->query('SELECT * FROM `usersAssociations` WHERE `association` = ' . $this->id . ';')->fetchAll(PDO::FETCH_ASSOC);
 
         if (!$associationsPartners)
             return;
 
         foreach ($associationsPartners as $partner) {
-            $users = $db->query("SELECT * FROM `users` WHERE `id` = " . $partner['userID'] . ';')->fetchAll(PDO::FETCH_ASSOC);
+            $users = $db->query("SELECT * FROM `users` WHERE `id` = " . $partner['user'] . ';')->fetchAll(PDO::FETCH_ASSOC);
         
             if (!$users)
                 return;
             
             foreach ($users as $user) {
-                $userRoles = $db->query("SELECT `role` FROM `usersAssociations` WHERE `userID` = " . $user['id'] . ";")->fetchAll(PDO::FETCH_ASSOC);
+                $userRoles = $db->query("SELECT `role` FROM `usersAssociations` WHERE `user` = " . $user['id'] . ";")->fetchAll(PDO::FETCH_ASSOC);
 
                 if (count($userRoles) > 0) {
                     $extends = "Partner";
@@ -67,7 +64,7 @@ class Association
                             $extends = 'President';
                 }
 
-                $this->partners[] = new $extends(
+                $partner = new $extends(
                     $user['username'],
                     null,
                     $user['realName'],
@@ -77,8 +74,54 @@ class Association
                     false,
                     $user['id']
                 );
+                
+                $this->partners[] = $partner;
             }
         }
+    }
+
+    public function publishNews(
+        Partner $user,
+        string $title,
+        array $image,
+        string $article
+    ) {
+        $db = new SystemDB();
+
+        if (!$db->pdo)
+            die('Connection error');
+
+        $createdNews = $db->insert(
+            'news',
+            [
+                'association' => $this->id,
+                'author' => $user->id,
+                'title' => $title,
+                'image' => $image['name'],
+                'article' => $article,
+                'publishTime' => ($now = new Datetime())->format('Y-m-d H:i:s'),
+                'lastEditTime' => $now->format('Y-m-d H:i:s')
+            ]
+        );
+
+        if (!$createdNews) {
+            $errors[] = "Failed to create news";
+            $_SESSION['news-errors'] = $errors;
+            return;
+        }
+
+        if (!file_exists(UPLOAD_PATH))
+            mkdir(UPLOAD_PATH, 0755, true);
+
+        if (!move_uploaded_file($image['tmp_name'], UPLOAD_PATH . '/' . $image['name'])) {
+            $errors[] = "Failed uploading file";
+            $_SESSION['news-errors'] = $errors;
+            return;
+        }
+
+        $_SESSION['news-created'] = 'A news was created.';
+
+        unset($_SESSION['news']);
     }
 
     public function addNews(News $news)
@@ -174,8 +217,8 @@ class Association
         $createdAssociationEvent = $db->insert(
             'associationsEvents',
             [
-                'associationID' => $this->id,
-                'eventID' => $event->fetch(PDO::FETCH_ASSOC)['id'],
+                'association' => $this->id,
+                'event' => $event->fetch(PDO::FETCH_ASSOC)['id'],
                 'isCreator' => true,
             ]
         );
@@ -189,6 +232,41 @@ class Association
         $db->pdo->commit();
     }
     
+    public function createImage(string $title, array $image)
+    {
+        $db = new SystemDB();
+
+        if (!$db->pdo)
+            die('Connection error');
+
+        $createdImage = $db->insert(
+            'image',
+            [
+                'association' => $this->id,
+                'title' => $title,
+                'path' => $image['name'],
+            ]
+        );
+
+        if (!$createdImage) {
+            $errors[] = "Failed to create image";
+            $_SESSION['image-errors'] = $errors;
+            return;
+        }
+
+        if (!file_exists(UPLOAD_PATH))
+            mkdir(UPLOAD_PATH, 0755, true);
+
+        if (!move_uploaded_file($image['tmp_name'], UPLOAD_PATH . '/' . $image['name'])) {
+            $errors[] = "Failed uploading file";
+            $_SESSION['image-errors'] = $errors;
+            return;
+        }
+
+        $_SESSION['image-created'] = 'A news was created.';
+
+        unset($_SESSION['image']);
+    }
     public function initEvent(string $title, string $description, DateTime $endDate, int $id)
     {
         $event = new Events($this, $title, $description, $endDate, $id);
@@ -253,36 +331,28 @@ class Association
 
     public function createPartner(User $user)
     {
+        $this->initPartner($user);
+        $this->createDue($user, $this->priceDue, new DateTime());
+    }
+
+    public function initPartner(User $user)
+    {
         $db = new SystemDB();
 
         if (!$db->pdo)
             die('Connection error');
 
-        $db->pdo->beginTransaction();
+        $role = $db->query('SELECT * FROM `usersAssociations` WHERE `user` = ' . $user->id . ' AND `association` = ' . $this->id . ';');
 
-        $createdRole = $db->insert(
-            'usersAssociations',
-            [
-                'userID' => $user->id,
-                'associationID' => $this->id,
-                'role' => PermissionsManager::AP_PARTNER,
-            ]
-        );
-
-        if (!$createdRole) {
+        if (!$role) {
             $db->pdo->rollBack();
             die('Could not enter event.');
         }
-
-        $db->pdo->commit();
         
-        $this->partners[] = $user;
-        //$this->createDue($this->partners[count($this->partners)], new DateTime());
-    }
-
-    public function initPartner(User $user)
-    {
-        $this->partners[] = $user;
+        if ($role->fetchAll(PDO::FETCH_ASSOC)[0]['role'] == PermissionsManager::AP_PRESIDENT)
+            $this->partners['president'] = $user;
+        else
+            $this->partners[] = $user;
     }
 
     public function renewPartner(int $id)
@@ -291,9 +361,37 @@ class Association
         $this->createDue($this->partners[$id], $now->modify('+1 month'), $now);
     }
 
-    public function createDue(Partner &$user, DateTime $endDate)
+    public function createDue(User $user, float $price, DateTime $endDate, DateTime $startDate = null)
     {
-        $user->recieveDue($this, $this->priceDue, $endDate);
+        if (!isset($startDate))
+            $startDate = $endDate;
+
+        $db = new SystemDB();
+
+        if (!$db->pdo)
+            die('Connection erro');
+
+        $db->pdo->beginTransaction();
+
+        $createdDue = $db->insert(
+            'dues',
+            [
+                'partner' => $user->id,
+                'association' => $this->id,
+                'price' => $price,
+                'startDate' => $startDate->format('Y-m-d H:i:s'),
+                'endDate' => $startDate->format('Y-m-d H:i:s')
+            ]
+        );
+
+        if (!$createdDue) {
+            $db->pdo->rollBack();
+            die('Could not create a due.');
+        }
+
+        $db->pdo->commit();
+
+        new Dues($user, $this, $price, $endDate, $startDate);
     }
 
     public function registPartner(Partner &$partner, int $event)
@@ -306,18 +404,10 @@ class Association
         $db = new SystemDB();
 
         if (!$db->pdo)
-            die('Connection error');
+            return;
 
-        $db->pdo->beginTransaction();
-
-        $role = $db->query("SELECT * FROM `usersAssociations` WHERE `userID` = $user->id AND `associationID` = $this->id;")->fetchAll(PDO::FETCH_ASSOC)[0];
-
-        if (!$role) {
-            $db->pdo->rollBack();
-            die('Could not check permission');
-        }
-
-        $db->pdo->commit();
+        if (!$role = $db->query("SELECT * FROM `usersAssociations` WHERE `user` = $user->id AND `association` = $this->id;")->fetchAll(PDO::FETCH_ASSOC)[0])
+            return;
 
         return UsersManager::getPermissionsManager()->checkPermissions(
             $role['role'],

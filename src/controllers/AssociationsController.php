@@ -7,6 +7,7 @@
 class AssociationsController extends MainController
 {
     public $associations;
+    public $association;
 
     public function __construct(
         $parameters = array(),
@@ -60,12 +61,12 @@ class AssociationsController extends MainController
 
         $this->model = $this->loadModel('associations/AssociationsAdmniModel');
 
-        $association = $this->model->getAssociationByNickname($this->parameters[0]);
+        $this->association = $this->model->getAssociationByNickname($this->parameters[0]);
 
-        if (!isset($association))
+        if (!isset($this->association))
             return;
 
-        $permissions = $this->model->userAdmniPermissions(UserSession::getUser(), $association);
+        $permissions = $this->model->userAdmniPermissions(UserSession::getUser(), $this->association);
 
         if (!UsersManager::getPermissionsManager()->checkPermissions(
             $permissions,
@@ -75,10 +76,13 @@ class AssociationsController extends MainController
             return;
 
         if (isset($_POST['create']))
-            $this->model->createNews($association);
+            $this->model->createNews($this->association);
 
         if (isset($_POST['event']))
-            $this->model->createEvent($association);
+            $this->model->createEvent($this->association);
+
+        if (isset($_POST['image']))
+            $this->model->createImage($this->association);
 
         require VIEWS_PATH . '/includes/header.php';
         require VIEWS_PATH . '/includes/nav.php';

@@ -25,7 +25,10 @@ class NewsController extends MainController
     {
         $this->model = $this->loadModel('news/NewsModel');
 
-        $this->model->getNewsByDate($this->parameters);
+        if(empty($this->parameters))
+            $this->model->getNews($this->parameters);
+        else
+            $this->model->getNewsByDate($this->parameters);
 
         require VIEWS_PATH . '/news/home.php';
     }

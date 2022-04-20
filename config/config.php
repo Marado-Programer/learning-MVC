@@ -13,6 +13,8 @@ define('CONTROLLERS_PATH', ROOT_PATH . '/src/controllers');
 
 define('HOME_URI', 'http://' . $_SERVER['SERVER_NAME'] . '/project');
 
+define('STYLE_URI', HOME_URI . '/public/style');
+
 // Config for PDO
 define('DB_HOSTNAME', 'localhost');
 define('DB_NAME', 'mvcProject');

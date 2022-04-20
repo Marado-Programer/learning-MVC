@@ -1,0 +1,16 @@
+.required::after {
+    color: red;
+    content: "*";
+}
+
+.required-meaning {
+    opacity: 33%;
+}
+
+.required-meaning:hover {
+    opacity: 66%;
+}
+
+.required-sign {
+    color: red;
+}

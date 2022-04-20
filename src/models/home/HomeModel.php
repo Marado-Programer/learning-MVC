@@ -8,33 +8,38 @@ class HomeModel extends MainModel
 {
     public function getUserAssociations()
     {
-        $associations = $this->db->query('SELECT * FROM `usersAssociations` WHERE `userID` = ' . UserSession::getUser()->id . ';');
+        $associations = $this->db->query('SELECT * FROM `usersAssociations` WHERE `user` = ' . UserSession::getUser()->id . ';');
 
         if (!$associations)
             return;
 
         foreach ($associations->fetchAll(PDO::FETCH_ASSOC) as $association) {
-            $this->controller->userAssociations->add($this->instanceAssociationByID($association['associationID']));
+            $this->controller->userAssociations->add($this->instanceAssociationByID($association['association']));
         }
     }
 
     private function instanceAssociationByID(int $id)
     {
-        $association = $this->db->query("SELECT * FROM `associations` WHERE `id` = $id;");
+        $association = $this->db->query("
+            SELECT * FROM `associations`
+            INNER JOIN `usersAssociations`
+            ON `associations`.`id` = `usersAssociations`.`association`
+            WHERE `associations`.`id` = $id
+            AND `usersAssociations`.`role` = " . PermissionsManager::AP_PRESIDENT . ";");
 
         if (!$association)
             return;
 
         $association = $association->fetch(PDO::FETCH_ASSOC);
 
-        return new Association(
+        $user = $this->instanceUserByID($association['user']);
+        return $user->initAssociation(
             $association['id'],
             $association['name'],
             $association['nickname'],
             $association['address'],
             $association['telephone'],
             $association['taxpayerNumber'],
-            $this->instanceUserByID($association['president'])
         );
     }
 

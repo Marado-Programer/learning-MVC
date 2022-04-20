@@ -31,13 +31,13 @@ class Events
         if (!$db->pdo)
             die('Connection error');
 
-        $registrations = $db->query("SELECT * FROM `registrations` WHERE `eventID` = $this->id;")->fetchAll(PDO::FETCH_ASSOC);
+        $registrations = $db->query("SELECT * FROM `registrations` WHERE `event` = $this->id;")->fetchAll(PDO::FETCH_ASSOC);
 
         if (!$registrations)
             return;
 
         foreach ($registrations as $registration) {
-            $users = $db->query("SELECT * FROM `users` WHERE `id` = " . $registration['partnerID'] . ';')->fetchAll(PDO::FETCH_ASSOC);
+            $users = $db->query("SELECT * FROM `users` WHERE `id` = " . $registration['partner'] . ';')->fetchAll(PDO::FETCH_ASSOC);
         
             if (!$users)
                 return;
@@ -72,8 +72,8 @@ class Events
         $associationAddiction = $db->insert(
             'associationsEvents',
             [
-                'eventID' => $this->id,
-                'AssociationID' => $association->id,
+                'event' => $this->id,
+                'Association' => $association->id,
                 'isCreator' => 0
             ]
         );
@@ -113,8 +113,8 @@ class Events
         $associationAddiction = $db->insert(
             'registrations',
             [
-                'eventID' => $this->id,
-                'partnerID' => $partner->id,
+                'event' => $this->id,
+                'partner' => $partner->id,
             ]
         );
 
