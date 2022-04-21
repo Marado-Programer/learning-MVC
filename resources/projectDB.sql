@@ -49,6 +49,7 @@ CREATE TABLE `news`(
 	`title` VARCHAR(80) NOT NULL,
 	`image` VARCHAR(255) NOT NULL,
 	`article` TEXT NOT NULL,
+	`published` BIT NOT NULL DEFAULT 0,
 	`publishTime` DATETIME NOT NULL DEFAULT '1001-01-01 00:00:00',
 	`lastEditTime` DATETIME NOT NULL DEFAULT '1001-01-01 00:00:00',
 	PRIMARY KEY (`id`),
@@ -56,7 +57,7 @@ CREATE TABLE `news`(
 		ON DELETE SET NULL
 		ON UPDATE CASCADE,
 	FOREIGN KEY(`author`) REFERENCES `users`(`id`)
-		ON DELETE RESTRICT
+		ON DELETE SET NULL
 		ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -130,7 +131,10 @@ CREATE VIEW `associationWPresident` AS
 SELECT `associations`.*, `usersAssociations`.`user` AS `president`
 FROM `associations` INNER JOIN `usersAssociations`
 ON `associations`.`id` = `usersAssociations`.`association`
-WHERE `usersAssociations`.`role` = 4095;
+WHERE `usersAssociations`.`role` = (
+	SELECT MAX(`role`)
+	FROM `usersAssociations`
+);
 
 -- SEE CHECK
 -- SEE INDEX

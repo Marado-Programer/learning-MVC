@@ -215,6 +215,7 @@ class User
     {
         $this->loggedIn = false;
         $this->password = "";
+        $userDues = [];
     }
 }
 
