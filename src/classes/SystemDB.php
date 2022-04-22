@@ -148,14 +148,21 @@ class SystemDB
         return;
     }
 
-    public function update($table, $whereField, $whereFieldVal, $values)
+    public function update($table, array $where_params, $values)
     {
-        if (empty($table) || empty($whereField) || empty($whereFieldVal))
+        if (empty($table) || empty($where_params))
             return;
 
         $stmt = "UPDATE `$table` SET";
         $set = array();
-        $where = " WHERE `$whereField` = ? ";
+
+        $where = " WHERE";
+        $i = 0;
+        foreach ($where_params as $key => $val) {
+            if ($i++ > 0)
+                $where .= " AND";
+            $where .= " `$key` = ? ";
+        }
 
         if (!is_array($values))
             return;
@@ -167,7 +174,8 @@ class SystemDB
 
         $stmt .= $set . $where;
 
-        $values[] = $whereFieldVal;
+        var_dump($stmt);
+        $values = array_merge($values, $where_params);
         $values = array_values($values);
 
         $update = $this->query($stmt, $values);

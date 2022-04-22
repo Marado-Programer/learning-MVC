@@ -100,7 +100,7 @@ class UserSession extends Redirect
             if (count($userRoles) > 0) {
                 $extends = "Partner";
                 foreach ($userRoles as $role) 
-                    if (UsersManager::getPermissionsManager()->checkPermissions(
+                    if (UsersManager::getTools()->permissionManager->checkPermissions(
                         $role['role'],
                         PermissionsManager::AP_PRESIDENT,
                         false

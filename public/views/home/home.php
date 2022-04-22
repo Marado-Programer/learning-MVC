@@ -53,3 +53,8 @@
 
 </section>
 
+<?php
+if (UserSession::getUser() instanceof Partner)
+    require VIEWS_PATH . '/home/createNews.php';
+?>
+

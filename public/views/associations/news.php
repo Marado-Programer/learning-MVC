@@ -1,4 +1,4 @@
-<?php if (!defined('ROOT_PATH')) exit ?>
+<?php defined('ROOT_PATH') OR exit() ?>
 
 <section>
 
@@ -7,7 +7,7 @@
 </header>
 
 <?php
-if (UsersManager::getPermissionsManager()->checkPermissions(
+if (UsersManager::getTools()->permissionManager->checkPermissions(
     $permissions,
     PermissionsManager::AP_CREATE_NEWS,
     false

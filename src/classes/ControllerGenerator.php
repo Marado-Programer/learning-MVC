@@ -12,7 +12,7 @@ abstract class ControllerGenerator
 
     abstract public function factoryMethod();
 
-    public function act()
+    public function genController()
     {
         $controller = $this->factoryMethod();
 

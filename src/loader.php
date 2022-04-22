@@ -20,5 +20,4 @@ if (!defined('DEBUG') || DEBUG === false) {
 require_once ROOT_PATH . '/src/global/global-functions.php';
 
 $sys = new System();
-$sys->act();
-
+$sys->genController();

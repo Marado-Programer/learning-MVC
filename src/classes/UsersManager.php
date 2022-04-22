@@ -1,22 +1,28 @@
 <?php
 
 /**
- * Manage the logged user data
+ * A group of tools to manage users
  */
 
 final class UsersManager
 {
-    public static $permissionManager;
+    public $permissionManager;
+    public $phpass;
+    public $redirector;
+
+    private static $userManager;
 
     private function __construct()
     {
-
+        $this->permissionManager = new PermissionsManager();
+        $this->phpass = new PasswordHash(8, false);
+        $this->redirector = new Redirect(HOME_URI, true);
     }
 
-    public static function getPermissionsManager()
+    public static function getTools()
     {
-        if (!isset(self::$permissionManager))
-            self::$permissionManager = new PermissionsManager();
-        return self::$permissionManager;
+        if (!isset(self::$userManager))
+            self::$userManager = new UsersManager();
+        return self::$userManager;
     }
 }

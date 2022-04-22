@@ -16,7 +16,7 @@ class News
         string $title,
         string $image,
         string $article,
-        DateTime $publishTime,
+        ?DateTime $publishTime = null,
         ?DateTime $lastEditTime = null,
         ?int $id = null
     ) {
@@ -26,7 +26,7 @@ class News
         $this->image = $image;
         $this->article = $article;
         $this->publishTime = $publishTime;
-        $this->lastEditTime = $lastEditTime ?? $publishTime;
+        $this->lastEditTime = $lastEditTime;
         $this->id = $id ?? -1;
     }
 

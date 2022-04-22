@@ -17,7 +17,7 @@
 
 <?php
 if (
-    UsersManager::getPermissionsManager()->checkPermissions(
+    UsersManager::getTools()->getPermissionsManager()->checkPermissions(
         UserSession::getUser()->permissions,
         PermissionsManager::P_VIEW_ASSOCIATIONS,
         false
@@ -26,7 +26,7 @@ if (
     require VIEWS_PATH . '/associations/search.php';
 
 if (
-    UsersManager::getPermissionsManager()->checkPermissions(
+    UsersManager::getTools()->getPermissionsManager()->checkPermissions(
         UserSession::getUser()->permissions,
         PermissionsManager::P_VIEW_ASSOCIATIONS,
         false

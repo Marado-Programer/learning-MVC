@@ -6,16 +6,16 @@
 
 class Dues
 {
-    private $startDate, $endDate, $price;
+    public $startDate, $endDate, $price;
 
-    private $association;
+    public $association;
 
     public function __construct(
         User $user,
         Association|int $association,
         float $price,
         DateTime $endDate,
-        DateTime $startDate
+        DateTime $startDate,
     ) {
         if (is_numeric($association))
             $association = $this->instanceAssociation($association);

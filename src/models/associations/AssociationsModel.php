@@ -9,7 +9,7 @@ class AssociationsModel extends MainModel
     public function search()
     {
         if (
-            !UsersManager::getPermissionsManager()->checkPermissions(
+            !UsersManager::getTools()->getPermissionsManager()->checkPermissions(
                 UserSession::getUser()->permissions,
                 PermissionsManager::P_VIEW_ASSOCIATIONS,
                 false
@@ -67,7 +67,7 @@ class AssociationsModel extends MainModel
     public function createAssociation()
     {
         if (
-            !UsersManager::getPermissionsManager()->checkPermissions(
+            !UsersManager::getTools()->getPermissionsManager()->checkPermissions(
                 UserSession::getUser()->permissions,
                 PermissionsManager::P_CREATE_ASSOCIATIONS,
                 false

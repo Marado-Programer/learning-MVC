@@ -21,7 +21,7 @@ class AssociationsController extends MainController
     public function indexMain()
     {
         if (
-            !UsersManager::getPermissionsManager()->checkPermissions(
+            !UsersManager::getTools()->getPermissionsManager()->checkPermissions(
                 UserSession::getUser()->permissions,
                 $this->premissionsRequired,
                 false
@@ -68,7 +68,7 @@ class AssociationsController extends MainController
 
         $permissions = $this->model->userAdmniPermissions(UserSession::getUser(), $this->association);
 
-        if (!UsersManager::getPermissionsManager()->checkPermissions(
+        if (!UsersManager::getTools()->permissionManager->checkPermissions(
             $permissions,
             PermissionsManager::AP_PARTNER_ADMNI,
             false

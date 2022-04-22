@@ -1,4 +1,4 @@
-<?php if (!defined('ROOT_PATH')) exit ?>
+<?php defined('ROOT_PATH') OR exit() ?>
 
 <section id="create">
 

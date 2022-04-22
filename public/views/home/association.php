@@ -8,7 +8,16 @@
             <td ><?=count($association->partners)?>
             <form method="post"
                 action="#">
-            <td class="space"><p><input type="hidden" name="association[name]" value="<?=$association->nickname?>" /></p>
-            <td class="actions"><p><a href="<?=HOME_URI?>/@<?=$association->nickname?>">Visit page</a><?php if ($association->checkIfAdmin(clone UserSession::getUser())): ?><br />
-            <a href="<?=HOME_URI?>/@<?=$association->nickname?>/admni">Admnistrator Panel</a><?php endif ?></p>
+            <td class="space"><p><input type="hidden" name="payQuota[association]" value="<?=$association->id?>" /></p>
+            <td class="actions"><p><a href="<?=HOME_URI?>/@<?=$association->nickname?>">Visit page</a><br />
+            <?php
+            foreach (UserSession::getUser()->userDues as $i => $quota)
+                if ($quota->association->id == $association->id && $quota->endDate < new DateTime()) {
+                    echo '<button name="payQuota[pay]" value="' . $i . '">Pay Quota</button>';
+                    break;
+                }
+            if ($association->checkIfAdmin(UserSession::getUser()))
+                echo '<a href="' . HOME_URI . '/@' . $association->nickname . '/admni">Admnistrator Panel</a>';
+            ?>
+            </p>
             </form>

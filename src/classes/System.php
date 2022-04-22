@@ -52,7 +52,9 @@ class System extends ControllerGenerator
         $path = explode('/', $path);
 
         $this->controller = checkArray($path, 0) ?? 'Home';
-        $this->controller = ucfirst($this->controller);
+        $this->controller = explode('-', $this->controller);
+        $this->controller = array_map('ucfirst', $this->controller);
+        $this->controller = implode('', $this->controller);
         $this->controller .= 'Controller';
 
         $this->action = checkArray($path, 1) ?? 'index';

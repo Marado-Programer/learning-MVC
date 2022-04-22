@@ -7,21 +7,21 @@
 </header>
 
 <?php
-if (UsersManager::getPermissionsManager()->checkPermissions(
+if (UsersManager::getTools()->permissionManager->checkPermissions(
     $permissions,
     PermissionsManager::AP_ADMNI_NEWS,
     false
 ))
     require VIEWS_PATH . '/associations/news.php';
 
-if (UsersManager::getPermissionsManager()->checkPermissions(
+if (UsersManager::getTools()->permissionManager->checkPermissions(
     $permissions,
     PermissionsManager::AP_ADMNI_EVENTS,
     false
 ))
     require VIEWS_PATH . '/associations/events.php';
 
-if (UsersManager::getPermissionsManager()->checkPermissions(
+if (UsersManager::getTools()->permissionManager->checkPermissions(
     $permissions,
     PermissionsManager::AP_ADMNI_IMAGES,
     false

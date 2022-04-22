@@ -17,7 +17,7 @@ if ($this->loginRequired && !UserSession::getUser()->loggedIn)
     <p>Welcome <?=UserSession::getUser()->username?></p>
     <ul>
         <li><a href="<?=HOME_URI?>">Home</a></li>
-        <li><a href="<?=HOME_URI?>/userRegister">Sign In</a></li>
+        <li><a href="<?=HOME_URI?>/user-register">Sign In</a></li>
         <li><a href="<?=HOME_URI?>/associations">Associations</a></li>
         <li><a href="<?=HOME_URI?>/news">News</a></li>
         <li><a href="<?=HOME_URI?>/events">Events</a></li>

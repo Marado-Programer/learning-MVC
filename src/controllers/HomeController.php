@@ -19,25 +19,15 @@ class HomeController extends MainController
 
     protected function indexMain()
     {
-        if (!UserSession::getUser()->loggedIn)
-            return;
-
-        if (isset($_POST['association'])) {
-            $data = $_POST['association'];
-            unset($_POST['association']);
-
-            if ($data['redirect'] == 'page') {
-                $this->userSession->redirect(HOME_URI . '/@' . $data['name']);
-                return;
-            } elseif ($data['redirect'] == 'admin') {
-                $this->userSession->redirect(HOME_URI . '/@' . $data['name'] . '/admni');
-                return;
-            }
-        }
-
         $this->model = $this->loadModel('home/HomeModel');
 
         $this->model->getUserAssociations();
+
+        if (isset($_POST['payQuota']['pay']))
+            $this->model->payQuota((int) $_POST['payQuota']['association']);
+
+        if (isset($_POST['create']))
+            $this->model->createNews();
 
         require VIEWS_PATH . '/home/home.php';
     }

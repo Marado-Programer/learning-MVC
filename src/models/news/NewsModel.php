@@ -8,7 +8,7 @@ class NewsModel extends MainModel
 {
     public function getNews()
     {
-        $news = $this->db->query('SELECT * FROM `news`;');
+        $news = $this->db->query('SELECT * FROM `news` WHERE `published` = 1;');
 
         if (!$news)
             return;
@@ -51,7 +51,7 @@ class NewsModel extends MainModel
             }
         }
 
-        $news = $this->db->query($query);
+        $news = $this->db->query($query . 'AND `published` = 1;');
 
         if (!$news)
             return;
@@ -78,7 +78,7 @@ class NewsModel extends MainModel
             $news['title'],
             $news['image'],
             $news['article'],
-            DateTime::createFromFormat('Y-m-d H:i:s', $news['publishTime']),
+            DateTime::createFromFormat('Y-m-d H:i:s', $news['publishTime']) ?: null,
             DateTime::createFromFormat('Y-m-d H:i:s', $news['lastEditTime']),
             $news['id']
         );

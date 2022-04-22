@@ -15,7 +15,7 @@ class User
     public $telephone;
     public $permissions;
 
-    private $userDues = [];
+    public $userDues = [];
 
     public function __construct(
         string $username = 'Guest',
@@ -53,11 +53,11 @@ class User
         
         foreach ($userDues->fetchAll(PDO::FETCH_ASSOC) as $due)
             $this->userDues[] = new Dues(
-                $this,
+                clone $this,
                 $due['association'],
                 $due['price'],
                 DateTime::createFromFormat('Y-m-d H:i:s', $due['endDate']),
-                DateTime::createFromFormat('Y-m-d H:i:s', $due['startDate'])
+                DateTime::createFromFormat('Y-m-d H:i:s', $due['startDate']),
             );
     }
 
@@ -215,7 +215,7 @@ class User
     {
         $this->loggedIn = false;
         $this->password = "";
-        $userDues = [];
+        $this->userDues = [];
     }
 }
 

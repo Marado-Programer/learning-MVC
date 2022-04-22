@@ -21,7 +21,7 @@ if (UserSession::getUser()->loggedIn)
         <?php endif ?>
 		<tr>
 			<td colspan="2">
-			<input type="submit" value="Enter"> 
+			<input type="submit" value="Enter" name="log-in"> 
 			</td>
 		</tr>
 	</table>

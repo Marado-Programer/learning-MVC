@@ -7,7 +7,7 @@
 </header>
 
 <?php
-if (UsersManager::getPermissionsManager()->checkPermissions(
+if (UsersManager::getTools()->getPermissionsManager()->checkPermissions(
     $permissions,
     PermissionsManager::AP_CREATE_IMAGES,
     false

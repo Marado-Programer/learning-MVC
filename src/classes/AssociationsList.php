@@ -8,6 +8,7 @@ class AssociationsList implements IteratorAggregate
 {
     public static $DEFAULT_ORDER = 0;
     public static $USERS_FIRST_ORDER = 1;
+    public static $USER_CAN_WRITE_NEWS_ORDER = 2;
 
     private $list = [];
 
@@ -34,6 +35,8 @@ class AssociationsList implements IteratorAggregate
         switch ($mode) {
             case self::$USERS_FIRST_ORDER:
                 return new AssociationsUsersOrderIterator($this);
+            case self::$USER_CAN_WRITE_NEWS_ORDER:
+                return new AssociationsUserCanWriteNewsIterator($this);
             case self::$DEFAULT_ORDER:
             default:
                 return new AssociationsIterator($this);

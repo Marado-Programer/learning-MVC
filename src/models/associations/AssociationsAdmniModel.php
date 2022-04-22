@@ -73,7 +73,7 @@ class AssociationsAdmniModel extends MainModel
 
     public function createNews(Association $association)
     {
-        if (!UsersManager::getPermissionsManager()->checkPermissions(
+        if (!UsersManager::getTools()->permissionManager->checkPermissions(
             $this->userAdmniPermissions(UserSession::getUser(), $association),
             PermissionsManager::AP_CREATE_NEWS,
             false
@@ -211,23 +211,24 @@ class AssociationsAdmniModel extends MainModel
             $news['article'] = strip_tags($news['article'], $premittedTags);
 
         // Making paragraphs from the article text
-        $paragraphs = "\0";
+        $paragraphs = '';
         foreach (explode("\n\r", $news['article']) as $paragraph)
             $paragraphs .= '<p>' . trim($paragraph) . '</p>';
-        $news['article'] = $paragraphs;
-        unset($paragraphs);
 
         // 65535 it's the max bytes that the MySQL TEXT data type can handle
-        if (strlen($news['article']) > 65_535) {
+        if (strlen($paragraphs) > 65_535) {
             $foundError = true;
             $errors[] = 'The article was too big, maxlength it\'s 65.535 bytes.';
-            $errors[] = 'One good solution it\'s to the news in two or more.';
-            $news['article'] = substr($news['article'], 0, 65_535);
-        } elseif (strlen($news['article']) <= 0) {
+            $errors[] = 'One good solution it\'s to the news in two or more, or use an external tool.';
+            $news['article'] = substr($news['article'], 0, 65_535 - (strlen($paragraphs) - strlen($news['article'])));
+        } elseif (strlen($paragraphs) <= 0) {
             $foundError = true;
             $errors[] = 'The article it\'s too much short.';
             $errors[] = 'Write something more.';
         }
+
+        $news['article'] = $paragraphs;
+        unset($paragraphs);
 
         // And there it is. If found error during the function return null and
         // the errors and corrected input
@@ -242,12 +243,12 @@ class AssociationsAdmniModel extends MainModel
         if (!method_exists($user, 'createNews'))
             die('No permissions');
 
-        $user->createNews(
+        $association->publishNews($user->createNews(
             $association,
             $news['title'],
             $news['image'],
             $news['article']
-        );
+        ));
     }
 
     public function createEvent(Association $association)

@@ -56,7 +56,7 @@ class Association
                 if (count($userRoles) > 0) {
                     $extends = "Partner";
                     foreach ($userRoles as $role) 
-                        if (UsersManager::getPermissionsManager()->checkPermissions(
+                        if (UsersManager::getTools()->getPermissionsManager()->checkPermissions(
                             $role['role'],
                             PermissionsManager::AP_PRESIDENT,
                             false
@@ -80,48 +80,27 @@ class Association
         }
     }
 
-    public function publishNews(
-        Partner $user,
-        string $title,
-        array $image,
-        string $article
-    ) {
+    public function publishNews(News $news) {
         $db = new SystemDB();
 
         if (!$db->pdo)
             die('Connection error');
 
-        $createdNews = $db->insert(
+        $publishedNews = $db->update(
             'news',
+            'id',
+            $news->id,
             [
-                'association' => $this->id,
-                'author' => $user->id,
-                'title' => $title,
-                'image' => $image['name'],
-                'article' => $article,
-                'publishTime' => ($now = new Datetime())->format('Y-m-d H:i:s'),
-                'lastEditTime' => $now->format('Y-m-d H:i:s')
+                'published' => 1,
+                'publishTime' => (new DateTime())->format('Y-m-s H:i:s')
             ]
         );
 
-        if (!$createdNews) {
+        if (!$publishedNews) {
             $errors[] = "Failed to create news";
             $_SESSION['news-errors'] = $errors;
             return;
         }
-
-        if (!file_exists(UPLOAD_PATH))
-            mkdir(UPLOAD_PATH, 0755, true);
-
-        if (!move_uploaded_file($image['tmp_name'], UPLOAD_PATH . '/' . $image['name'])) {
-            $errors[] = "Failed uploading file";
-            $_SESSION['news-errors'] = $errors;
-            return;
-        }
-
-        $_SESSION['news-created'] = 'A news was created.';
-
-        unset($_SESSION['news']);
     }
 
     public function addNews(News $news)
@@ -345,7 +324,6 @@ class Association
         $role = $db->query('SELECT * FROM `usersAssociations` WHERE `user` = ' . $user->id . ' AND `association` = ' . $this->id . ';');
 
         if (!$role) {
-            $db->pdo->rollBack();
             die('Could not enter event.');
         }
         
@@ -355,10 +333,41 @@ class Association
             $this->partners[] = $user;
     }
 
-    public function renewPartner(int $id)
+    public function renewPartnership(Partner $user)
     {
+        $this->updateQuota($user);
+    }
+
+    protected function updateQuota(Partner $user)
+    {
+        $db = new SystemDB();
+
+        if (!$db->pdo)
+            die('Connection erro');
+
+        $db->pdo->beginTransaction();
+
         $now = new DateTime();
-        $this->createDue($this->partners[$id], $now->modify('+1 month'), $now);
+
+        $updatedDue = $db->update(
+            'dues',
+            [
+                'partner' => $user->id,
+                'association' => $this->id
+            ],
+            [
+                'price' => $this->priceDue,
+                'startDate' => $now->format('Y-m-d H:i:s'),
+                'endDate' => $now->add(new DateInterval('P1D'))->format('Y-m-d H:i:s')
+            ]
+        );
+
+        if (!$updatedDue) {
+            $db->pdo->rollBack();
+            die('Could not create a due.');
+        }
+
+        $db->pdo->commit();
     }
 
     public function createDue(User $user, float $price, DateTime $endDate, DateTime $startDate = null)
@@ -409,7 +418,7 @@ class Association
         if (!$role = $db->query("SELECT * FROM `usersAssociations` WHERE `user` = $user->id AND `association` = $this->id;")->fetchAll(PDO::FETCH_ASSOC)[0])
             return;
 
-        return UsersManager::getPermissionsManager()->checkPermissions(
+        return UsersManager::getTools()->permissionManager->checkPermissions(
             $role['role'],
             PermissionsManager::AP_PARTNER_ADMNI,
             false
@@ -431,6 +440,11 @@ class Association
             . "\tnumber of events created -> " . count($this->events) . "\n\n";
     }
 
+    public function __clone()
+    {
+        $this->news = [];
+        $this->partners = ['president' => $this->partners['president']];
+    }
     /*
     private $images;
 

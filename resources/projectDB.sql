@@ -44,13 +44,13 @@ CREATE TABLE `usersAssociations`(
 
 CREATE TABLE `news`(
 	`id` INT(3) UNSIGNED AUTO_INCREMENT,
-	`association` INT(3) UNSIGNED NULL,
-	`author` INT(3) UNSIGNED NOT NULL,
+	`association` INT(3) UNSIGNED,
+	`author` INT(3) UNSIGNED,
 	`title` VARCHAR(80) NOT NULL,
 	`image` VARCHAR(255) NOT NULL,
 	`article` TEXT NOT NULL,
-	`published` BIT NOT NULL DEFAULT 0,
-	`publishTime` DATETIME NOT NULL DEFAULT '1001-01-01 00:00:00',
+	`published` TINYINT(1) NOT NULL DEFAULT 0,
+	`publishTime` DATETIME NULL,
 	`lastEditTime` DATETIME NOT NULL DEFAULT '1001-01-01 00:00:00',
 	PRIMARY KEY (`id`),
 	FOREIGN KEY(`association`) REFERENCES `associations`(`id`)
@@ -76,7 +76,7 @@ CREATE TABLE `events`(
 CREATE TABLE `associationsEvents`(
 	`event` INT(3) UNSIGNED,
 	`association` INT(3) UNSIGNED,
-	`isCreator` BIT NOT NULL DEFAULT 0,
+	`isCreator` TINYINT(1) NOT NULL DEFAULT 0,
 	PRIMARY KEY(`event`, `association`),
 	FOREIGN KEY(`event`) REFERENCES `events`(`id`)
 		ON DELETE CASCADE

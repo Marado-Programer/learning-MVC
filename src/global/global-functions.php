@@ -5,11 +5,17 @@
  */
 
 // Verify if the array has an specific key
-function checkArray($array, $key)
+function checkArray(array $array, ...$keys)
 {
-    if (isset($array[$key]) && !empty($array[$key]))
-        return $array[$key];
-    return null;
+    foreach ($keys as $key) {
+        if (!isset($array[$key]) || empty($array[$key]))
+            return;
+        $arr[$key] = $array[$key];
+    }
+    
+    if (count($arr) > 1)
+        return $arr;
+    return $arr[$keys[0]];
 }
 
 function classAutoloader($className)
