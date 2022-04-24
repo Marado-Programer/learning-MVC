@@ -19,7 +19,7 @@ class EventsController extends MainController
 
     protected function indexMain()
     {
-        $this->model = $this->loadModel('events/EventsModel');
+        $this->loadModel('events/EventsModel');
 
         if (isset($_POST['search-events']))
             $this->model->getEventsByAssociationID($_POST['search-events']);

@@ -3,13 +3,13 @@
             <th scope="row" id="name"><?=$association->name?>
             <td ><?=$association->address?>
             <td ><?=$association->telephone?>
-            <td ><?=$association->partners['president']->realName?>
-            <td ><?=count($association->partners)?>
+            <td ><?=$association->president->getRealName()?>
+            <td ><?=count($association->getPartners())?>
             <form method="post"
                 action="#">
-            <td class="space"><p><input type="hidden" name="association[id]" value="<?=$association->id?>" /></p>
-            <td class="actions"><p><a href="<?=HOME_URI?>/@<?=$association->nickname?>">Visit page</a><?php if (UserSession::getUser()->loggedIn && !in_array(clone UserSession::getUser(), $association->partners)): ?><br />
-            <button name="association[action]" value="enter">Enter Association</button><?php endif ?><?php if (UserSession::getUser()->loggedIn && $association->checkIfAdmin(clone UserSession::getUser())): ?><br />
+            <td class="space"><p><input type="hidden" name="association[id]" value="<?=$association->getID()?>" /></p>
+            <td class="actions"><p><a href="<?=HOME_URI?>/@<?=$association->nickname?>">Visit page</a><?php if (UserSession::getUser()->isLoggedIn() && !in_array(clone UserSession::getUser(), $association->getPartners())): ?><br />
+            <button name="association[action]" value="enter">Enter Association</button><?php endif ?><?php if (UserSession::getUser()->isLoggedIn() && UserSession::getUser() instanceof Partner && $association->checkIfAdmni(clone UserSession::getUser())): ?><br />
             <a href="<?=HOME_URI?>/@<?=$association->nickname?>/admni">Admnistrator Panel</a><?php endif ?></p>
             </form>
 

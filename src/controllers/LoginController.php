@@ -8,8 +8,8 @@ class LoginController extends MainController
 {
     protected function indexMain()
     {
-        if (isset($_POST['log-in']))
-            UsersManager::getTools()->redirector->redirect();
+        if (isset($_POST['log-in']) && $this->userSession->goodLogIn === true)
+            UsersManager::getTools()->getRedirect()->redirect();
 
         require VIEWS_PATH . '/login/login.php';
     }
@@ -19,5 +19,4 @@ class LoginController extends MainController
         $this->userSession->logout(true);
         return;
     }
-
 }

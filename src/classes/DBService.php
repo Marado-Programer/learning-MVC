@@ -125,112 +125,18 @@ class DBService implements DBMethods
         $this->pdo->rollBack();
     }
 
-    public function query($statment, array $dataArray = null)
+    public function query(PDOStatement $statment, array $dataArray = [])
     {
-        $query = $this->pdo->prepare($statment);
+        $checkExec = $statment->execute($dataArray);
 
-        if (!$query) {
-            $this->error = $query->errorInfo()[2];
-            return false;
-        }
+        if (!$checkExec)
+            throw new Exception('error.');
 
-        print_r($dataArray);
-
-        $checkExec = $query->execute($dataArray);
-
-        if ($checkExec)
-            return $query;
+        return $statment;
     }
 
-    public function insert(string $table, array ...$inserts)
+    public function getPDO()
     {
-        $cols = [];
-        $placeHolders = '(';
-        $values = [];
-
-        foreach ($inserts as $arr) {
-            if (!isset($arr) || !is_array($arr))
-                return;
-        }
-
-        for ($i = 0; $i < count($inserts); $i++)
-            foreach ($inserts[$i] as $col => $val) {
-                if ($i === 0)
-                    $cols[] = "`$col`";
-
-                if ($i != 0)
-                    $placeHolders .= '), (';
-
-                $placeHolders .= '?, ';
-
-                $values[] = $val;
-            }
-
-        $placeHolders = substr($placeHolders, 0, strlen($placeHolders) - 2);
-
-        $cols = implode(', ', $cols);
-
-        $stmt = "INSERT INTO $table($cols) VALUES $placeHolders)";
-        $insert = $this->query($stmt, $values);
-
-        if ($insert) {
-            if (
-                method_exists($this->pdo, 'lastInsertId')
-                && $this->pdo->lastInsertId()
-            )
-                $this->lastId = $this->pdo->lastInsertId();
-            return $insert;
-        }
-
-        return;
-    }
-
-    public function update($table, $whereField, $whereFieldVal, $values)
-    {
-        if (empty($table) || empty($whereField) || empty($whereFieldVal))
-            return;
-
-        $stmt = "UPDATE `$table` SET";
-        $set = array();
-        $where = " WHERE `$whereField` = ? ";
-
-        if (!is_array($values))
-            return;
-
-        for ($i = 0; $i > count($values); $i++)
-            $set[] = "`$i` = ?";
-
-        $set = implode(', ', $set);
-
-        $stmt .= $set . $where;
-
-        $values[] = $whereFieldVal;
-        $values = array_values($values);
-
-        $update = $this->query($stmt, $values);
-
-        if ($update)
-            return $update;
-
-        return;
-    }
-
-    public function delete($table, $whereField, $whereFieldValue)
-    {
-        if (empty($table) || empty($whereField) || empty($whereFieldVal))
-            return;
-
-        $stmt = "DELETE FROM `$table`";
-        $where = " WHERE `$whereField` = ? ";
-        $stmt .= $where;
-
-        $values = array($whereFieldValue);
-
-        $delete = $this->query($stmt, $values);
-
-        if ($delete)
-            return $delete;
-
-        return;
+        return $this->pdo;
     }
 }

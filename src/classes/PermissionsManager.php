@@ -37,10 +37,12 @@ final class PermissionsManager
     public const P_ADMNI_ALL = self::P_ADMNI_ASSOCIATIONS
         | self::P_ADMNI_NEWS;
 
-    public const P_CREATED_USER = self::P_VIEW_ASSOCIATIONS
-        | self::P_ENTER_ASSOCIATIONS
-        | self::P_CREATE_ASSOCIATIONS
+    public const P_GUEST = self::P_VIEW_ASSOCIATIONS
         | self::P_VIEW_NEWS;
+
+    public const P_CREATED_USER = self::P_GUEST
+        | self::P_ENTER_ASSOCIATIONS
+        | self::P_CREATE_ASSOCIATIONS;
 
     /**
      * Partners premissions

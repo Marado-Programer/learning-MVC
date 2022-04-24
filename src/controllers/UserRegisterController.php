@@ -8,7 +8,7 @@ class UserRegisterController extends MainController
 {
     function indexMain()
     {
-        $this->model = $this->loadModel('user-register/SignUpModel');
+        $this->loadModel('user-register/SignUpModel');
 
         if (isset($_POST['create'])) {
             $this->model->createUser();

@@ -2,6 +2,9 @@
 
 All notable changes to this publication will be documented in this file.
 
+## 0.3.20 - 2022-23-05
+Remaking some things.
+
 ## 0.3.19 - 2022-22-05
 Partners can pay dues to renew their partnership.
 

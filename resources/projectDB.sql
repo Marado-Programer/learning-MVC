@@ -14,6 +14,7 @@ CREATE TABLE `users`(
 	`telephone` VARCHAR(18),
 	`sessionID` CHAR(128),
 	`permissions` INT(11) UNSIGNED NOT NULL DEFAULT 0,
+	`wallet` DECIMAL(12,3) UNSIGNED NULL,
 	UNIQUE(`username`, `email`, `telephone`, `sessionID`),
 	PRIMARY KEY(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -25,6 +26,9 @@ CREATE TABLE `associations`(
 	`address` VARCHAR(255) NOT NULL,
 	`telephone` VARCHAR(18) NOT NULL,
 	`taxpayerNumber` INT(9) UNSIGNED NOT NULL,
+	`quotaPrice` DECIMAL(12,3) UNSIGNED NOT NULL DEFAULT 5,
+	`timeSpanToPayQuota` TINYTEXT NOT NULL DEFAULT 'P1M',
+	`payQuotaAtEntering` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
 	UNIQUE(`nickname`, `taxpayerNumber`),
 	PRIMARY KEY(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -98,12 +102,13 @@ CREATE TABLE `registrations`(
 		ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE `dues`(
+CREATE TABLE `quotas`(
 	`association` INT(3) UNSIGNED,
 	`partner` INT(3) UNSIGNED,
 	`price` DECIMAL(12,3) UNSIGNED NOT NULL,
-	`startDate` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
-	`endDate` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`payed` DECIMAL(12,3) UNSIGNED NOT NULL DEFAULT 0,
+	`startDate` DATETIME NOT NULL DEFAULT '1001-01-01 00:00:00',
+	`endDate` DATETIME NOT NULL DEFAULT '1001-01-01 00:00:00',
 	PRIMARY KEY(`association`, `partner`),
 	FOREIGN KEY(`association`) REFERENCES `associations`(`id`)
 		ON DELETE CASCADE
@@ -151,11 +156,6 @@ WHERE `usersAssociations`.`role` = (
 -- MAX
 
 -- SQL Keywords
--- OR 1=1
--- " OR ""="
--- ;
--- --
--- /* */
 
 -- PDO->bindParam()
 

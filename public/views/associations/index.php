@@ -17,8 +17,8 @@
 
 <?php
 if (
-    UsersManager::getTools()->getPermissionsManager()->checkPermissions(
-        UserSession::getUser()->permissions,
+    UsersManager::getTools()->getPremissionsManager()->checkPermissions(
+        UserSession::getUser()->getPermissions(),
         PermissionsManager::P_VIEW_ASSOCIATIONS,
         false
     )
@@ -26,12 +26,12 @@ if (
     require VIEWS_PATH . '/associations/search.php';
 
 if (
-    UsersManager::getTools()->getPermissionsManager()->checkPermissions(
-        UserSession::getUser()->permissions,
+    UsersManager::getTools()->getPremissionsManager()->checkPermissions(
+        UserSession::getUser()->getPermissions(),
         PermissionsManager::P_VIEW_ASSOCIATIONS,
         false
     )
-    && UserSession::getUser()->loggedIn
+    && UserSession::getUser()->isLoggedIn()
 )
     require VIEWS_PATH . '/associations/create.php';
 ?>

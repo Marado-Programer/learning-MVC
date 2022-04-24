@@ -6,15 +6,16 @@
 
 class Association
 {
-    public $id;
+    private $id;
     public $name, $nickname, $address, $telephone, $taxpayerNumber;
-    public $news = [];
-    private $newsCounter = 0;
-    private $freeSpaceNews = [];
 
-    public $partners;
+    public $president;
 
-    private $priceDue = 5.00;
+    private $partners = [];
+
+    private $quotaPrice;
+    private $timeSpanToPayQuota;
+    private $payQuotaAtEntering;
 
     public function __construct(
         ?int $id,
@@ -23,6 +24,10 @@ class Association
         string $address,
         string $telephone,
         int $taxpayerNumber,
+        User $president,
+        float $quotaPrice = 5,
+        string $timeSpanToPayQuota = 'P1M',
+        bool $payQuotaAtEntering = true
     ) {
         $this->id = $id;
         $this->name = $name;
@@ -30,9 +35,168 @@ class Association
         $this->address = $address;
         $this->telephone = $telephone;
         $this->taxpayerNumber = $taxpayerNumber;
+        
+        if (!($president instanceof President) && $id !== null)
+            throw new Exception('Impossible to create this association.');
+
+        $this->president = $president;
+
+        $this->quotaPrice = $quotaPrice;
+        $this->timeSpanToPayQuota = new DateInterval($timeSpanToPayQuota);
+        $this->payQuotaAtEntering = $payQuotaAtEntering;
+
+        $this->checkQuotas();
+    }
+
+    public function getID()
+    {
+        return $this->id;
+    }
+
+    public function setID(int $id)
+    {
+        $this->id = $id;
+    }
+
+    public function newPartner(User $user)
+    {
+        $this->partners[] = clone $user;
+
+        $this->createQuotaToPartner($user);
     }
 
     public function getPartners()
+    {
+        return $this->partners;
+    }
+
+    public function checkQuotas()
+    {
+        $partners = $this->partners;
+        $partners[] = $this->president;
+
+        foreach ($partners as $partner) {
+            $db = new DBConnection();
+
+            $db->checkAccess();
+
+            $db->beginTransaction();
+
+            try {
+                $query = $db->createQuery('SELECT * FROM `quotas` WHERE `association` = ? AND `partner` = ?;');
+
+                $quota = $db->query(
+                        $query,
+                        [
+                            $this->id,
+                            $partner->getID()
+                        ]
+                );
+
+                $quota = $quota->fetch(PDO::FETCH_ASSOC);
+
+                if (!$quota) {
+                    $this->createQuotaToPartner($partner);
+
+                    continue;
+                }
+
+                if ($quota['price'] <= $quota['payed'])
+                {
+                    $this->createQuotaToPartner($partner);
+
+                    continue;
+                }
+            } catch (Exception $e) {
+                $db->rollBack();
+                die($e);
+            }
+
+            $db->commit();
+        }
+    }
+
+    public function createQuotaToPartner(Partner $user)
+    {
+        $now = new DateTime();
+
+        $end = $now;
+        if ($this->payQuotaAtEntering)
+            $end = $now->add($this->timeSpanToPayQuota);
+
+        try {
+            $db = new DBConnection();
+
+            $db->checkAccess();
+
+            $createdQuota = $db->insert(
+                'quotas',
+                [
+                    'partner' => $user->getID(),
+                    'association' => $this->id,
+                    'price' => $this->quotaPrice,
+                    'payed' => 0,
+                    'startDate' => $now->format('Y-m-d H:i:s'),
+                    'endDate' => $end->format('Y-m-d H:i:s')
+                ]
+            );
+
+            if (!$createdQuota)
+                throw new Exception('Could not create a due.');
+        } catch (Exception $e) {
+            $db->rollBack();
+            die($e);
+        }
+
+        $db->commit();
+
+        new Dues($user, $this, $this->quotaPrice, $end, $now);
+    }
+
+    public function renewPartnership(Partner $user)
+    {
+        $this->updateQuota($user);
+    }
+
+
+    protected function updateQuota(Partner $user)
+    {
+        $db = new SystemDB();
+
+        if (!$db->pdo)
+            die('Connection erro');
+
+        $db->pdo->beginTransaction();
+
+        $now = new DateTime();
+
+        $updatedDue = $db->update(
+            'dues',
+            [
+                'partner' => $user->id,
+                'association' => $this->id
+            ],
+            [
+                'price' => $this->priceDue,
+                'startDate' => $now->format('Y-m-d H:i:s'),
+                'endDate' => $now->add(new DateInterval('P1D'))->format('Y-m-d H:i:s')
+            ]
+        );
+
+        if (!$updatedDue) {
+            $db->pdo->rollBack();
+            die('Could not create a due.');
+        }
+
+        $db->pdo->commit();
+    }
+
+////////////////////////////////////////////////////
+
+    public $news = [];
+
+
+    /*public function getPartners()
     {
         $db = new SystemDB();
 
@@ -56,7 +220,7 @@ class Association
                 if (count($userRoles) > 0) {
                     $extends = "Partner";
                     foreach ($userRoles as $role) 
-                        if (UsersManager::getTools()->getPermissionsManager()->checkPermissions(
+                        if (UsersManager::getTools()->getPremissionsManager()->checkPermissions(
                             $role['role'],
                             PermissionsManager::AP_PRESIDENT,
                             false
@@ -78,7 +242,7 @@ class Association
                 $this->partners[] = $partner;
             }
         }
-    }
+    }*/
 
     public function publishNews(News $news) {
         $db = new SystemDB();
@@ -316,12 +480,9 @@ class Association
 
     public function initPartner(User $user)
     {
-        $db = new SystemDB();
+        $db = new DBConnection();
 
-        if (!$db->pdo)
-            die('Connection error');
-
-        $role = $db->query('SELECT * FROM `usersAssociations` WHERE `user` = ' . $user->id . ' AND `association` = ' . $this->id . ';');
+        $role = $db->query($db->createQuery('SELECT * FROM `usersAssociations` WHERE `user` = ? AND `association` = ?;'), [$user->getID(), $this->id]);
 
         if (!$role) {
             die('Could not enter event.');
@@ -333,111 +494,34 @@ class Association
             $this->partners[] = $user;
     }
 
-    public function renewPartnership(Partner $user)
+    public function checkIfAdmni(Partner $user)
     {
-        $this->updateQuota($user);
-    }
+        $db = new DBConnection();
 
-    protected function updateQuota(Partner $user)
-    {
-        $db = new SystemDB();
+        $db->checkAccess();
 
-        if (!$db->pdo)
-            die('Connection erro');
+        try {
+            $role = $db->query(
+                $db->createQuery('SELECT * FROM `usersAssociations` WHERE `user` = ? AND `association` = ?;'),
+                [$user->getID(), $this->id]
+            );
 
-        $db->pdo->beginTransaction();
+            if (!$role)
+                throw new Exception('error.');
 
-        $now = new DateTime();
+            $role = $role->fetch(PDO::FETCH_ASSOC);
 
-        $updatedDue = $db->update(
-            'dues',
-            [
-                'partner' => $user->id,
-                'association' => $this->id
-            ],
-            [
-                'price' => $this->priceDue,
-                'startDate' => $now->format('Y-m-d H:i:s'),
-                'endDate' => $now->add(new DateInterval('P1D'))->format('Y-m-d H:i:s')
-            ]
-        );
+            if (!$role)
+                return false;
 
-        if (!$updatedDue) {
-            $db->pdo->rollBack();
-            die('Could not create a due.');
+            return UsersManager::getTools()->getPremissionsManager()->checkPermissions(
+                $role['role'],
+                PermissionsManager::AP_PARTNER_ADMNI,
+                false
+            );
+        } catch (Exception $e) {
+            die($e);
         }
-
-        $db->pdo->commit();
-    }
-
-    public function createDue(User $user, float $price, DateTime $endDate, DateTime $startDate = null)
-    {
-        if (!isset($startDate))
-            $startDate = $endDate;
-
-        $db = new SystemDB();
-
-        if (!$db->pdo)
-            die('Connection erro');
-
-        $db->pdo->beginTransaction();
-
-        $createdDue = $db->insert(
-            'dues',
-            [
-                'partner' => $user->id,
-                'association' => $this->id,
-                'price' => $price,
-                'startDate' => $startDate->format('Y-m-d H:i:s'),
-                'endDate' => $startDate->format('Y-m-d H:i:s')
-            ]
-        );
-
-        if (!$createdDue) {
-            $db->pdo->rollBack();
-            die('Could not create a due.');
-        }
-
-        $db->pdo->commit();
-
-        new Dues($user, $this, $price, $endDate, $startDate);
-    }
-
-    public function registPartner(Partner &$partner, int $event)
-    {
-        $this->events[$event]->registrations[] = new Registration($this->events[$event], $partner);
-    }
-
-    public function checkIfAdmin(User $user)
-    {
-        $db = new SystemDB();
-
-        if (!$db->pdo)
-            return;
-
-        if (!$role = $db->query("SELECT * FROM `usersAssociations` WHERE `user` = $user->id AND `association` = $this->id;")->fetchAll(PDO::FETCH_ASSOC)[0])
-            return;
-
-        return UsersManager::getTools()->permissionManager->checkPermissions(
-            $role['role'],
-            PermissionsManager::AP_PARTNER_ADMNI,
-            false
-        );
-    }
-
-    public function getTelephone()
-    {
-        return $this->telephone['internacionalCodePrefix'] . ' ' . $this->telephone['number'];
-    }
-
-    public function __toString()
-    {
-        return "(#{$this->id})Association --- {$this->name}:\n"
-            . "\taddress -> {$this->address}\n"
-            . "\ttelephone -> " . $this->getTelephone() . "\n"
-            . "\ttaxpayer number -> {$this->taxpayerNumber}\n"
-            . "\tnumber of news -> {$this->newsCounter}\n"
-            . "\tnumber of events created -> " . count($this->events) . "\n\n";
     }
 
     public function __clone()

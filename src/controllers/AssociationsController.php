@@ -21,15 +21,15 @@ class AssociationsController extends MainController
     public function indexMain()
     {
         if (
-            !UsersManager::getTools()->getPermissionsManager()->checkPermissions(
-                UserSession::getUser()->permissions,
+            !UsersManager::getTools()->getPremissionsManager()->checkPermissions(
+                UserSession::getUser()->getPermissions(),
                 $this->premissionsRequired,
                 false
             )
         )
             return;
 
-        $this->model = $this->loadModel('associations/AssociationsModel');
+        $this->loadModel('associations/AssociationsModel');
 
         if (isset($_POST['association'])) {
             $data = $_POST['association'];
@@ -59,7 +59,7 @@ class AssociationsController extends MainController
         if (!isset($this->parameters[0]))
             return;
 
-        $this->model = $this->loadModel('associations/AssociationsAdmniModel');
+        $this->loadModel('associations/AssociationsAdmniModel');
 
         $this->association = $this->model->getAssociationByNickname($this->parameters[0]);
 

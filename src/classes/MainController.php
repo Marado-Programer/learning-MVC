@@ -20,7 +20,13 @@ abstract class MainController
         $permissions = PermissionsManager::P_ZERO,
         $loginRequired = false
     ) {
-        $this->db = new SystemDB();
+        try {
+            $this->db = new DBConnection();
+            $this->db->checkAccess();
+        } catch (Exception $e) {
+            die($e);
+        }
+
         $this->userSession = new UserSession($this->db);
         $this->parameters = $parameters;
         $this->title = $title;
@@ -43,7 +49,7 @@ abstract class MainController
             $model = end($model);
 
             if (class_exists($model))
-                return new $model($this->db, $this);
+                $this->model = new $model($this->db, $this);
 
             return;
         }

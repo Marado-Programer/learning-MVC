@@ -19,7 +19,7 @@ class HomeController extends MainController
 
     protected function indexMain()
     {
-        $this->model = $this->loadModel('home/HomeModel');
+        $this->loadModel('home/HomeModel');
 
         $this->model->getUserAssociations();
 

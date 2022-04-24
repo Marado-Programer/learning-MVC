@@ -23,7 +23,7 @@ class NewsController extends MainController
 
     protected function indexMain()
     {
-        $this->model = $this->loadModel('news/NewsModel');
+        $this->loadModel('news/NewsModel');
 
         if(empty($this->parameters))
             $this->model->getNews($this->parameters);
@@ -35,7 +35,7 @@ class NewsController extends MainController
 
     public function article()
     {
-        $this->model = $this->loadModel('news/NewsModel');
+        $this->loadModel('news/NewsModel');
 
         $this->model->getNewsByID($this->parameters[0]);
         

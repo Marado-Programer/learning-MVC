@@ -4,6 +4,8 @@
     <h1>Welcome Home!</h1>
 </header>
 
+<?php if (UserSession::getUser()->isLoggedIn()): ?>
+
 <section id="search">
 
 <header>
@@ -52,6 +54,8 @@
 </article>
 
 </section>
+
+<?php endif ?>
 
 <?php
 if (UserSession::getUser() instanceof Partner)

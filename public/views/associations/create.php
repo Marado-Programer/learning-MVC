@@ -23,7 +23,7 @@
             </label>
             <label> <input type="tel" name="create[number]" /> </label>
         </p>
-        <?php if (UserSession::getUser()->telephone): ?>
+        <?php if (UserSession::getUser()->getTelephone()): ?>
         <p><label> <input type="radio" name="create[phone]" value="yours" /> use user's phone number </label></p>
         <?php endif ?>
     </fieldset>

@@ -4,40 +4,235 @@
  * 
  */
 
-class User
+class User extends Updatable
 {
-    public $loggedIn;
-    public $id;
-    public $username;
-    public $password;
-    public $realName;
-    public $email;
-    public $telephone;
-    public $permissions;
+    protected $id;
 
-    public $userDues = [];
+    public $username;
+
+    protected $password;
+    protected $realName;
+    protected $email;
+    protected $telephone;
+    protected $permissions;
+    protected $loggedIn;
+    protected $wallet;
+
+    public $news = [];
+
+    public $quotas = [];
 
     public function __construct(
         string $username = 'Guest',
-        ?string $password = "\0",
-        ?string $realName = "\0",
-        string $email = "\0",
-        ?string $telephone = "\0",
-        int $permissions = PermissionsManager::P_VIEW_ASSOCIATIONS,
+        ?string $password = null,
+        ?string $realName = null,
+        ?string $email = null,
+        ?string $telephone = null,
+        float $money = 0,
+        int $permissions = PermissionsManager::P_GUEST,
         bool $loggedIn = false,
         int $id = -1
     ) {
-        $this->loggedIn = $loggedIn;
         $this->id = $id;
-        $this->permissions = $permissions;
         $this->username = $username;
-        $this->password = $password;
-        $this->telephone = $telephone;
         $this->realName = $realName;
+        $this->password = $password;
         $this->email = $email;
-        if (isset($this->id))
-            $this->getDues();
+        $this->telephone = $telephone;
+        $this->wallet += $money;
+        $this->permissions = $permissions;
+        $this->loggedIn = $loggedIn;
     }
+
+    public function getID(): int
+    {
+        return $this->id;
+    }
+
+    public function setID(int $id)
+    {
+        $this->id = $id;
+    }
+
+    public function getPassword()
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password)
+    {
+        $this->password = $password;
+
+        $this->checkUpdate();
+    }
+
+    public function getRealName()
+    {
+        return $this->realName;
+    }
+
+    public function setRealName(string $realName)
+    {
+        $this->realName = $realName;
+
+        $this->checkUpdate();
+    }
+
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email)
+    {
+        $this->email = $email;
+
+        $this->checkUpdate();
+    }
+
+    public function getTelephone()
+    {
+        return $this->telephone;
+    }
+
+    public function setTelephone(int $prefixCode, string $number)
+    {
+        $this->telephone = "+$prefixCode $number";
+
+        $this->checkUpdate();
+    }
+
+    public function getPremissions()
+    {
+        return $this->premissions;
+    }
+
+    public function setPremissions(int $premissions)
+    {
+        $this->premissions = $premissions;
+
+        $this->checkUpdate();
+    }
+
+    public function isLoggedIn(): bool
+    {
+        return $this->loggedIn;
+    }
+
+    public function logIn()
+    {
+        $this->loggedIn = true;
+    }
+
+    public function logOut()
+    {
+        $this->loggedIn = false;
+    }
+
+    public function getWallet()
+    {
+        return $this->wallet;
+    }
+
+    public function setWallet(float $wallet)
+    {
+        $this->wallet = $wallet;
+
+        $this->checkUpdate();
+    }
+
+    public function deposit(float $quantity)
+    {
+        $this->wallet += $quantity;
+
+        $this->checkUpdate();
+    }
+
+    public function getNews()
+    {
+        return $this->news;
+    }
+
+    public function getQuotas()
+    {
+        return $this->quotas;
+    }
+
+    public function createAssociation(
+        string $name,
+        string $nickname,
+        string $address,
+        string $telephone,
+        int $taxpayerNumber
+    ) {
+        try {
+            $db = new DBConnection();
+
+            $db->checkAccess();
+
+            $db->beginTransaction();
+
+            $createdAssoc = $db->insert('associations',
+                [
+                    'name' => $name,
+                    'nickname' => $nickname,
+                    'address' => $address,
+                    'telephone' => $telephone,
+                    'taxpayerNumber' => $taxpayerNumber,
+                ]
+            );
+
+            $createdAssocID = $db->query(
+                    $db->createQuery('SELECT `id` FROM `associations` WHERE `nickname` = ?;'),
+                    [
+                        $nickname,
+                    ]
+            );
+
+            $assocID = $createdAssocID->fetch(PDO::FETCH_ASSOC)['id'];
+
+            $userAssoc = $db->insert(
+                'usersAssociations',
+                [
+                    'association' => $assocID,
+                    'user' => $this->id,
+                    'role' => PermissionsManager::AP_PRESIDENT
+                ]
+            );
+
+            if (!$userAssoc)
+                throw new Exception('Failed to create association');
+        } catch (Exception $e) {
+            $db->rollBack();
+            die($e);
+        }
+
+        $db->commit();
+    }
+
+    protected function update()
+    {
+        if (isset($this->db))
+            try {
+                $this->db->update(
+                    'users',
+                    ['id' => $this->id],
+                    [
+                        'username' => $this->username,
+                        'password' => UsersManager::getTools()->getPhPass()->HashPassword($this->password),
+                        'realName' => $this->realName,
+                        'email' => $this->email,
+                        'telephone' => $this->telephone,
+                        'permissions' => $this->permissions,
+                        'wallet' => $this->wallet
+                    ]
+                );
+            } catch (Exception $e) {
+                print_r($e);
+            }
+    }
+
+////////////////////////////////////////////////////////////////////////
 
     public function getDues()
     {
@@ -98,79 +293,6 @@ class User
         $this->associations[] = $association;
     }
 
-    public function createAssociation(
-        string $name,
-        string $nickname,
-        string $address,
-        string $telephone,
-        int $taxpayerNumber
-    ) {
-        $db = new SystemDB();
-
-        if (!$db->pdo)
-            die('Connection error');
-
-        $db->pdo->beginTransaction();
-
-        $createdAssoc = $db->insert('associations',
-            [
-                'name' => $name,
-                'nickname' => $nickname,
-                'address' => $address,
-                'telephone' => $telephone,
-                'taxpayerNumber' => $taxpayerNumber,
-            ]
-        );
-
-        if (!$createdAssoc) {
-            $db->pdo->rollBack();
-            die('Failed to create association');
-        }
-
-        $createdAssocID = $db->query(
-                'SELECT `id` FROM `associations` WHERE `nickname` = ?;',
-                [
-                    $nickname,
-                ]
-        );
-
-        if (!$createdAssocID) {
-            $db->pdo->rollBack();
-            die('Failed to create association');
-        }
-        
-        $assocID = $createdAssocID->fetch(PDO::FETCH_ASSOC)['id'];
-
-        $userAssoc = $db->insert(
-            'usersAssociations',
-            [
-                'association' => $assocID,
-                'user' => $this->id,
-                'role' => PermissionsManager::AP_PRESIDENT
-            ]
-        );
-
-        if (!$userAssoc) {
-            $db->pdo->rollBack();
-            die('Failed to create association');
-        }
-
-        $db->pdo->commit();
-
-        $newAssoc = new Association(
-            $assocID,
-            $name,
-            $nickname,
-            $address,
-            $telephone,
-            $taxpayerNumber,
-        );
-
-        $newAssoc->createPartner($this);
-
-        return $newAssoc;
-    }
-
     public function initAssociation(
         ?int $id,
         string $name,
@@ -186,6 +308,7 @@ class User
             $address,
             $telephone,
             $taxpayerNumber,
+            $this
         );
 
         $newAssoc->initPartner($this);

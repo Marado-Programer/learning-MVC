@@ -1,9 +1,12 @@
-<?php if (!defined('ROOT_PATH')) exit ?>
-
 <?php
-if (UserSession::getUser()->loggedIn)
-	echo '<p>Already logged in!</p>';
+
+defined('ROOT_PATH') OR exit();
+
+if (UserSession::getUser()->isLoggedIn())
+    echo '<p>Already logged in!</p>';
+
 ?>
+
 <form method="post">
 	<table>
 		<tr>

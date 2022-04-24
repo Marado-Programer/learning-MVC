@@ -8,7 +8,10 @@ class HomeModel extends MainModel
 {
     public function getUserAssociations()
     {
-        $associations = $this->db->query('SELECT * FROM `usersAssociations` WHERE `user` = ' . UserSession::getUser()->id . ';');
+        $associations = $this->db->query(
+            $this->db->createQuery('SELECT * FROM `usersAssociations` WHERE `user` = ?;'),
+            [UserSession::getUser()->getID()]
+        );
 
         if (!$associations)
             return;
@@ -20,12 +23,9 @@ class HomeModel extends MainModel
 
     private function instanceAssociationByID(int $id)
     {
-        $association = $this->db->query("
-            SELECT * FROM `associationWPresident`
-            WHERE `id` = ?;",
-            [
-                $id
-            ]
+        $association = $this->db->query(
+            $this->db->createQuery("SELECT * FROM `associationWPresident` WHERE `id` = ?;"),
+            [$id]
         );
 
         if (!$association)
@@ -46,23 +46,52 @@ class HomeModel extends MainModel
 
     private function instanceUserByID(int $id)
     {
-        $user = $this->db->query("SELECT * FROM `users` WHERE `id` = $id;");
+        $extends = 'User';
+        try {
+            $user = $this->db->query(
+                $this->db->createQuery('SELECT * FROM `users` WHERE `id` = ?;'),
+                [$id]
+            );
 
-        if (!$user)
-            return;
+            if (!$user)
+                throw new Exception('Error fiding user');
 
-        $user = $user->fetch(PDO::FETCH_ASSOC);
+            $user = $user->fetch(PDO::FETCH_ASSOC);
 
-        return new User(
-            $user['username'],
-            null,
-            $user['realName'],
-            $user['email'],
-            $user['telephone'],
-            $user['permissions'],
-            false,
-            $id
-        );
+            $userRoles = $this->db->query(
+                $this->db->createQuery("SELECT `role` FROM `usersAssociations` WHERE `user` = ?;"),
+                [$user['id']]
+            )->fetchAll(PDO::FETCH_ASSOC);
+
+            if (count($userRoles) > 0) {
+                $extends = 'Partner';
+                foreach ($userRoles as $role) 
+                    if (
+                        UsersManager::getTools()->getPremissionsManager()->checkPermissions(
+                            $role['role'],
+                            PermissionsManager::AP_PRESIDENT,
+                            false
+                        )
+                    ) {
+                        $extends = 'President';
+                        break;
+                    }
+            }
+
+            return new $extends(
+                $user['username'],
+                null,
+                $user['realName'],
+                $user['email'],
+                $user['telephone'],
+                $user['wallet'] ?? 0,
+                $user['permissions'],
+                false,
+                $id
+            );
+        } catch (Exception $e) {
+            die($e);
+        }
     }
 
     public function createAssociation()

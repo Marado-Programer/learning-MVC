@@ -9,6 +9,7 @@ class UserSession extends Redirect
 {
     private static $user;
     public $loginErrorMessage;
+    public $goodLogIn = false;
     private $db;
     private $phpass;
     private $usingPost;
@@ -16,7 +17,7 @@ class UserSession extends Redirect
     public function __construct($db) {
         parent::__construct(HOME_URI, true);
         $this->db = $db;
-        $this->phpass = new PasswordHash(8, false);
+        $this->phpass = UsersManager::getTools()->getPhPass();
         $this->checkUserLogin();
     }
 
@@ -27,15 +28,14 @@ class UserSession extends Redirect
         $extends = "User";
 
         // we need an username and a password to login
-        if (!isset(self::$user->username) || !isset(self::$user->password)) {
+        if (!isset(self::$user->username) || null === self::$user->getPassword()) {
             $this->loginError();
 
             return;
         }
 
         $query = $this->db->query(
-            'SELECT * FROM `users` WHERE `users`.`username` = ? LIMIT 1',
-            //'SELECT * FROM `users` INNER JOIN `usersAssociations` ON `users`.`id` = `usersAssociations`.`userID` WHERE `users`.`username` = ? LIMIT 1',
+            $this->db->createQuery('SELECT * FROM `users` WHERE `users`.`username` = ? LIMIT 1'),
             array(self::$user->username)
         );
 
@@ -64,7 +64,7 @@ class UserSession extends Redirect
         }
 
         // Right password for the user
-        if ($this->phpass->CheckPassword(self::$user->password, $fetchedUser['password'])) {
+        if ($this->phpass->CheckPassword(self::$user->getPassword(), $fetchedUser['password'])) {
             /**
              * You can only be logged in 1 browser a time.
              * So if the session id it's diffrent from what's in the DB
@@ -84,36 +84,46 @@ class UserSession extends Redirect
                 $_SESSION['sessionId'] = $sessionId;
 
                 // New session ID so now you can only log in using it
-                $query = $this->db->query(
-                    'UPDATE `users` SET `users`.`sessionId` = ? WHERE `users`.`id` = ?;',
-                    array($sessionId, $userId)
+                $query = $this->db->update(
+                    'users',
+                    [
+                        'id' => $userId
+                    ],
+                    [
+                        'sessionID' => $sessionId
+                    ]
                 );
             }
 
-            $db = new SystemDB();
-
-            if (!$db->pdo)
-                die('Connection error');
-
-            $userRoles = $db->query("SELECT `role` FROM `usersAssociations` WHERE `user` = " . self::$user->id . ";")->fetchAll(PDO::FETCH_ASSOC);
+            $userRoles = $this->db->query(
+                $this->db->createQuery("SELECT `role` FROM `usersAssociations` WHERE `user` = ?;"),
+                    [
+                        $userId
+                    ]
+                )->fetchAll(PDO::FETCH_ASSOC);
 
             if (count($userRoles) > 0) {
                 $extends = "Partner";
                 foreach ($userRoles as $role) 
-                    if (UsersManager::getTools()->permissionManager->checkPermissions(
-                        $role['role'],
-                        PermissionsManager::AP_PRESIDENT,
-                        false
-                    ))
+                    if (
+                        UsersManager::getTools()->getPremissionsManager()->checkPermissions(
+                            $role['role'],
+                            PermissionsManager::AP_PRESIDENT,
+                            false
+                        )
+                    ) {
                         $extends = 'President';
+                        break;
+                    }
             }
 
             self::$user = new $extends(
                 $userUsername,
-                self::$user->password,
+                self::$user->getPassword(),
                 $fetchedUser['realName'],
                 $fetchedUser['email'],
                 $fetchedUser['telephone'],
+                $fetchedUser['wallet'] ?? 0,
                 $fetchedUser['permissions'],
                 true,
                 $userId
@@ -127,8 +137,11 @@ class UserSession extends Redirect
                 $this->redirect($gotoURL);
             }
 
+            $this->goodLogIn = true;
+
             return;
         }
+
         $this->loginError('Password does not match.');
 
         return;
@@ -143,12 +156,6 @@ class UserSession extends Redirect
          * Verify if already exists a user logged in.
          * If there isn't, we see if someone it's trying to login using a form
          */
-        
-        if (isset(self::$user) && self::$user->loggedIn === true) {
-            $this->usingPost = false;
-
-            return;
-        }
         
         if (
             isset($_POST['user-data'])
@@ -165,6 +172,12 @@ class UserSession extends Redirect
             return;
         }
 
+        if (isset(self::$user) && self::$user->isLoggedIn() === true) {
+            $this->usingPost = false;
+
+            return;
+        }        
+
         self::$user = new User();
 
         $this->usingPost = false;
@@ -178,6 +191,7 @@ class UserSession extends Redirect
     // Steps to do if an error occurs while loging in
     private function loginError($message = null)
     {
+            $_SESSION['user'] = serialize(self::$user);
             $this->loggedIn = false;
             $this->loginErrorMessage = $message;
 
