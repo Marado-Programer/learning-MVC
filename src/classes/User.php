@@ -18,7 +18,7 @@ class User extends Updatable
     protected $loggedIn;
     protected $wallet;
 
-    public $news = [];
+    public $news;
 
     public function __construct(
         ?int $id = -1,
@@ -40,6 +40,8 @@ class User extends Updatable
         $this->wallet += $money;
         $this->permissions = $permissions;
         $this->loggedIn = $loggedIn;
+
+        $this->news = new NewsList();
     }
 
     public function getID(): int
@@ -227,7 +229,6 @@ class User extends Updatable
             $this,
             $title,
             $image['name'],
-            $article,
             null,
             $now,
             $newNews->fetchAll(PDO::FETCH_ASSOC)[0]['id']
@@ -254,18 +255,15 @@ class User extends Updatable
                     'nickname' => $nickname,
                     'address' => $address,
                     'telephone' => $telephone,
-                    'taxpayerNumber' => $taxpayerNumber,
-                ]
-            );
+                    'taxpayerNumber' => $taxpayerNumber
+                ]);
 
             if (!$createdAssoc)
                 throw new Exception('Failed to create association');
 
             $createdAssocID = $db->query(
-                    $db->createQuery('SELECT `id` FROM `associations` WHERE `nickname` = ?;'),
-                    [
-                        $nickname,
-                    ]
+                $db->createQuery('SELECT `id` FROM `associations` WHERE `nickname` = ?;'),
+                [$nickname]
             );
 
             $assocID = $createdAssocID->fetch(PDO::FETCH_ASSOC)['id'];
@@ -275,7 +273,7 @@ class User extends Updatable
                 [
                     'association' => $assocID,
                     'user' => $this->id,
-                    'role' => PermissionsManager::AP_PRESIDENT
+                    'role' => dechex(PermissionsManager::AP_PRESIDENT)
                 ]
             );
 
@@ -286,6 +284,26 @@ class User extends Updatable
             die($e);
         } finally {
             $db->commit();
+        }
+    }
+
+    public function getMyNews() {
+        try {
+            $db = new DBConnection();
+
+            $db->checkAccess();
+
+            $query = $db->createQuery(
+                'SELECT * FROM `news`
+                WHERE `author` = ?'
+            );
+            $data = [$this->id];
+            $news = $db->query($query, $data)->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($news as $aNews)
+                $this->news->add(Instanceator::getInstanceator($db)->instanceNewsByID($aNews['id']));
+        } catch (Exception $e) {
+            die($e);
         }
     }
 
@@ -407,6 +425,12 @@ class User extends Updatable
     public function addDue(Dues $due)
     {
         $this->userDues[] = $due;
+    }
+
+    public function __clone()
+    {
+        $this->password = "\0";
+        $this->news = null;
     }
 }
 

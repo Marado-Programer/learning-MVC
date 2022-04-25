@@ -13,7 +13,7 @@ CREATE TABLE `users`(
 	`email` VARCHAR(320) NOT NULL,
 	`telephone` VARCHAR(18),
 	`sessionID` CHAR(128),
-	`permissions` INT(11) UNSIGNED NOT NULL DEFAULT 0,
+	`permissions` VARCHAR(6) NOT NULL DEFAULT '0',
 	`wallet` DECIMAL(12,3) UNSIGNED NULL,
 	UNIQUE(`username`, `email`, `telephone`, `sessionID`),
 	PRIMARY KEY(`id`)
@@ -36,7 +36,7 @@ CREATE TABLE `associations`(
 CREATE TABLE `usersAssociations`(
 	`user` INT(3) UNSIGNED,
 	`association` INT(3) UNSIGNED,
-	`role` INT(6) UNSIGNED NOT NULL DEFAULT 0,
+	`role` VARCHAR(6) NOT NULL DEFAULT '0',
 	PRIMARY KEY(`user`, `association`),
 	FOREIGN KEY(`user`) REFERENCES `users`(`id`)
 		ON DELETE CASCADE
@@ -51,10 +51,13 @@ CREATE TABLE `news`(
 	`association` INT(3) UNSIGNED,
 	`author` INT(3) UNSIGNED,
 	`title` VARCHAR(80) NOT NULL,
+	`requestedTilte` VARCHAR(80) NULL,
 	`publishedTitle` VARCHAR(80) NULL,
 	`image` VARCHAR(255) NOT NULL,
+	`requestedImage` VARCHAR(255) NULL,
 	`publishedImage` VARCHAR(255) NULL,
 	`article` TEXT NOT NULL,
+	`requestedArticle` TEXT NULL,
 	`publishedArticle` TEXT NULL,
 	`published` TINYINT(1) NOT NULL DEFAULT 0,
 	`publishTime` DATETIME NULL,

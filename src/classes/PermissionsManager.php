@@ -11,7 +11,7 @@ final class PermissionsManager
     /**
      * Users premissions
      */
-    
+
     public const P_VIEW_ASSOCIATIONS = 0x1;
     public const P_ENTER_ASSOCIATIONS = 0x1 << 1;
     public const P_CREATE_ASSOCIATIONS = 0x1 << 2;
@@ -62,8 +62,18 @@ final class PermissionsManager
     public const AP_DELETE_EVENTS = 0x1 << 9;
 
     public const AP_CREATE_IMAGES = 0x1 << 10;
-    public const AP_EDIT_IMAGES = 0x1 << 11;
-    public const AP_DELETE_IMAGES = 0x1 << 12;
+    public const AP_ADD_IMAGES = 0x1 << 11;
+    public const AP_REMOVE_IMAGES = 0x1 << 12;
+    public const AP_EDIT_IMAGES = 0x1 << 13;
+    public const AP_DELETE_IMAGES = 0x1 << 14;
+
+    public const AP_CREATE_IMAGE_GALLERIES = 0x1 << 15;
+    public const AP_EDIT_IMAGE_GALLERIES = 0x1 << 16;
+    public const AP_DELETE_IMAGE_GALLERIES = 0x1 << 17;
+
+    public const AP_ADMNI_PARTNERS = 0x1 << 18;
+
+    public const AP_ADMNI_ASSOCIATION = 0x1 << 19;
 
     public const AP_ADMNI_NEWS = self::AP_CREATE_NEWS
         | self::AP_PUBLISH_NEWS
@@ -76,20 +86,32 @@ final class PermissionsManager
         | self::AP_DELETE_EVENTS;
 
     public const AP_ADMNI_IMAGES = self::AP_CREATE_IMAGES
+        | self::AP_ADD_IMAGES
+        | self::AP_REMOVE_IMAGES
         | self::AP_EDIT_IMAGES
         | self::AP_DELETE_IMAGES;
 
-    public const AP_PRESIDENT = self::AP_PARTNER
+    public const AP_ADMNI_IMAGE_GALLERIES = self::AP_CREATE_IMAGE_GALLERIES
+        | self::AP_EDIT_IMAGE_GALLERIES
+        | self::AP_DELETE_IMAGE_GALLERIES;
+
+    public const AP_PRESIDENT = (self::AP_PARTNER
         | self::AP_PARTNER_ADMNI
         | self::AP_ADMNI_NEWS
         | self::AP_ADMNI_EVENTS
-        | self::AP_ADMNI_IMAGES;
+        | self::AP_ADMNI_IMAGES
+        | self::AP_ADMNI_IMAGE_GALLERIES
+        | self::AP_ADMNI_PARTNERS
+        | self::AP_ADMNI_ASSOCIATION) << 0x1;
 
     public function checkPermissions(
-        int $userPermissions = self::P_ZERO,
+        int|string $userPermissions = self::P_ZERO,
         int $requiredPermissions,
         bool $strict = true
     ): bool {
+        $userPermissions = (int) (is_numeric($userPermissions)
+            ? $userPermissions
+            : hexdec($userPermissions));
         return (bool) (
             $strict
             ? $userPermissions == $requiredPermissions

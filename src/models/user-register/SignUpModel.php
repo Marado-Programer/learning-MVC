@@ -118,7 +118,7 @@ class SignUpModel extends MainModel
         if ($this->db->insert(
             'users',
             array_merge($user, [
-                'permissions' => PermissionsManager::P_CREATED_USER
+                'permissions' => dechex(PermissionsManager::P_CREATED_USER)
             ])
         ))
             $_SESSION['sign-up-succeed'] = true;

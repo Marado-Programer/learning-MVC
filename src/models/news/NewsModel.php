@@ -73,61 +73,13 @@ class NewsModel extends MainModel
     public function instanceNews(array $news)
     {
         return new News(
-            $this->getAssociationByID($news['association']),
-            $this->getPartnerByID($news['author']),
+            $this->instancer->instanceAssociationByID($news['association']),
+            $this->instancer->instanceUserByID($news['author']),
             $news['title'],
             $news['image'],
-            $news['article'],
             DateTime::createFromFormat('Y-m-d H:i:s', $news['publishTime']) ?: null,
             DateTime::createFromFormat('Y-m-d H:i:s', $news['lastEditTime']),
             $news['id']
-        );
-    }
-
-    public function getAssociationByID($id)
-    {
-        $association = $this->db->query("SELECT * FROM `associationWPresident` WHERE `id` = $id;");
-
-        if (!$association)
-            return;
-
-        return $this->instanceAssociation($association->fetch(PDO::FETCH_ASSOC));
-    }
-
-    private function instanceAssociation(array $association)
-    {
-        return new Association(
-            $association['id'],
-            $association['name'],
-            $association['nickname'],
-            $association['address'],
-            $association['telephone'],
-            $association['taxpayerNumber'],
-            $this->getPartnerByID($association['president'])
-        );
-    }
-
-    private function getPartnerByID(int $id)
-    {
-        $user = $this->db->query("SELECT * FROM `users` WHERE `id` = $id;");
-
-        if (!$user)
-            return;
-
-        return $this->instancePartnerByID($user->fetch(PDO::FETCH_ASSOC));
-    }
-
-    private function instancePartnerByID(array $user)
-    {
-        return new Partner(
-            $user['username'],
-            null,
-            $user['realName'],
-            $user['email'],
-            $user['telephone'],
-            $user['permissions'],
-            false,
-            $user['id']
         );
     }
 }

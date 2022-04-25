@@ -8,6 +8,7 @@ class AssociationsController extends MainController
 {
     public $associations;
     public $association;
+    public $unpublishedNews;
 
     public function __construct(
         $parameters = array(),
@@ -16,6 +17,7 @@ class AssociationsController extends MainController
     ) {
         parent::__construct($parameters, $title, $permissions);
         $this->associations = new AssociationsList();
+        $this->unpublishedNews = new NewsList();
     }
 
     public function indexMain()
@@ -54,14 +56,16 @@ class AssociationsController extends MainController
     public function admni()
     {
         if (!UserSession::getUser()->isLoggedIn())
-            return;
+            UsersManager::getTools()->getRedirect()->redirect();
 
         if (!isset($this->parameters[0]))
-            return;
+            UsersManager::getTools()->getRedirect()->redirect();
 
         $this->loadModel('associations/AssociationsAdmniModel');
 
         $this->association = $this->model->getAssociationByNickname($this->parameters[0]);
+
+        $payedDues = $this->model->userPayedQuotas();
 
         if (!isset($this->association))
             return;
@@ -77,6 +81,12 @@ class AssociationsController extends MainController
 
         if (isset($_POST['create']))
             $this->model->createNews($this->association);
+
+        if (isset($_POST['edit']))
+            $this->model->setNewsEdition($_POST['edit']['news']);
+
+        if (isset($_POST['publish']))
+            $this->model->publishNews($_POST['publish']['news']);
 
         if (isset($_POST['event']))
             $this->model->createEvent($this->association);

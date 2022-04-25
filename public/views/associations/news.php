@@ -7,12 +7,19 @@
 </header>
 
 <?php
-if (!UsersManager::getTools()->getPremissionsManager()->checkPermissions(
+if ($pm->checkPermissions(
     $permissions,
     PermissionsManager::AP_CREATE_NEWS,
     false
 ))
     require VIEWS_PATH . '/associations/createNews.php';
+
+if ($pm->checkPermissions(
+    $permissions,
+    PermissionsManager::AP_PUBLISH_NEWS,
+    false
+))
+    require VIEWS_PATH . '/associations/publish.php';
 ?>
 
 </section>

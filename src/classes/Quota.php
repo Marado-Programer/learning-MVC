@@ -39,62 +39,36 @@ class Quota extends Updatable
 
         $this->payed += $user->useWallet($money - $change);
 
-        //$this->checkUpdate();
-        try {
-            print_r($this->association->getID());
-            print_r($this->partner->getID());
-            print_r($this->payed);
-
-            $db = new DBConnection();
-
-            $db->checkAccess();
-
-            $db->beginTransaction();
-
-            $db->update(
-                'quotas',
-                [
-                    'association' => $this->association->getID(),
-                    'partner' => $this->partner->getID()
-                ],
-                [
-                    'payed' => $this->payed
-                ]
-            );
-        } catch (Exception $e) {
-            $db->rollBack();
-            die($e);
-        }
-        $db->commit();
+        $this->checkUpdate();
     }
 
     protected function update()
     {
-    /*
-        try {
-            print_r($this->association->getID());
-            print_r($this->partner->getID());
-            print_r($this->payed);
+        if (isset($this->db)) {
+            try {
+                print_r($this->association->getID());
+                print_r($this->partner->getID());
+                print_r($this->payed);
 
-            $this->db->checkAccess();
+                $this->db->checkAccess();
 
-            $this->db->beginTransaction();
+                $this->db->beginTransaction();
 
-            $this->db->update(
-                'quotas',
-                [
-                    'association' => $this->association->getID(),
-                    'partner' => $this->partner->getID()
-                ],
-                [
-                    'payed' => $this->payed
-                ]
-            );
-        } catch (Exception $e) {
-            $this->db->rollBack();
-            die($e);
+                $this->db->update(
+                    'quotas',
+                    [
+                        'association' => $this->association->getID(),
+                        'partner' => $this->partner->getID()
+                    ],
+                    [
+                        'payed' => $this->payed
+                    ]
+                );
+            } catch (Exception $e) {
+                $this->db->rollBack();
+                die($e);
+            }
+            $this->db->commit();
         }
-        $this->db->commit();
-    */
     }
 }

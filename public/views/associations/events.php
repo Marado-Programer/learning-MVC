@@ -7,7 +7,7 @@
 </header>
 
 <?php
-if (UsersManager::getTools()->getPermissionsManager()->checkPermissions(
+if (UsersManager::getTools()->getPremissionsManager()->checkPermissions(
     $permissions,
     PermissionsManager::AP_CREATE_EVENTS,
     false
@@ -16,7 +16,7 @@ if (UsersManager::getTools()->getPermissionsManager()->checkPermissions(
 ?>
 
 <?php
-if (UsersManager::getTools()->getPermissionsManager()->checkPermissions(
+if (UsersManager::getTools()->getPremissionsManager()->checkPermissions(
     $permissions,
     PermissionsManager::AP_ENTER_EVENTS,
     false

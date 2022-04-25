@@ -120,7 +120,7 @@ class Instanceator
     public function instanceAssociationByNickname(string $nickname)
     {
         try {
-            $query = $this->db->createQuery('SELECT * FROM `associationWPresident` WHERE `nickname` = ?;');
+            $query = $this->db->createQuery('SELECT `id` FROM `associations` WHERE `nickname` = ?;');
             $data = [$nickname];
             $association = $this->db->query($query, $data);
 
@@ -130,20 +130,7 @@ class Instanceator
 
                 $association = $association->fetch(PDO::FETCH_ASSOC);
 
-                $president = $this->instanceUserByID($association['president']);
-
-                $association = new Association(
-                    $association['id'],
-                    $association['name'],
-                    $association['nickname'],
-                    $association['address'],
-                    $association['telephone'],
-                    $association['taxpayerNumber'],
-                    $president,
-                    $association['quotaPrice'],
-                    $association['timeSpanToPayQuota'],
-                    $association['payQuotaAtEntering']
-                );
+                $association = $this->instanceAssociationByID($association['id']);
             }
 
             $this->db->resultToCache($query, $data, $association, true);
@@ -153,5 +140,42 @@ class Instanceator
             die($e);
         }
     }
+
+    public function instanceNewsByID(int $id)
+    {
+        try {
+            $query = $this->db->createQuery('SELECT * FROM `news` WHERE `id` = ?;');
+            $data = [$id];
+            $news = $this->db->query($query, $data);
+
+            if (!$news instanceof News) {
+                if (!$news)
+                    throw new Exception('Error fiding user');
+
+                $news = $news->fetch(PDO::FETCH_ASSOC);
+
+                $author = $this->instanceUserByID($news['author']);
+                //$author->getMyNews();
+                $association = $this->instanceAssociationByID($news['association']);
+
+                $news = new News(
+                    $association,
+                    $author,
+                    $news['title'],
+                    $news['image'],
+                    $news['publishTime'] ? DateTime::createFromFormat('Y-m-d H:i:s', $news['publishTime']) : null,
+                    DateTime::createFromFormat('Y-m-d H:i:s', $news['lastEditTime']),
+                    $news['id']
+                );
+            }
+
+            $this->db->resultToCache($query, $data, $news, true);
+
+            return $news;
+        } catch (Exception $e) {
+            die($e);
+        }
+    }
+
 }
 

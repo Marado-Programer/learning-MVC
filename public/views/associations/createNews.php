@@ -1,16 +1,19 @@
 <?php defined('ROOT_PATH') OR exit() ?>
 
-<section id="create">
+<section id="<?php echo !isset($SESSION_['editNews']) ? 'create' : 'edit' ?>">
 
 <header>
-<h3>Create News</h3>
+<h3><?php echo !isset($SESSION_['editNews']) ? 'Create' : 'Edit' ?> News</h3>
 </header>
 
 <?php
 /**
  * The corrected user input and the errors that were made on the admni model.
  */
-if (isset($_SESSION['news'])) {
+if (isset($_SESSION['editNews'])) {
+    $create = unserialize($_SESSION['editNews']);
+    unset($_SESSION['editNews']);
+} elseif (isset($_SESSION['news'])) {
     $create = unserialize($_SESSION['news']);
     unset($_SESSION['news']);
 } else
@@ -41,7 +44,7 @@ if (isset($_SESSION['news-created'])) {
         if (isset($create['article']))
             echo htmlentities($create['article']);
     ?></textarea></label></p>
-    <p><button>Create</button></p>
+    <p><button><?php echo !isset($SESSION_['editNews']) ? 'Create' : 'Submit Edition' ?></button></p>
 </form>
 
 <?php unset($create) ?>

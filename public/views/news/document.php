@@ -5,5 +5,5 @@
         <p>Author: <?=$news->author->username?></p>
     </footer>
     <img src="<?=HOME_URI . '/public/uploads/' . $news->image?>" />
-    <?=$news->article?>
+    <?=$news->getArticle()?>
 </article>

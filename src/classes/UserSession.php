@@ -107,7 +107,7 @@ class UserSession extends Redirect
                 foreach ($userRoles as $role) 
                     if (
                         UsersManager::getTools()->getPremissionsManager()->checkPermissions(
-                            $role['role'],
+                            hexdec($role['role']),
                             PermissionsManager::AP_PRESIDENT,
                             false
                         )
@@ -125,7 +125,7 @@ class UserSession extends Redirect
                 $fetchedUser['email'],
                 $fetchedUser['telephone'],
                 $fetchedUser['wallet'] ?? 0,
-                $fetchedUser['permissions'],
+                hexdec($fetchedUser['permissions']),
                 true
             );
 

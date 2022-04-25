@@ -21,7 +21,7 @@ class Registration
 
     public function getIdPartner()
     {
-        return $this->partner->id;
+        return $this->partner->getID();
     }
 
     public function __toString()

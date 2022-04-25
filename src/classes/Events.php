@@ -26,64 +26,50 @@ class Events
 
     public function getRegistrations()
     {
-        $db = new SystemDB();
+        $db = new DBConnection();
 
-        if (!$db->pdo)
-            die('Connection error');
-
-        $registrations = $db->query("SELECT * FROM `registrations` WHERE `event` = $this->id;")->fetchAll(PDO::FETCH_ASSOC);
+        $registrations = $db->query(
+            "SELECT * FROM `registrations` WHERE `event` = ?;",
+            [$this->id]
+        )->fetchAll(PDO::FETCH_ASSOC);
 
         if (!$registrations)
             return;
 
         foreach ($registrations as $registration) {
-            $users = $db->query("SELECT * FROM `users` WHERE `id` = " . $registration['partner'] . ';')->fetchAll(PDO::FETCH_ASSOC);
+            $user = Instanceator::getInstanceator(new DBConnection())->instanceUserByID($registration['partner']);
         
-            if (!$users)
+            if (!$user)
                 return;
             
-            foreach ($users as $user) {
-                $this->registrations[] = new Registration(
-                    $this,
-                    new Partner(
-                        $user['username'],
-                        null,
-                        $user['realName'],
-                        $user['email'],
-                        $user['telephone'],
-                        $user['permissions'],
-                        false,
-                        $user['id']
-                    )
-                );
-            }
+            $this->registrations[] = new Registration(
+                $this,
+                $user
+            );
         }
     }
 
     public function addAssociation(Association $association)
     {
-        $db = new SystemDB();
+        $db = new DBConnection();
 
-        if (!$db->pdo)
-            die('Connection error');
-
-        $db->pdo->beginTransaction();
+        $db->beginTransaction();
 
         $associationAddiction = $db->insert(
             'associationsEvents',
             [
                 'event' => $this->id,
-                'Association' => $association->id,
+                'Association' => $association->getID(),
                 'isCreator' => 0
             ]
         );
 
         if (!$associationAddiction) {
-            $db->pdo->rollBack();
+            $db->rollBack();
             die('Failed to add association to event');
         }
 
-        $db->pdo->commit();
+        $db->commit();
         
         if ($this->associations['ini'] !== $association && !in_array($association, $this->associations))
             $this->associations[] = $association;
@@ -103,27 +89,24 @@ class Events
 
     public function createRegistration(Partner $partner)
     {
-        $db = new SystemDB();
+        $db = new DBConnection();
 
-        if (!$db->pdo)
-            die('Connection error');
-
-        $db->pdo->beginTransaction();
+        $db->beginTransaction();
 
         $associationAddiction = $db->insert(
             'registrations',
             [
                 'event' => $this->id,
-                'partner' => $partner->id,
+                'partner' => $partner->getID(),
             ]
         );
 
         if (!$associationAddiction) {
-            $db->pdo->rollBack();
+            $db->rollBack();
             die('Failed to add registration to event');
         }
 
-        $db->pdo->commit();
+        $db->commit();
 
         $this->registrations[] = new Registration($this, $partner);
     }

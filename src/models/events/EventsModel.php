@@ -53,7 +53,7 @@ class EventsModel extends MainModel
     public function joinAssociationToEvent(int $idEvent, int $idAssociation)
     {
         $event = $this->getEventByID($idEvent);
-        $event->addAssociation($this->getAssociationByID($idAssociation));
+        $event->addAssociation($this->instancer->instanceAssociationByID($idAssociation));
     }
 
     public function joinPartnerToEvent(int $idEvent, Partner $user)
@@ -70,7 +70,7 @@ class EventsModel extends MainModel
         if (!$association)
             return;
         
-        $partner = $this->getPartnerByID($association['president']);
+        $partner = $this->instancer->instanceUserByID($association['president']);
         
         $association = $partner->initAssociation(
             $association['id'],
@@ -86,80 +86,6 @@ class EventsModel extends MainModel
             $event['description'],
             DateTime::createFromFormat('Y-m-d H:i:s', $event['endDate']),
             $event['id']
-        );
-    }
-
-    private function getAssociationByID($id)
-    {
-        $association = $this->db->query("SELECT * FROM `associations` WHERE `id` = $id;");
-
-        if (!$association)
-            return;
-
-        return $this->instanceAssociation($association->fetch(PDO::FETCH_ASSOC));
-    }
-
-    private function instanceAssociation(array $association)
-    {
-        return new Association(
-            $association['id'],
-            $association['name'],
-            $association['nickname'],
-            $association['address'],
-            $association['telephone'],
-            $association['taxpayerNumber'],
-            $this->getPartnerByID($association['president'])
-        );
-    }
-
-    private function getPartnerByID(int $id)
-    {
-        $user = $this->db->query("SELECT * FROM `users` WHERE `id` = $id;");
-        
-        $db = new SystemDB();
-
-        if (!$db->pdo)
-            die('Connection error');
-
-        $db->pdo->beginTransaction();
-
-        $userRoles = $db->query("SELECT `role` FROM `usersAssociations` WHERE `userID` = $id;")->fetchAll(PDO::FETCH_ASSOC);
-
-        if (!$userRoles) {
-            $db->pdo->rollBack();
-            die('Internal error');
-        }
-
-        $db->pdo->commit();
-
-        if (count($userRoles) > 0)
-            $isPresident = false;
-            foreach ($userRoles as $role) 
-                if (UsersManager::getPermissionsManager()->checkPermissions(
-                    $role['role'],
-                    PermissionsManager::AP_PRESIDENT,
-                    false
-                ))
-                    $isPresident = true;
-
-        if (!$user)
-            return;
-
-        return $this->instancePartnerByID($user->fetch(PDO::FETCH_ASSOC), $isPresident);
-    }
-
-    private function instancePartnerByID(array $user, $isPresident)
-    {
-        $class = $isPresident ? 'President' : 'Partner';
-        return new $class(
-            $user['username'],
-            null,
-            $user['realName'],
-            $user['email'],
-            $user['telephone'],
-            $user['permissions'],
-            false,
-            $user['id']
         );
     }
 }

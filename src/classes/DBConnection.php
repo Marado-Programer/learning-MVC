@@ -8,7 +8,7 @@ class DBConnection implements DBMethods
 {
     private DBService $connection;
 
-    private $cache;
+    private static $cache;
     private $error;
 
     private $invalidPatterns = [
@@ -22,7 +22,7 @@ class DBConnection implements DBMethods
     public function __construct()
     {
         $this->connection = DBService::getInstance();
-        $this->cache = [];
+        self::$cache = [];
     }
 
     public function checkConnection()
@@ -54,8 +54,8 @@ class DBConnection implements DBMethods
         if ($this->checkForSQLInjections($dataArray));
 
         $key = $statement->queryString . serialize($dataArray);
-        if (isset($this->cache[$key]))
-            return $this->cache[$key];
+        if (isset(self::$cache[$key]))
+            return self::$cache[$key];
 
         return $this->connection->query($statement, $dataArray);
     }
@@ -64,7 +64,7 @@ class DBConnection implements DBMethods
     {
         $data = $this->query($statement, $dataArray);
 
-        if (!isset($this->cache[$statement])) {
+        if (!isset(self::$cache[$statement])) {
             $result = $data->fetch(PDO::FETCH_ASSOC);
 
             $params = [];
@@ -78,10 +78,10 @@ class DBConnection implements DBMethods
 
             $result = new $class(extract($params)); // extract returns int, this doesn't work
 
-            $this->cache[$statement] = $result;
+            self::$cache[$statement] = $result;
         }
 
-        return $this->cache[$statement];
+        return self::$cache[$statement];
     }
 
 private function checkForSQLInjections(array $userInput = []) {
@@ -204,8 +204,8 @@ private function checkForSQLInjections(array $userInput = []) {
     {
         $key = $query->queryString . serialize($dataArray);
 
-        if (!isset($this->cache[$key]) || $force)
-            $this->cache[$key] = $result;
+        if (!isset(self::$cache[$key]) || $force)
+            self::$cache[$key] = $result;
     }
 
     public function checkAccess()

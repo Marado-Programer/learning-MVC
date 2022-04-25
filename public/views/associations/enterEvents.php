@@ -10,7 +10,7 @@
     action="<?=HOME_URI?>/events/simple"
     enctype="multipart/form-data"
     target="events-iframe">
-    <button name="search-events" value="<?=$this->association->id?>">Search for events</button>
+    <button name="search-events" value="<?=$this->association->getID();?>">Search for events</button>
 </form>
 
 <iframe srcdoc="<p>Search them</p>" name="events-iframe" width="640" height="379">

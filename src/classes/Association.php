@@ -162,7 +162,7 @@ class Association
 
                 $db->resultToCache($userQuery, $data, $user, true);
     
-                $this->partners[] = $user;
+                $this->partners[] = clone $user;
             }
         } catch (Exception $e) {
             die($e);
@@ -341,18 +341,17 @@ class Association
     }*/
 
     public function publishNews(News $news) {
-        $db = new SystemDB();
-
-        if (!$db->pdo)
-            die('Connection error');
+        $db = new DBConnection();
 
         $publishedNews = $db->update(
             'news',
-            'id',
-            $news->id,
+            ['id' => $news->id],
             [
                 'published' => 1,
-                'publishTime' => (new DateTime())->format('Y-m-s H:i:s')
+                'publishTime' => (new DateTime())->format('Y-m-s H:i:s'),
+                'publishedTitle' => $news->title,
+                'publishedImage' => $news->image,
+                'publishedArticle' => $news->getArticle()
             ]
         );
 
@@ -428,12 +427,9 @@ class Association
 
     public function createEvent(string $title, string $description, DateTime $endDate)
     {
-        $db = new SystemDB();
+        $db = new DBConnection();
 
-        if (!$db->pdo)
-            die('Connection error');
-
-        $db->pdo->beginTransaction();
+        $db->beginTransaction();
 
         $createdEvent = $db->insert(
             'events',
@@ -464,19 +460,16 @@ class Association
         
         if (!$createdEvent || !$createdAssociationEvent) {
             $_SESSION['news-errors'][] = "Failed to create event";
-            $db->pdo->rollBack();
+            $db->rollBack();
             die('Internal error');
         }
 
-        $db->pdo->commit();
+        $db->commit();
     }
     
     public function createImage(string $title, array $image)
     {
-        $db = new SystemDB();
-
-        if (!$db->pdo)
-            die('Connection error');
+        $db = new DBConnection();
 
         $createdImage = $db->insert(
             'image',
