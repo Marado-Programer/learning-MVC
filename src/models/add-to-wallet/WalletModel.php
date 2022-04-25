@@ -10,7 +10,7 @@ class WalletModel extends MainModel
     {
         $user = $this->instanceUserByID($params['user']);
         $user->deposit($params['quantity']);
-        UsersManager::getTools()->getRedirect()->redirect();
+        UsersManager::getTools()->getRedirect()->redirect($_SERVER['SERVER_REFERER']);
     }
 
     private function instanceUserByID(int $id)
@@ -26,14 +26,14 @@ class WalletModel extends MainModel
         $user = $user->fetch(PDO::FETCH_ASSOC);
 
         return new User(
+            $id,
             $user['username'],
             null,
             $user['realName'],
             $user['email'],
             $user['telephone'],
             $user['permissions'],
-            false,
-            $id
+            false
         );
     }
 }

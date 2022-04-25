@@ -20,9 +20,8 @@ class User extends Updatable
 
     public $news = [];
 
-    public $quotas = [];
-
     public function __construct(
+        ?int $id = -1,
         string $username = 'Guest',
         ?string $password = null,
         ?string $realName = null,
@@ -30,8 +29,7 @@ class User extends Updatable
         ?string $telephone = null,
         float $money = 0,
         int $permissions = PermissionsManager::P_GUEST,
-        bool $loggedIn = false,
-        int $id = -1
+        bool $loggedIn = false
     ) {
         $this->id = $id;
         $this->username = $username;
@@ -134,11 +132,13 @@ class User extends Updatable
         return $this->wallet;
     }
 
-    public function setWallet(float $wallet)
+    public function useWallet(float $money)
     {
-        $this->wallet = $wallet;
+        $this->wallet -= $money;
 
         $this->checkUpdate();
+
+        return $money;
     }
 
     public function deposit(float $quantity)
@@ -153,9 +153,85 @@ class User extends Updatable
         return $this->news;
     }
 
-    public function getQuotas()
-    {
-        return $this->quotas;
+    public function createNews(
+        Association $association,
+        string $title,
+        array $image,
+        string $article
+    ) {
+        $db = new DBConnection();
+
+        $db->beginTransaction();
+
+        $createdNews = $db->insert(
+            'news',
+            [
+                'association' => $association->getID(),
+                'author' => $this->id,
+                'title' => $title,
+                'image' => $image['name'],
+                'article' => $article,
+                'published' => 0,
+                'lastEditTime' => ($now = new Datetime())->format('Y-m-d H:i:s')
+            ]
+        );
+
+        if (!$createdNews) {
+            $errors[] = "Failed to create news";
+            $_SESSION['news-errors'] = $errors;
+            $db->pdo->rollBack();
+            return;
+        }
+
+        $db->commit();
+
+        $newNews = $db->query(
+            $db->createQuery("SELECT `id` FROM `news`
+            WHERE `association` = ?
+            AND `author` = ?
+            AND `title` = ?
+            AND `image` = ?
+            AND `article` = ?
+            AND `published` = 0
+            AND `lastEditTime` = ?;"),
+            [
+                $association->getID(),
+                $this->id,
+                $title,
+                $image['name'],
+                $article,
+                $now->format('Y-m-d H:i:s')
+            ]
+        );
+
+        if (!$newNews) {
+            $_SESSION['news-errors'][] = "Failed to creating news.";
+            die('Internal error');
+        }
+
+        if (!file_exists(UPLOAD_PATH))
+            mkdir(UPLOAD_PATH, 0755, true);
+
+        if (!move_uploaded_file($image['tmp_name'], UPLOAD_PATH . '/' . $image['name'])) {
+            $errors[] = "Failed uploading file";
+            $_SESSION['news-errors'] = $errors;
+            return;
+        }
+
+        $_SESSION['news-created'] = 'A news was created.';
+
+        unset($_SESSION['news']);
+
+        return new News(
+            $association,
+            $this,
+            $title,
+            $image['name'],
+            $article,
+            null,
+            $now,
+            $newNews->fetchAll(PDO::FETCH_ASSOC)[0]['id']
+        );
     }
 
     public function createAssociation(
@@ -182,6 +258,9 @@ class User extends Updatable
                 ]
             );
 
+            if (!$createdAssoc)
+                throw new Exception('Failed to create association');
+
             $createdAssocID = $db->query(
                     $db->createQuery('SELECT `id` FROM `associations` WHERE `nickname` = ?;'),
                     [
@@ -205,9 +284,13 @@ class User extends Updatable
         } catch (Exception $e) {
             $db->rollBack();
             die($e);
+        } finally {
+            $db->commit();
         }
+    }
 
-        $db->commit();
+    public function enterAssociation(Association $association) {
+        $association->newPartner($this);
     }
 
     protected function update()
@@ -228,7 +311,7 @@ class User extends Updatable
                     ]
                 );
             } catch (Exception $e) {
-                print_r($e);
+                die($e);
             }
     }
 
@@ -236,19 +319,19 @@ class User extends Updatable
 
     public function getDues()
     {
-        $db = new SystemDB();
+        $db = new DBConnection();
 
         if (!$db->pdo)
             die('Connection error');
 
-        $userDues = $db->query('SELECT * FROM `dues` WHERE `partner` = ' . $this->id . ';');
+        $userDues = $db->query($db->createQuery('SELECT * FROM `dues` WHERE `partner` = ?;'), [$this->id]);
 
         if (!$userDues)
             return;
         
         foreach ($userDues->fetchAll(PDO::FETCH_ASSOC) as $due)
             $this->userDues[] = new Dues(
-                clone $this,
+                $this,
                 $due['association'],
                 $due['price'],
                 DateTime::createFromFormat('Y-m-d H:i:s', $due['endDate']),
@@ -261,7 +344,7 @@ class User extends Updatable
         if (!isset($startDate))
             $startDate = $endDate;
 
-        $db = new SystemDB();
+        $db = new DBConnection();
 
         if (!$db->pdo)
             die('Connection error');
@@ -287,12 +370,6 @@ class User extends Updatable
         $db->pdo->commit();
     }
 
-    public function enterAssociation(Association &$association)
-    {
-        $association->createPartner($this);
-        $this->associations[] = $association;
-    }
-
     public function initAssociation(
         ?int $id,
         string $name,
@@ -310,8 +387,6 @@ class User extends Updatable
             $taxpayerNumber,
             $this
         );
-
-        $newAssoc->initPartner($this);
 
         return $newAssoc;
     }
@@ -332,13 +407,6 @@ class User extends Updatable
     public function addDue(Dues $due)
     {
         $this->userDues[] = $due;
-    }
-
-    public function __clone()
-    {
-        $this->loggedIn = false;
-        $this->password = "";
-        $this->userDues = [];
     }
 }
 

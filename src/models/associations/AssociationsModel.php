@@ -18,79 +18,27 @@ class AssociationsModel extends MainModel
             return;
 
         $associations = $this->db->query(
-            $this->db->createQuery("SELECT * FROM `associations`
-            INNER JOIN `usersAssociations`
-            ON `associations`.`id` = `usersAssociations`.`association`;"));
+            $this->db->createQuery("SELECT * FROM `associations`")
+        )->fetchAll(PDO::FETCH_ASSOC);
 
         if (!$associations)
             return;
 
-        foreach ($associations->fetchAll(PDO::FETCH_ASSOC) as $association)
-            $this->controller->associations->add($this->instanceAssociation($association));
+        foreach ($associations as $association)
+            $this->controller->associations->add($this->instancer->instanceAssociationByID($association['id']));
     }
 
-    private function instanceAssociation(array $association)
+    public function userPayQuota($userID, $assocID, $money)
     {
-        $user = clone UserSession::getUser();
-        $president = $user->getID() == $association['user'] ? $user : $this->instanceUserByID($association['user']);
-        return $president->initAssociation(
-            $association['id'],
-            $association['name'],
-            $association['nickname'],
-            $association['address'],
-            $association['telephone'],
-            $association['taxpayerNumber']
-        );
-    }
+        $user = $this->instancer->instanceUserByID($userID);
+        $association = $this->instancer->instanceAssociationByID($assocID);
 
-    private function instanceUserByID(int $id)
-    {
-        $extends = 'User';
-        try {
-            $user = $this->db->query(
-                $this->db->createQuery('SELECT * FROM `users` WHERE `id` = ?;'),
-                [$id]
-            );
+        foreach ($user->getQuotas() as $quota)
+            if ($quota->association->getID() == $association->getID()) {
+                $user->payQuota($quota, $money);
 
-            if (!$user)
-                throw new Exception('Error fiding user');
-
-            $user = $user->fetch(PDO::FETCH_ASSOC);
-
-            $userRoles = $this->db->query(
-                $this->db->createQuery("SELECT `role` FROM `usersAssociations` WHERE `user` = ?;"),
-                [$user['id']]
-            )->fetchAll(PDO::FETCH_ASSOC);
-
-            if (count($userRoles) > 0) {
-                $extends = 'Partner';
-                foreach ($userRoles as $role) 
-                    if (
-                        UsersManager::getTools()->getPremissionsManager()->checkPermissions(
-                            $role['role'],
-                            PermissionsManager::AP_PRESIDENT,
-                            false
-                        )
-                    ) {
-                        $extends = 'President';
-                        break;
-                    }
+                break;
             }
-
-            return new $extends(
-                $user['username'],
-                null,
-                $user['realName'],
-                $user['email'],
-                $user['telephone'],
-                $user['wallet'] ?? 0,
-                $user['permissions'],
-                false,
-                $id
-            );
-        } catch (Exception $e) {
-            die($e);
-        }
     }
 
     public function createAssociation()
@@ -147,13 +95,8 @@ class AssociationsModel extends MainModel
 
     public function enterAssocition($id)
     {
-        $association = $this->db->query("SELECT * FROM `associations` WHERE `id` = $id;")->fetch(PDO::FETCH_ASSOC);
+        $association = $this->instancer->instanceAssociationByID($id);
 
-        if (!$association)
-            return;
-
-        $association = $this->instanceAssociation($association);
-
-        $association->createPartner(UserSession::getUser());
+        $association->newPartner(UserSession::getUser());
     }
 }

@@ -31,12 +31,12 @@ class AssociationsController extends MainController
 
         $this->loadModel('associations/AssociationsModel');
 
-        if (isset($_POST['association'])) {
-            $data = $_POST['association'];
-            unset($_POST['association']);
-            if ($data['action'] == 'enter')
-                $this->model->enterAssocition($data['id']);
+        if (isset($_POST['enter']) && $data = checkArray($_POST['enter'], 'id')) {
+            $this->model->enterAssocition($data['id']);
         }
+
+        if (isset($_POST['payQuota']) && $data = checkArray($_POST['payQuota'], 'user', 'association', 'quantity'))
+            $this->model->userPayQuota($data['user'], $data['association'], $data['quantity']);
 
         if (isset($_POST['create']))
             $this->model->createAssociation();
@@ -53,7 +53,7 @@ class AssociationsController extends MainController
 
     public function admni()
     {
-        if (!UserSession::getUser()->loggedIn)
+        if (!UserSession::getUser()->isLoggedIn())
             return;
 
         if (!isset($this->parameters[0]))
@@ -68,7 +68,7 @@ class AssociationsController extends MainController
 
         $permissions = $this->model->userAdmniPermissions(UserSession::getUser(), $this->association);
 
-        if (!UsersManager::getTools()->permissionManager->checkPermissions(
+        if (!UsersManager::getTools()->getPremissionsManager()->checkPermissions(
             $permissions,
             PermissionsManager::AP_PARTNER_ADMNI,
             false

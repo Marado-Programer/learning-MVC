@@ -11,86 +11,14 @@ class HomeModel extends MainModel
         $associations = $this->db->query(
             $this->db->createQuery('SELECT * FROM `usersAssociations` WHERE `user` = ?;'),
             [UserSession::getUser()->getID()]
-        );
+        )->fetchAll(PDO::FETCH_ASSOC);
 
         if (!$associations)
             return;
 
-        foreach ($associations->fetchAll(PDO::FETCH_ASSOC) as $association) {
-            $this->controller->userAssociations->add($this->instanceAssociationByID($association['association']));
-        }
-    }
-
-    private function instanceAssociationByID(int $id)
-    {
-        $association = $this->db->query(
-            $this->db->createQuery("SELECT * FROM `associationWPresident` WHERE `id` = ?;"),
-            [$id]
-        );
-
-        if (!$association)
-            return;
-
-        $association = $association->fetch(PDO::FETCH_ASSOC);
-
-        $user = $this->instanceUserByID($association['president']);
-        return $user->initAssociation(
-            $association['id'],
-            $association['name'],
-            $association['nickname'],
-            $association['address'],
-            $association['telephone'],
-            $association['taxpayerNumber'],
-        );
-    }
-
-    private function instanceUserByID(int $id)
-    {
-        $extends = 'User';
-        try {
-            $user = $this->db->query(
-                $this->db->createQuery('SELECT * FROM `users` WHERE `id` = ?;'),
-                [$id]
-            );
-
-            if (!$user)
-                throw new Exception('Error fiding user');
-
-            $user = $user->fetch(PDO::FETCH_ASSOC);
-
-            $userRoles = $this->db->query(
-                $this->db->createQuery("SELECT `role` FROM `usersAssociations` WHERE `user` = ?;"),
-                [$user['id']]
-            )->fetchAll(PDO::FETCH_ASSOC);
-
-            if (count($userRoles) > 0) {
-                $extends = 'Partner';
-                foreach ($userRoles as $role) 
-                    if (
-                        UsersManager::getTools()->getPremissionsManager()->checkPermissions(
-                            $role['role'],
-                            PermissionsManager::AP_PRESIDENT,
-                            false
-                        )
-                    ) {
-                        $extends = 'President';
-                        break;
-                    }
-            }
-
-            return new $extends(
-                $user['username'],
-                null,
-                $user['realName'],
-                $user['email'],
-                $user['telephone'],
-                $user['wallet'] ?? 0,
-                $user['permissions'],
-                false,
-                $id
-            );
-        } catch (Exception $e) {
-            die($e);
+        foreach ($associations as $association) {
+            $association = $this->instancer->instanceAssociationByID($association['association']);
+            $this->controller->userAssociations->add($association);
         }
     }
 
@@ -311,17 +239,10 @@ class HomeModel extends MainModel
             die('No permissions');
 
         $user->createNews(
-            $this->instanceAssociationByID($news['association']),
+            $this->instancer->instanceAssociationByID($news['association']),
             $news['title'],
             $news['image'],
             $news['article']
         );
-    }
-
-    public function payQuota(int $associationID)
-    {
-        $association = $this->instanceAssociationByID($associationID);
-        
-        UserSession::getUser()->payQuota($association);
     }
 }

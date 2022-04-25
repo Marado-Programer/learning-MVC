@@ -23,9 +23,6 @@ class HomeController extends MainController
 
         $this->model->getUserAssociations();
 
-        if (isset($_POST['payQuota']['pay']))
-            $this->model->payQuota((int) $_POST['payQuota']['association']);
-
         if (isset($_POST['create']))
             $this->model->createNews();
 

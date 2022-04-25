@@ -42,7 +42,7 @@
     $iterator = $this->userAssociations->getIterator(AssociationsList::$USERS_FIRST_ORDER);
     while ($iterator->valid()) {
         $association = $iterator->current();
-        require VIEWS_PATH . '/home/association.php';
+        require VIEWS_PATH . '/associations/association.php';
         $iterator->next();
     }
 ?>

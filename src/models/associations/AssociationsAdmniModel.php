@@ -8,62 +8,20 @@ class AssociationsAdmniModel extends MainModel
 {
     public function getAssociationByNickname($nickname)
     {
-        $association = $this->db->query("
-            SELECT * FROM `associationWPresident`
-            WHERE `nickname` = ?",
-            [$nickname]
-        );
-
-        if (!$association)
-            return;
-
-        return $this->instanceAssociation($association->fetch(PDO::FETCH_ASSOC));
+        return $this->instancer->instanceAssociationByNickname($nickname);
     }
 
-    private function instanceAssociation(array $association)
+    public function userAdmniPermissions(Partner $user, Association $association): int
     {
-        if (($user = clone UserSession::getUser())->id != $association['president'])
-            $user = $this->instanceUserByID($association['president']);
-
-        return $user->initAssociation(
-            $association['id'],
-            $association['name'],
-            $association['nickname'],
-            $association['address'],
-            $association['telephone'],
-            $association['taxpayerNumber'],
-        );
-    }
-
-    private function instanceUserByID(int $id)
-    {
-        $user = $this->db->query("SELECT * FROM `users` WHERE `id` = $id;");
-
-        if (!$user)
-            return;
-
-        $user = $user->fetch(PDO::FETCH_ASSOC);
-
-        return new User(
-            $user['username'],
-            null,
-            $user['realName'],
-            $user['email'],
-            $user['telephone'],
-            $user['permissions'],
-            false,
-            $id
-        );
-    }
-
-    public function userAdmniPermissions(User $user, Association $association): int
-    {
-        $role = $this->db->query("SELECT * FROM `usersAssociations` WHERE (`association` = {$association->id}) AND (`user` = {$user->id});");
+        $role = $this->db->query(
+            $this->db->createQuery("SELECT * FROM `usersAssociations` WHERE (`association` = ?) AND (`user` = ?);"),
+            [$association->getID(), $user->getID()]
+        )->fetch(PDO::FETCH_ASSOC);
         
         if (!$role)
             return 0;
 
-        $role = $role->fetch(PDO::FETCH_ASSOC);
+        $role = $role;
 
         if (!isset($role['role']))
             return 0;

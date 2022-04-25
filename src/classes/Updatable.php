@@ -9,7 +9,7 @@ abstract class Updatable
     protected bool $updated = false;
     protected ?DBConnection $db = null;
 
-    protected function checkUpdate()
+    final protected function checkUpdate()
     {
         $this->updated = true;
 
@@ -19,7 +19,7 @@ abstract class Updatable
 
     protected abstract function update();
 
-    public function __destruct()
+    final public function __destruct()
     {
         $this->update();
     }

@@ -7,7 +7,7 @@
 </header>
 
 <?php
-if (UsersManager::getTools()->permissionManager->checkPermissions(
+if (!UsersManager::getTools()->getPremissionsManager()->checkPermissions(
     $permissions,
     PermissionsManager::AP_CREATE_NEWS,
     false

@@ -83,12 +83,12 @@ class SignUpModel extends MainModel
         // check for equal data in the DB.
         if (
             $rows = $this->db->query(
-                'SELECT * FROM `users`'
+                $this->db->createQuery('SELECT * FROM `users`'
                     . 'WHERE `username` = ?'
                     . 'OR `email` = ?'
                     . ($user['telephone']
                         ? ' OR `telephone` = ?;'
-                        : ';'),
+                        : ';')),
                 $user['telephone']
                     ? [
                         $user['username'],
@@ -102,7 +102,6 @@ class SignUpModel extends MainModel
             )->fetchAll(PDO::FETCH_ASSOC)
         ) {
             $rows = $rows[0];
-            print_r($rows);
             $_SESSION['sign-up-errors'][] = 'Invalid' . (isset($rows['username']) ? ' username' : '' . ', already in use.');
             $_SESSION['sign-up-errors'][] = 'Invalid' . (isset($rows['email']) ? ' email' : '' . ', already in use.');
             $_SESSION['sign-up-errors'][] = 'Invalid' . (isset($rows['telephone']) ? ' telephone' : '' . ', already in use.');

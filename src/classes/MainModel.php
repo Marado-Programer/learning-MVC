@@ -14,9 +14,12 @@ class MainModel
     public $parameters;
     public $userdata;
 
-    public function __construct($db = false, $controller = null)
+    protected $instancer;
+
+    public function __construct($db = null, $controller = null)
     {
         $this->db = $db;
+        $this->instancer = Instanceator::getInstanceator($db);
         $this->controller = $controller;
         $this->parameters = $this->controller->parameters;
     }

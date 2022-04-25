@@ -118,6 +118,7 @@ class UserSession extends Redirect
             }
 
             self::$user = new $extends(
+                $userId,
                 $userUsername,
                 self::$user->getPassword(),
                 $fetchedUser['realName'],
@@ -125,8 +126,7 @@ class UserSession extends Redirect
                 $fetchedUser['telephone'],
                 $fetchedUser['wallet'] ?? 0,
                 $fetchedUser['permissions'],
-                true,
-                $userId
+                true
             );
 
             $_SESSION['user'] = serialize(self::$user);
@@ -163,6 +163,7 @@ class UserSession extends Redirect
             && is_array($_POST['user-data'])
         ) {
             self::$user = new User(
+                null,
                 $_POST['user-data']['username'],
                 $_POST['user-data']['password']
             );

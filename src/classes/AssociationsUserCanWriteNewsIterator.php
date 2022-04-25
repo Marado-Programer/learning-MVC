@@ -12,16 +12,17 @@ class AssociationsUserCanWriteNewsIterator implements Iterator
     private $user;
     private $permissionsChecker;
     private $db;
+
+    private $query;
     
     public function __construct($list)
     {
         $this->list = $list;
         $this->user = UserSession::getUser();
-        $this->permissionsChecker = UsersManager::getTools()->permissionManager;
-        $this->db = new SystemDB();
+        $this->permissionsChecker = UsersManager::getTools()->getPremissionsManager();
+        $this->db = new DBConnection();
 
-        if (!$this->db->pdo)
-            die('Connection error');
+        $this->query = $this->db->createQuery('SELECT `role` FROM `usersAssociations` WHERE `user` = ? AND `association` = ?;');
 
         $this->rewind();
     }
@@ -48,6 +49,7 @@ class AssociationsUserCanWriteNewsIterator implements Iterator
     public function rewind(): void
     {
         $this->pos = 0;
+
         if (!$this->canWrite($this->current()))
             $this->next();
     }
@@ -59,13 +61,16 @@ class AssociationsUserCanWriteNewsIterator implements Iterator
 
     private function canWrite(Association $association): bool
     {
-        $role = $this->db->query('SELECT `role` FROM `usersAssociations` WHERE `user` = ' . $this->user->id . ' AND `association` = ' . $association->id . ';');
+        $role = $this->db->query(
+            $this->query,
+            [$this->user->getID(), $association->getID()]
+        )->fetch(PDO::FETCH_ASSOC);
 
         if (!$role)
             return false;
 
         return $this->permissionsChecker->checkPermissions(
-            $role->fetch(PDO::FETCH_ASSOC)['role'],
+            $role['role'],
             PermissionsManager::AP_CREATE_NEWS,
             false
         );
@@ -73,13 +78,16 @@ class AssociationsUserCanWriteNewsIterator implements Iterator
 
     public function canPublish(Association $association): bool
     {
-        $role = $this->db->query('SELECT `role` FROM `usersAssociations` WHERE `user` = ' . $this->user->id . ' AND `association` = ' . $association->id . ';');
+        $role = $this->db->query(
+            $this->query,
+            [$this->user->getID(), $association->getID()]
+        )->fetch(PDO::FETCH_ASSOC);
 
         if (!$role)
             return false;
 
         return $this->permissionsChecker->checkPermissions(
-            $role->fetch(PDO::FETCH_ASSOC)['role'],
+            $role['role'],
             PermissionsManager::AP_PUBLISH_NEWS,
             false
         );

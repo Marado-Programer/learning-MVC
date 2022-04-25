@@ -52,10 +52,10 @@ $assocsCanPublish = [];
                     while ($iterator->valid()) {
                         $association = $iterator->current();
 
-                        echo '<option value="' . $association->id . '">' . $association->name . '</option>';
+                        echo '<option value="' . $association->getID() . '">' . $association->name . '</option>';
 
                         if ($iterator->canPublish($association))
-                            $assocsCanPublish[] = $association->id;
+                            $assocsCanPublish[] = $association->getID();
 
                         $iterator->next();
                     }

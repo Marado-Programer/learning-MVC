@@ -5,8 +5,13 @@
  */
 
 // Verify if the array has an specific key
-function checkArray(array $array, ...$keys)
+function checkArray(array $array, int|string ...$keys)
 {
+    if (!isset($array))
+        return;
+
+    $keys = $keys ?: array_keys($array);
+
     foreach ($keys as $key) {
         if (!isset($array[$key]) || empty($array[$key]))
             return;
@@ -15,6 +20,7 @@ function checkArray(array $array, ...$keys)
     
     if (count($arr) > 1)
         return $arr;
+
     return $arr[$keys[0]];
 }
 

@@ -22,7 +22,7 @@ class DBConnection implements DBMethods
     public function __construct()
     {
         $this->connection = DBService::getInstance();
-        $this->cache = new SplObjectStorage();
+        $this->cache = [];
     }
 
     public function checkConnection()
@@ -45,21 +45,46 @@ class DBConnection implements DBMethods
         $this->connection->rollBack();
     }
 
-    public function query(PDOStatement $statement, array $dataArray = [])
+    public function query(PDOStatement|string $statement, array $dataArray = [])
     {
+        if (is_string($statement))
+            $statement = $this->createQuery($statement);
+
         // Protect against SQL Injections
         if ($this->checkForSQLInjections($dataArray));
 
+        $key = $statement->queryString . serialize($dataArray);
+        if (isset($this->cache[$key]))
+            return $this->cache[$key];
+
+        return $this->connection->query($statement, $dataArray);
+    }
+
+    public function selectToObject(PDOStatement $statement, array $dataArray = [], string $class, array $useOnConstruct)
+    {
+        $data = $this->query($statement, $dataArray);
+
         if (!isset($this->cache[$statement])) {
-            $result = $this->connection->query($statement, $dataArray);
+            $result = $data->fetch(PDO::FETCH_ASSOC);
+
+            $params = [];
+            foreach ($useOnConstruct as $attr)
+                foreach ($result as $key => $param)
+                    if ($attr == $key) {
+                        $params[$attr] = $param;
+
+                        break;
+                    }
+
+            $result = new $class(extract($params)); // extract returns int, this doesn't work
+
             $this->cache[$statement] = $result;
         }
 
         return $this->cache[$statement];
     }
 
-    private function checkForSQLInjections(array $userInput = [])
-    {
+private function checkForSQLInjections(array $userInput = []) {
         foreach ($userInput as $param)
             foreach ($this->invalidPatterns as $pattern)
                 if (preg_match($pattern, $param))
@@ -175,10 +200,12 @@ class DBConnection implements DBMethods
         return;
     }
 
-    public function resultToCache(PDOStatement $query, $result, $force = false)
+    public function resultToCache(PDOStatement $query, array $dataArray, object $result, $force = false)
     {
-        if (!isset($this->cache[$query]) || $force)
-            $this->cache[$query] = $result;
+        $key = $query->queryString . serialize($dataArray);
+
+        if (!isset($this->cache[$key]) || $force)
+            $this->cache[$key] = $result;
     }
 
     public function checkAccess()
