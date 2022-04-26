@@ -177,5 +177,60 @@ class Instanceator
         }
     }
 
+    public function instanceEventByID(int $id)
+    {
+        try {
+            $query = $this->db->createQuery('SELECT * FROM `events` WHERE `id` = ?;');
+            $data = [$id];
+
+            $event = $this->db->query($query, $data)->fetch(PDO::FETCH_ASSOC);
+
+            if (!$event)
+                throw new Exception('Error fiding user');
+
+            $association = $this->instanceAssociationByID($event['association']);
+
+            $event = new Events(
+                $association,
+                $event['title'],
+                $event['description'],
+                DateTime::createFromFormat('Y-m-d H:i:s', $event['endDate']),
+                $id
+            );
+
+            $this->db->resultToCache($query, $data, $event, true);
+
+            return $event;
+        } catch (Exception $e) {
+            die($e);
+        }
+    }
+
+    public function instanceRegistrationsByPartnerID(int $id)
+    {
+        try {
+            $partner = $this->instanceUserByID($id);
+
+            $query = $this->db->createQuery('SELECT * FROM `registrations` WHERE `partner` = ?');
+            $data = [$partner->getID()];
+
+            $registrationsList = $this->db->query($query, $data)->fetchAll(PDO::FETCH_ASSOC);
+            if (!$registrationsList)
+                return;
+
+            foreach ($registrationsList as $registration) {
+                $event = $this->instanceEventByID($registration['event']);
+
+                $registrations[] = new Registration(
+                    $event,
+                    $partner
+                );
+            }
+
+            return $registrations;
+        } catch (Exception $e) {
+            die($e);
+        }
+    }
 }
 

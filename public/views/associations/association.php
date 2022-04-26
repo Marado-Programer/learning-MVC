@@ -8,8 +8,20 @@
             <form method="post"
                 action="#">
             <td class="space"><p><input type="hidden" name="enterAssociation[id]" value="<?=$association->getID()?>" /></p>
-            <td class="actions"><p><a href="<?=HOME_URI?>/@<?=$association->nickname?>">Visit page</a><?php if (UserSession::getUser()->isLoggedIn() && !in_array(UserSession::getUser(), $association->getPartners())): ?><br />
-            <button name="enterAssociation[enter]" value="enter">Enter Association</button><?php endif ?>
+            <td class="actions"><p><a href="<?=HOME_URI?>/@<?=$association->nickname?>">Visit page</a>
+<?php
+if (UserSession::getUser()->isLoggedIn()) {
+    $isPartner = false;
+    foreach ($association->getPartners() as $partner)
+        if ($partner->getID() == UserSession::getUser()->getID()) {
+            $isPartner = true;
+            break;
+        }
+    if (!$isPartner)
+        echo '<button name="enterAssociation[enter]" value="enter">Enter Association</button>';
+}
+?>
+<br />
             </form>
             <?php
             if (UserSession::getUser()->isLoggedIn() && UserSession::getUser() instanceof Partner) {

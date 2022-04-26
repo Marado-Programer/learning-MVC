@@ -422,7 +422,7 @@ class User extends Updatable
         $this->permissions = $permissions;
     }
 
-    public function addDue(Dues $due)
+    public function addDue(Quota $due)
     {
         $this->userDues[] = $due;
     }
@@ -431,6 +431,7 @@ class User extends Updatable
     {
         $this->password = "\0";
         $this->news = null;
+        $this->quotas = null;
     }
 }
 

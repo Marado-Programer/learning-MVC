@@ -27,5 +27,3 @@ define('DEBUG', true);
 
 define('NOT_FOUND', ROOT_PATH . '/public/404.php');
 
-require_once ROOT_PATH . '/src/loader.php'; // improve -> PSR-1 - 2.3.
-

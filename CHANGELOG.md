@@ -2,6 +2,10 @@
 
 All notable changes to this publication will be documented in this file.
 
+## 1.0.00 - 2022-26-05
+
+First release. Add notification system and partner permissions manager.
+
 ## 0.3.22 - 2022-25-05
 Remaking some things.
 

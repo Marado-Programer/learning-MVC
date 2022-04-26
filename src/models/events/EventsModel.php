@@ -14,22 +14,7 @@ class EventsModel extends MainModel
             return;
 
         foreach ($events->fetchAll(PDO::FETCH_ASSOC) as $event)
-            $this->controller->events->add($this->instanceEvent($event));
-    }
-    
-    public function getEventByID(int $id)
-    {
-        $events = $this->db->query(
-            "SELECT * FROM `events`
-            WHERE `id` = $id;"
-        );
-
-        if (!$events)
-            return;
-
-        $this->controller->events->add($event = $this->instanceEvent($events->fetch(PDO::FETCH_ASSOC)));
-
-        return $event;
+            $this->controller->events->add($this->instancer->instanceEventByID($event['id']));
     }
 
     public function getEventsByAssociationID(int $id)
@@ -47,46 +32,21 @@ class EventsModel extends MainModel
             return;
 
         foreach ($events->fetchAll(PDO::FETCH_ASSOC) as $event)
-            $this->controller->events->add($this->instanceEvent($event));
+            $this->controller->events->add($this->instancer->instanceEventByID($event['id']));
     }
     
     public function joinAssociationToEvent(int $idEvent, int $idAssociation)
     {
-        $event = $this->getEventByID($idEvent);
+        $event = $this->instancer->instanceEventByID($idEvent);
+
         $event->addAssociation($this->instancer->instanceAssociationByID($idAssociation));
     }
 
     public function joinPartnerToEvent(int $idEvent, Partner $user)
     {
-        $event = $this->getEventByID($idEvent);
+        $event = $this->instancer->instanceEventByID($idEvent);
 
         $user->enterEvent($event);
-    }
-
-    private function instanceEvent(array $event)
-    {
-        $association = $this->db->query("SELECT * FROM `associationWPresident` WHERE `id` = " . $event['association'] . ";")->fetch(PDO::FETCH_ASSOC);
-
-        if (!$association)
-            return;
-        
-        $partner = $this->instancer->instanceUserByID($association['president']);
-        
-        $association = $partner->initAssociation(
-            $association['id'],
-            $association['name'],
-            $association['nickname'],
-            $association['address'],
-            $association['telephone'],
-            $association['taxpayerNumber'],
-        );
-
-        return $association->initEvent(
-            $event['title'],
-            $event['description'],
-            DateTime::createFromFormat('Y-m-d H:i:s', $event['endDate']),
-            $event['id']
-        );
     }
 }
 

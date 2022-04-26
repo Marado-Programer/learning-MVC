@@ -13,6 +13,7 @@
     <meta name="keywords" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="<?=HOME_URI?>/public/style/css/style.css" rel="stylesheet" />
+    <script src="<?=HOME_URI?>/public/scripts/java-script/getEventsNotifiers.js"></script>
 </head>
 
 <body>

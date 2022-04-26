@@ -33,8 +33,8 @@ class AssociationsController extends MainController
 
         $this->loadModel('associations/AssociationsModel');
 
-        if (isset($_POST['enter']) && $data = checkArray($_POST['enter'], 'id')) {
-            $this->model->enterAssocition($data['id']);
+        if (isset($_POST['enterAssociation']) && $data = checkArray($_POST['enterAssociation'], 'id')) {
+            $this->model->enterAssocition($data);
         }
 
         if (isset($_POST['payQuota']) && $data = checkArray($_POST['payQuota'], 'user', 'association', 'quantity'))
@@ -93,6 +93,9 @@ class AssociationsController extends MainController
 
         if (isset($_POST['image']))
             $this->model->createImage($this->association);
+
+        if (isset($_POST['users']['change']))
+            $this->model->changePremissionsOnAssoc();
 
         require VIEWS_PATH . '/includes/header.php';
         require VIEWS_PATH . '/includes/nav.php';

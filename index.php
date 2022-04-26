@@ -4,5 +4,5 @@
  * First page loaded
  */
 
-require_once './config/config.php';
+require_once './src/loader.php';
 

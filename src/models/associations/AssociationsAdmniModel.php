@@ -680,5 +680,52 @@ class AssociationsAdmniModel extends MainModel
         );
     }
 
+    public function changePremissionsOnAssoc()
+    {
+        $assoc = $this->controller->association;
+
+        $presidentID = checkArray($_POST['users'], 'president');
+
+        if ($presidentID != $assoc->president->getID())
+        {
+            $this->db->update(
+                'usersAssociations',
+                [
+                    'user' => $presidentID,
+                    'association' => $assoc->getID()
+                ],
+                ['role' => dechex(PermissionsManager::AP_PRESIDENT)]
+            );
+            $this->db->update(
+                'usersAssociations',
+                [
+                    'user' => $assoc->president->getID(),
+                    'association' => $assoc->getID()
+                ],
+                ['role' => dechex(PermissionsManager::AP_PRESIDENT & ~(0x1 << 20))]
+            );
+        }
+
+        $partners = checkArray($_POST['users']['p']);
+
+        foreach ($partners as $k => $p) {
+            if ($k == $presidentID)
+                continue;
+
+            $role = 0;
+            foreach ($p as $permission => $onoff)
+                if ($onoff)
+                    $role |= $permission;
+
+            $this->db->update(
+                'usersAssociations',
+                [
+                    'user' => $k,
+                    'association' => $assoc->getID()
+                ],
+                ['role' => dechex($role)]
+            );
+        }
+    }
 }
 

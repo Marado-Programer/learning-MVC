@@ -163,8 +163,6 @@ WHERE `usersAssociations`.`role` = (
 
 -- SQL Keywords
 
--- PDO->bindParam()
-
 -- WHERE > GROUP BY > HAVING > ORDER BY
 
 -- SELECT DISTINCT

@@ -4,8 +4,10 @@
  * 
  */
 
+require_once './config/config.php';
+
 if (!defined('ROOT_PATH'))
-    exit;
+    exit();
 
 session_start();
 
@@ -21,3 +23,4 @@ require_once ROOT_PATH . '/src/global/global-functions.php';
 
 $sys = new System();
 $sys->genController();
+

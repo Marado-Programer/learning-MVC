@@ -214,7 +214,7 @@ class Association
         }
     }
 
-    public function createQuotaToPartner(Partner &$user)
+    public function createQuotaToPartner(User &$user)
     {
         $now = new DateTime();
 

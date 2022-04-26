@@ -14,6 +14,11 @@ class Registration
         $this->partner = $partner;
     }
 
+    public function getEvent()
+    {
+        return $this->event;
+    }
+
     public function getIdEvent()
     {
         return $this->event->id;

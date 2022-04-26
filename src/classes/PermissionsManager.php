@@ -95,14 +95,14 @@ final class PermissionsManager
         | self::AP_EDIT_IMAGE_GALLERIES
         | self::AP_DELETE_IMAGE_GALLERIES;
 
-    public const AP_PRESIDENT = (self::AP_PARTNER
+    public const AP_PRESIDENT = self::AP_PARTNER
         | self::AP_PARTNER_ADMNI
         | self::AP_ADMNI_NEWS
         | self::AP_ADMNI_EVENTS
         | self::AP_ADMNI_IMAGES
         | self::AP_ADMNI_IMAGE_GALLERIES
         | self::AP_ADMNI_PARTNERS
-        | self::AP_ADMNI_ASSOCIATION) << 0x1;
+        | self::AP_ADMNI_ASSOCIATION | 0x1 << 20;
 
     public function checkPermissions(
         int|string $userPermissions = self::P_ZERO,
