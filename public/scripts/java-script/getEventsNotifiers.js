@@ -29,7 +29,7 @@ window.onload = function() {
 	}
 
 	try {
-		ajax.open("GET", "http://localhost/project/src/getEvents.php?userID=1", true);
+		ajax.open("GET", "http://localhost/project/src/getEvents.php?userID=" + document.getElementById("idOfUser").value, true);
 	} catch(e) {
 		console.log(e.toString());
 	}

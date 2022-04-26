@@ -17,4 +17,4 @@
 </head>
 
 <body>
-
+<input type="hidden" value="<?=UserSession::getUser()->getID()?>" id="idOfUser"\>
