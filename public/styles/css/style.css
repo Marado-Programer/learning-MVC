@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap');
+
+* {
+    font-family: 'Noto Sans JP', sans-serif;
+}
+
+body {
+    max-width: 2048px;
+    margin: auto;
+}
+
+header > h1,
+header > h2 {
+    text-align: center;
+}
+
+header h1 {
+    font-size: 4.1875em;
+}
+
+header h2 {
+    font-size: 3.125em;
+}
+
+a {
+    color: #f0027f;
+    text-decoration: none;
+}
+
+a:visited {
+    color: #7fc97f;
+}
+
+a:hover:not(nav a) {
+    color: #beaed4;
+    text-decoration: underline;
+}
+
+nav {
+    display: flex;
+    justify-content: center;
+    background: #386cb0;
+}
+
+nav > ul {
+    display: contents;
+    list-style: none;
+}
+
+nav > ul > li > a {
+    display: inline-block;
+    padding: 1em;
+}
+
+nav > ul > li:hover {
+    background-color: #beaed4;
+}
+
+nav > ul > li:nth-child(1n + 4) {
+    margin: auto;
+}
+
+nav a {
+    color: #ffff99;
+}
+
+@media (min-width: 1536px) {
+    header h1 {
+        font-size: 5.5625em;
+    }
+
+    header h2 {
+        font-size: 4.1875em;
+    }
+}
+
+@media (max-width: 640px) {
+    nav > ul {
+        display: block;
+        list-style: none;
+    }
+
+    nav > ul > li > a {
+        display: inline-block;
+        padding: 0 1em;
+    }
+
+    header h1 {
+        font-size: 3.125em;
+    }
+
+    header h2 {
+        font-size: 2.3125em;
+    }
+}
+
+.root-footer {
+    display: flex;
+    gap: 0 1em;
+    padding: 0 1em;
+    flex-wrap: wrap;
+}
+
+.root-footer address {
+    margin-left: auto;
+}
+
+.root-footer address a {
+    display: flex;
+    align-items: center;
+}
+
+.root-footer address img {
+    margin-left: 1em;
+}

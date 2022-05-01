@@ -1,7 +1,7 @@
 <?php if (!defined('ROOT_PATH')) exit ?>
 
 <header>
-    <h1>Welcome Home!</h1>
+    <h1>Welcome Home, <?=UserSession::getUser()->username?>!</h1>
 </header>
 
 <?php if (UserSession::getUser()->isLoggedIn()): ?>

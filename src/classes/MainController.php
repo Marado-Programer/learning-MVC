@@ -14,6 +14,8 @@ abstract class MainController
     public $parameters = array();
     protected $model;
 
+    protected $tools;
+
     public function __construct(
         $parameters = array(),
         $title = 'index',
@@ -27,6 +29,7 @@ abstract class MainController
             die($e);
         }
 
+        $this->tools = UsersManager::getTools();
         $this->userSession = new UserSession($this->db);
         $this->parameters = $parameters;
         $this->title = $title;
@@ -64,7 +67,7 @@ abstract class MainController
 
     final public function index()
     {
-        require VIEWS_PATH . '/includes/header.php';
+        require VIEWS_PATH . '/includes/head.php';
         require VIEWS_PATH . '/includes/nav.php';
 
         $this->indexMain();

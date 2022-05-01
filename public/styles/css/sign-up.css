@@ -7,13 +7,12 @@
 
 #sign-up-main {
     grid-area: 1 / 1 / 2 / 2;
-    background-color: rgba(255, 255, 153, .3);
     padding: 21px;
 }
 
 #sign-up-aside {
     grid-area: 1 / 2 / 2 / 3;
-    background-color: rgba(253, 192, 134, .3);
+    background-color: rgba(253, 192, 134, 1);
     padding: 21px;
 }
 

@@ -2,7 +2,10 @@
 
 All notable changes to this publication will be documented in this file.
 
-## 1.0.00 - 2022-26-05
+## 1.0.1 - 2022-01-06
+Start improving the project looks.
+
+## 1.0.0 - 2022-26-05
 
 First release. Add notification system and partner permissions manager.
 
