@@ -46,10 +46,6 @@ class Quota extends Updatable
     {
         if (isset($this->db)) {
             try {
-                print_r($this->association->getID());
-                print_r($this->partner->getID());
-                print_r($this->payed);
-
                 $this->db->checkAccess();
 
                 $this->db->beginTransaction();

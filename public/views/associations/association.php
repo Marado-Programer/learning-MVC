@@ -27,7 +27,7 @@ if (UserSession::getUser()->isLoggedIn()) {
             if (UserSession::getUser()->isLoggedIn() && UserSession::getUser() instanceof Partner) {
                 $hasQuotaToPay = false;
                 foreach (UserSession::getUser()->getQuotas() as $i => $quota) {
-                    if ($quota->association->getID() == $association->getID() && $quota->endDate < new DateTime()): ?>
+                    if ($quota->association->getID() == $association->getID() && $quota->endDate < new DateTime() && $quota->payed < $quota->price): ?>
                             <form method="post"
                                 action="<?=HOME_URI?>/pay-quota">
                                 <p><label><input type="hidden" name="payQuota[user]" value="<?=UserSession::getUser()->getID()?>"/></label></p>

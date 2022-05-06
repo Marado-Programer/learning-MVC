@@ -6,21 +6,23 @@
 
 abstract class MainController
 {
-    protected $db;
     public $userSession;
+    public $user;
+    
+    protected $db;
     protected $title;
-    protected $loginRequired = false;
+    protected $loginRequired;
     protected $premissionsRequired;
-    public $parameters = array();
+
+    public $parameters;
+
     protected $model;
 
-    protected $tools;
+    public $tools;
 
     public function __construct(
-        $parameters = array(),
+        $parameters = [],
         $title = 'index',
-        $permissions = PermissionsManager::P_ZERO,
-        $loginRequired = false
     ) {
         try {
             $this->db = new DBConnection();
@@ -31,10 +33,13 @@ abstract class MainController
 
         $this->tools = UsersManager::getTools();
         $this->userSession = new UserSession($this->db);
+        $this->user = UserSession::getUser();
+
         $this->parameters = $parameters;
         $this->title = $title;
-        $this->premissionsRequired = $permissions;
-        $this->loginRequired = $loginRequired;
+
+        $this->loginRequired = false;
+        $this->premissionsRequired = PermissionsManager::P_ZERO;
     }
 
     protected function loadModel($model = false)
@@ -67,6 +72,11 @@ abstract class MainController
 
     final public function index()
     {
+        $this->tools->getPremissionsManager()->checkUserPermissions(
+            $this->user,
+            $this->premissionsRequired
+        ) OR $this->user->isLoggedIn() && !$this->loginRequired OR exit();
+
         require VIEWS_PATH . '/includes/head.php';
         require VIEWS_PATH . '/includes/nav.php';
 

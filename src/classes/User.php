@@ -104,12 +104,12 @@ class User extends Updatable
 
     public function getPremissions()
     {
-        return $this->premissions;
+        return $this->permissions;
     }
 
-    public function setPremissions(int $premissions)
+    public function setPremissions(int $permissions)
     {
-        $this->premissions = $premissions;
+        $this->permissions = $permissions;
 
         $this->checkUpdate();
     }
@@ -324,7 +324,7 @@ class User extends Updatable
                         'realName' => $this->realName,
                         'email' => $this->email,
                         'telephone' => $this->telephone,
-                        'permissions' => $this->permissions,
+                        'permissions' => dechex($this->permissions),
                         'wallet' => $this->wallet
                     ]
                 );
@@ -334,28 +334,6 @@ class User extends Updatable
     }
 
 ////////////////////////////////////////////////////////////////////////
-
-    public function getDues()
-    {
-        $db = new DBConnection();
-
-        if (!$db->pdo)
-            die('Connection error');
-
-        $userDues = $db->query($db->createQuery('SELECT * FROM `dues` WHERE `partner` = ?;'), [$this->id]);
-
-        if (!$userDues)
-            return;
-        
-        foreach ($userDues->fetchAll(PDO::FETCH_ASSOC) as $due)
-            $this->userDues[] = new Dues(
-                $this,
-                $due['association'],
-                $due['price'],
-                DateTime::createFromFormat('Y-m-d H:i:s', $due['endDate']),
-                DateTime::createFromFormat('Y-m-d H:i:s', $due['startDate']),
-            );
-    }
 
     public function receiveDue(Association $association, float $price, DateTime $endDate, ?DateTime $startDate = null)
     {
@@ -407,19 +385,6 @@ class User extends Updatable
         );
 
         return $newAssoc;
-    }
-
-    public function getPermissions()
-    {
-        return $this->permissions;
-    }
-
-    public function setPermissions(int $permissions = null)
-    {
-        if (!isset($permissions))
-            return;
-
-        $this->permissions = $permissions;
     }
 
     public function addDue(Quota $due)

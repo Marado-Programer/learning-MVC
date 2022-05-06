@@ -2,7 +2,7 @@
 
 defined('ROOT_PATH') OR exit();
 
-if ($this->loginRequired && !UserSession::getUser()->isLoggedIn())
+if ($this->loginRequired && !$this->user->isLoggedIn())
     $this->tools->getRedirect()->redirect(HOME_URI . '/login');
 
 ?>

@@ -16,20 +16,19 @@
 </header>
 
 <?php
+echo '<hr />';
 if (
-    UsersManager::getTools()->getPremissionsManager()->checkPermissions(
-        UserSession::getUser()->getPermissions(),
+    $this->tools->getPremissionsManager()->checkUserPermissions(
+        $this->user,
         PermissionsManager::P_VIEW_ASSOCIATIONS,
-        false
     )
 )
     require VIEWS_PATH . '/associations/search.php';
 
 if (
-    UsersManager::getTools()->getPremissionsManager()->checkPermissions(
-        UserSession::getUser()->getPermissions(),
+    UsersManager::getTools()->getPremissionsManager()->checkUserPermissions(
+        $this->user,
         PermissionsManager::P_VIEW_ASSOCIATIONS,
-        false
     )
     && UserSession::getUser()->isLoggedIn()
 )

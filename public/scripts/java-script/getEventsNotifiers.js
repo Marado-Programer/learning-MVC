@@ -2,6 +2,10 @@ var times;
 var ajax;
 
 window.onload = function() {
+	if (document.getElementById("idOfUser").value > 0) ajax();
+}
+
+function ajax() {
 	try {
 		ajax = new XMLHttpRequest();
 	} catch(e) {

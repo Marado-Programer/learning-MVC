@@ -198,7 +198,7 @@ class Association
 
                 if (!$quota)
                     $userQuota = $this->createQuotaToPartner($partner);
-                elseif ($quota['price'] <= $quota['payed']) {
+                elseif ($quota['price'] <= $quota['payed'] && new DateTime() >= DateTime::createFromFormat('Y-m-d H:i:s', $quota['endDate'])) {
                     $partner->deposit($quota['payed'] -= $quota['price']);
                     $this->wallet += $quota['price'];
 
