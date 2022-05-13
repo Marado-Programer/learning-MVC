@@ -2,7 +2,7 @@
 
 <body>
 
-<p><input type="hidden" value="<?=UserSession::getUser()->getID()?>" id="idOfUser" /></p>
+<input type="hidden" value="<?=UserSession::getUser()->getID()?>" id="idOfUser" />
 
 <nav>
 

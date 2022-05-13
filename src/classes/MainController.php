@@ -40,6 +40,16 @@ abstract class MainController
 
         $this->loginRequired = false;
         $this->premissionsRequired = PermissionsManager::P_ZERO;
+
+        $this->loadModel($this->getDefaultModelClass());
+    }
+
+    private function getDefaultModelClass()
+    {
+        $str = preg_split('/(?=[A-Z])/', get_class($this));
+        array_pop($str);
+        unset($str[0]);
+        return strtolower(implode('-', $str)) . '/' . preg_replace('/Controller$/', '', (get_class($this)));
     }
 
     protected function loadModel($model = false)
@@ -48,8 +58,10 @@ abstract class MainController
             return;
 
         $model = rtrim($model, '/\//');
+        $model .= 'Model';
 
         $modelPath = ROOT_PATH . "/src/models/$model.php";
+
         if (file_exists($modelPath)) {
             require_once $modelPath;
 

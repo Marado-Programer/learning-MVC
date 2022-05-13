@@ -1,64 +1,128 @@
 #sign-up {
-    margin: 0 67px;
-    display: grid;
-    grid-template: 1fr 50px / 1199px 1fr;
-    row-gap: 21px;
+	margin: 0 1rem;
 }
 
-#sign-up-main {
-    grid-area: 1 / 1 / 2 / 2;
-    padding: 21px;
+#sign-up-form {
+	display: flex;
+	flex-flow: column wrap;
+	align-items: center;
 }
 
-#sign-up-aside {
-    grid-area: 1 / 2 / 2 / 3;
-    background-color: rgba(253, 192, 134, 1);
-    padding: 21px;
+#sign-up-form > * {
+	max-width: 92%;
 }
 
-#sign-up-aside > div {
-    opacity: 33%;
+#sign-up-form input {
+	width: 96%;
 }
 
-#sign-up-aside > div:hover {
-    opacity: 66%;
+#sign-up-form button {
+	padding: .3125rem 2.3125rem;
+}
+
+#sign-up > aside {
+    background-color: var(--yellow);
+    padding: .3125rem 2.3125rem;
+}
+
+#sign-up > aside > div:not(#required-info) {
+    opacity: 67%;
+	transition: opacity 1s cubic-bezier(.18, .89, .32, 1.28);
+}
+
+#sign-up > aside > div:not(#required-info):hover {
+    opacity: 1;
 }
 
 #error-title {
-    color: rgba(240, 2, 127, 1);
-}
-
-.error:hover {
-    opacity: 100%;
-    text-decoration: underline rgba(240, 2, 127, 1) 1px;
+    color: var(--magenta);
 }
 
 #succeed-title {
-    color: rgba(127, 201, 127, 1);
+    color: var(--green);
 }
 
-.succeed:hover {
-    opacity: 100%;
-    text-decoration: underline rgba(127, 201, 127, 1) 1px;
+.msg {
+	--msg-clr: #000;
 }
 
-#sign-up-footer {
-    grid-area: 2 / 1 / 3 / 3;
+.msg:hover {
+    text-decoration: underline var(--msg-clr) 1px;
+}
+
+.error {
+	--msg-clr: var(--magenta);
+}
+
+.succeed {
+	--msg-clr: var(--green);
 }
 
 .required::after {
-    color: rgba(240, 2, 127, 1);
     content: "*";
+    color: var(--magenta);
 }
 
-.required-sign {
-    color: rgba(240, 2, 127, 1);
+@media (min-width: 640px) {
+	#sign-up-form {
+		align-items: center;
+	}
+
+	#sign-up-form > * {
+		width: 100%;
+		margin: .3125rem;
+	}
+
+	#sign-up-form > p > button {
+		margin: 2.3125rem auto;
+		float: right;
+	}
+
+	#sign-up-form label {
+		margin: .3125rem;
+		display: flex;
+	}
 }
 
-#sign-up-form > fieldset {
-    background-color: white;
+@media (min-width: 768px) {
 }
 
-.error-message {
-    color: rgba(240, 2, 127, 1);
+@media (min-width: 1024px) {
+	#sign-up {
+		display: grid;
+		grid-template: auto auto 5.5625rem / 768px auto;
+		row-gap: 2.3125px;
+	}
+
+	#sign-up header {
+	    grid-area: 1 / 1 / 2 / 3;
+	}
+
+	#sign-up-form {
+	    grid-area: 2 / 1 / 3 / 2;
+	}
+	
+	#sign-up > aside {
+	    grid-area: 2 / 2 / 3 / 3;
+	}
+	
+	#sign-up > footer {
+	    grid-area: 3 / 1 / 4 / 3;
+	}
 }
+
+/*
+@media (min-width: 1280px) {
+	#sign-up {
+		grid-template-columns: 1024px auto;
+	}
+}
+*/
+
+@media (min-width: 1536px) {
+	#sign-up {
+		max-width: 1280px;
+		margin: auto;
+	}
+}
+
