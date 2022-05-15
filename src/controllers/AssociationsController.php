@@ -22,8 +22,6 @@ class AssociationsController extends MainController
 
     public function indexMain()
     {
-        $this->loadModel('associations/AssociationsModel');
-
         if (isset($_POST['enterAssociation']) && $data = checkArray($_POST['enterAssociation'], 'id')) {
             $this->model->enterAssocition($data);
         }

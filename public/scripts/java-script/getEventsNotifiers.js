@@ -24,7 +24,6 @@ function ajax() {
 	ajax.onreadystatechange = function() {
 		if (ajax.readyState == 4 && ajax.status == 200) {
 			try {
-				console.log(JSON.parse(this.responseText));
 				setTimers(JSON.parse(this.responseText));
 			} catch(e) {
 				console.log(e.toString());
@@ -33,7 +32,7 @@ function ajax() {
 	}
 
 	try {
-		ajax.open("GET", "http://localhost/project/src/getEvents.php?userID=" + document.getElementById("idOfUser").value, true);
+		ajax.open("GET", "http://localhost/learning-MVC/src/getEvents.php?userID=" + document.getElementById("idOfUser").value, true);
 	} catch(e) {
 		console.log(e.toString());
 	}

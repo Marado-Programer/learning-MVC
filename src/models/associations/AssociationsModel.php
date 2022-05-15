@@ -73,8 +73,7 @@ class AssociationsModel extends MainModel
 
         if ($association['phone'] == 'yours' && null === $this->controller->user->getTelephone())
             return;
-
-        if ($association['phone'] == 'new' && !isset($association['int'], $association['number']))
+        elseif ($association['phone'] == 'new' && !isset($association['int'], $association['number']))
             return;
 
         $association['telephone'] = $association['phone'] == 'new'
@@ -90,6 +89,8 @@ class AssociationsModel extends MainModel
             $association['telephone'],
             $association['taxpayerNumber'],
         );
+
+        $this->controller->userSession->checkUserLogin();
     }
 
     public function enterAssocition($id)

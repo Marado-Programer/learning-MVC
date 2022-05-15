@@ -13,9 +13,9 @@ class Partner extends User
         return $this->quotas;
     }
 
-    public function recieveQuota(Quota $quota)
+    public function recieveQuota(Association $association, Quota $quota)
     {
-        $this->quotas[] = $quota->setPartner($this);
+        $this->quotas[$association->nickname] = $quota->setPartner($this);
     }
 
     public function payQuota(Quota $quota, float $money)
@@ -42,11 +42,6 @@ class Partner extends User
             $this->associations[$i]->president = $user;
         }
         unset($this->associations[$i]);
-    }
-
-    public function recieveDue(Association $association, float $price, DateTime $endDate, DateTime $startDate = null)
-    {
-        $this->dues[] = new Dues($this, $association, $price, $endDate, $startDate);
     }
 
     public function enterEvent(Events $event) {

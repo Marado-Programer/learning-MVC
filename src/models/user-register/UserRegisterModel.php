@@ -84,37 +84,38 @@ class UserRegisterModel extends MainModel
         unset($user['int'], $user['number']);
 
         // check for equal data in the DB.
-        if (
-            $row = $this->db->query(
-                'SELECT COUNT('
-                    . 'CASE WHEN `username` = ? THEN TRUE END'
-                . ') AS `username`, COUNT('
-                    . 'CASE WHEN `email` = ? THEN TRUE END'
-                . ') AS `email`' . ($user['telephone'] ? ', COUNT('
-                    . 'CASE WHEN `telephone` = ? THEN TRUE END'
-                . ') AS `telephone` ' : ' ')
-                . 'FROM `users`',
-                $user['telephone']
-                    ? [
-                        $user['username'],
-                        $user['email'],
-                        $user['telephone']
-                    ]
-                    : [
-                        $user['username'],
-                        $user['email']
-                    ]
-            )->fetch(PDO::FETCH_ASSOC)
-        ) {
-            if ($rowUsername = checkArray($row, 'username'))
-                $_SESSION['sign-up-errors'][] = "Invalid username, {$user['username']} already in use";
-            if ($rowEmail = checkArray($row, 'email'))
-                $_SESSION['sign-up-errors'][] = "Invalid email, {$user['email']} already in use";
-            if ($rowTelephone = checkArray($row, 'telephone') && $user['telephone'] )
-                $_SESSION['sign-up-errors'][] = "Invalid telephone, {$user['telephone']} already in use";
-            unset($rowUsername, $rowEmail, $rowTelephone);
+        $row = $this->db->query(
+            'SELECT COUNT('
+                . 'CASE WHEN `username` = ? THEN TRUE END'
+            . ') AS `username`, COUNT('
+                . 'CASE WHEN `email` = ? THEN TRUE END'
+            . ') AS `email`' . ($user['telephone'] ? ', COUNT('
+                . 'CASE WHEN `telephone` = ? THEN TRUE END'
+            . ') AS `telephone` ' : ' ')
+            . 'FROM `users`',
+            $user['telephone']
+                ? [
+                    $user['username'],
+                    $user['email'],
+                    $user['telephone']
+                ]
+                : [
+                    $user['username'],
+                    $user['email']
+                ]
+        )->fetch(PDO::FETCH_ASSOC);
+
+        if (checkArray($row, 'username'))
+            $_SESSION['sign-up-errors'][] = "Invalid username, " . $user['username'] . " already in use";
+
+        if (checkArray($row, 'email'))
+            $_SESSION['sign-up-errors'][] = "Invalid email, " . $user['email'] . " already in use";
+
+        if (checkArray($row, 'telephone') && $user['telephone'] )
+            $_SESSION['sign-up-errors'][] = "Invalid telephone, " . $user['telephone'] . " already in use";
+
+        if (isset($_SESSION['sign-up-errors']) && !empty($_SESSION['sign-up-errors']))
             return;
-        }
 
         $user['password'] = $this->controller->tools->getPhpass()->HashPassword(
             $user['password']
@@ -133,7 +134,6 @@ class UserRegisterModel extends MainModel
 
         unset($_SESSION['sign-up-values'], $_SESSION['sign-up-errors']);
 
-        //$this->controller->tools->getRedirect()->redirect(HOME_URI . '/login');
+        $this->controller->tools->getRedirect()->redirect(HOME_URI . '/login');
     }
 }
-

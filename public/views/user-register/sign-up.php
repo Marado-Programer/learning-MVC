@@ -5,7 +5,7 @@ $values = $_SESSION['sign-up-values'] ?? [];
 
 <main>
 
-<link href="<?=STYLE_URI?>/css/sign-up.css" rel="stylesheet" />
+<link href="<?=STYLE_URI?>/css/sign-up.css" rel="stylesheet" type="text/css" />
 
 <section id="sign-up">
 
@@ -25,8 +25,9 @@ $values = $_SESSION['sign-up-values'] ?? [];
             <legend>Telephone:</legend>
             <p>
                 <input type="hidden" value="<?=checkArray($values, 'int')?>" id="int" />
-                <label>International call prefix:<?php require VIEWS_PATH . '/countryCallingCodes.html'?></label>
-<script>
+                <label>International call prefix:<select name="register[int]" id="country-dial-in-codes"><?php require VIEWS_PATH . '/countryCallingCodes.html'?></select></label>
+
+                <script>
                     var int = document.getElementById("int").value;
                     if (int !== "") {
                         var countries = Array.from(document.getElementById("country-dial-in-codes"));

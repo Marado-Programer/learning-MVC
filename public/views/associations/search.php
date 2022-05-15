@@ -8,7 +8,7 @@
 
 <article>
 
-<link href="<?=HOME_URI?>/public/style/css/associations.css" rel="stylesheet" />
+<link href="<?=STYLE_URI?>/css/associations.css" rel="stylesheet" type="text/css"/>
 
 <table>
     <caption>
