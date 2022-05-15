@@ -52,11 +52,9 @@ class AssociationsController extends MainController
         if (!isset($this->parameters[0]))
             UsersManager::getTools()->getRedirect()->redirect();
 
-        $this->loadModel('associations/AssociationsAdmniModel');
+        $this->loadModel('associations/AssociationsAdmni');
 
         $this->association = $this->model->getAssociationByNickname($this->parameters[0]);
-
-        $payedDues = $this->model->userPayedQuotas();
 
         if (!isset($this->association))
             return;
