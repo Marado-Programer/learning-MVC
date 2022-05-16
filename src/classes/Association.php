@@ -198,7 +198,7 @@ class Association
 
                 if (!$quota)
                     $userQuota = $this->createQuotaToPartner($partner);
-                elseif ($quota['price'] <= $quota['payed']) {
+                elseif ($quota['price'] <= $quota['payed'] && new DateTime() >= DateTime::createFromFormat('Y-m-d H:i:s', $quota['endDate'])) {
                     $partner->deposit($quota['payed'] -= $quota['price']);
                     $this->wallet += $quota['price'];
 
@@ -207,7 +207,7 @@ class Association
                     $userQuota = new Quota($this, $quota['price'], $quota['payed'], DateTime::createFromFormat('Y-m-d H:i:s', $quota['endDate']), DateTime::createFromFormat('Y-m-d H:i:s', $quota['startDate']));
 
                 if (isset($userQuota))
-                    $partner->recieveQuota($userQuota);
+                    $partner->recieveQuota($this, $userQuota);
             } catch (Exception $e) {
                 die($e);
             }
@@ -220,7 +220,7 @@ class Association
 
         $end = $now;
         if (!$this->payQuotaAtEntering)
-            $end = $now->add($this->timeSpanToPayQuota);
+            $end->add($this->timeSpanToPayQuota);
 
         try {
             $db = new DBConnection();
@@ -256,6 +256,7 @@ class Association
     public function renewPartnership(Partner $user)
     {
         $now = new DateTime();
+        $end = $now;
 
         try {
             $db = new DBConnection();
@@ -274,7 +275,7 @@ class Association
                     'price' => $this->quotaPrice,
                     'payed' => 0,
                     'startDate' => $now->format('Y-m-d H:i:s'),
-                    'endDate' => $now->add($this->timeSpanToPayQuota)->format('Y-m-d H:i:s')
+                    'endDate' => $end->add($this->timeSpanToPayQuota)->format('Y-m-d H:i:s')
                 ]
             );
 
@@ -286,7 +287,7 @@ class Association
         } finally {
             $db->commit();
 
-            return new Quota($this, $this->quotaPrice, 0, $now, $now->sub($this->timeSpanToPayQuota));
+            return new Quota($this, $this->quotaPrice, 0, $end, $now);
         }
     }
 

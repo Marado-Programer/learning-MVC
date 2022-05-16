@@ -2,7 +2,7 @@
 
 <body>
 
-<p><input type="hidden" value="<?=UserSession::getUser()->getID()?>" id="idOfUser" /></p>
+<input type="hidden" value="<?=UserSession::getUser()->getID()?>" id="idOfUser" />
 
 <nav>
 
@@ -10,8 +10,8 @@
     <li><a href="<?=HOME_URI?>">Home</a>
     <li><a href="<?=HOME_URI?>/user-register">Sign In</a>
     <li><?php if (UserSession::getUser()->isLoggedIn()): ?>
-        <a href="<?=HOME_URI?>/login/delete">Log out</a>
-        <form method="post"
+        <a href="<?=HOME_URI?>/login/delete">Log out</a></li>
+        <li><form method="post"
             action="<?=HOME_URI?>/add-to-wallet">
             <p><label><input type="hidden" name="deposit[user]" value="<?=UserSession::getUser()->getID()?>"/></label></p>
             <p>Wallet: <?=UserSession::getUser()->getWallet()?>$&nbsp;|&nbsp;<label>Quantity: <input type="number" name="deposit[quantity]" step="0.001" min="0" /></label><button>Deposit</button></p>

@@ -4,5 +4,6 @@
  * First page loaded
  */
 
-require_once './src/loader.php';
+define('FROM_INDEX', true);
 
+require_once './src/loader.php';

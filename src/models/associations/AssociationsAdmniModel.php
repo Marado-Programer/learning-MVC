@@ -684,7 +684,7 @@ class AssociationsAdmniModel extends MainModel
     {
         $assoc = $this->controller->association;
 
-        $presidentID = checkArray($_POST['users'], 'president');
+        $presidentID = (int) checkArray($_POST['users'], 'president');
 
         if ($presidentID != $assoc->president->getID())
         {
@@ -707,6 +707,9 @@ class AssociationsAdmniModel extends MainModel
         }
 
         $partners = checkArray($_POST['users']['p']);
+
+        if (!is_array($partners[1]))
+            return;
 
         foreach ($partners as $k => $p) {
             if ($k == $presidentID)

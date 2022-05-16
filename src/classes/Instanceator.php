@@ -183,20 +183,25 @@ class Instanceator
             $query = $this->db->createQuery('SELECT * FROM `events` WHERE `id` = ?;');
             $data = [$id];
 
-            $event = $this->db->query($query, $data)->fetch(PDO::FETCH_ASSOC);
+            $event = $this->db->query($query, $data);
 
-            if (!$event)
-                throw new Exception('Error fiding user');
+            if (!$event instanceof Events) {
 
-            $association = $this->instanceAssociationByID($event['association']);
+                $event = $event->fetch(PDO::FETCH_ASSOC);
 
-            $event = new Events(
-                $association,
-                $event['title'],
-                $event['description'],
-                DateTime::createFromFormat('Y-m-d H:i:s', $event['endDate']),
-                $id
-            );
+                if (!$event)
+                    throw new Exception('Error fiding user');
+
+                $association = $this->instanceAssociationByID($event['association']);
+
+                $event = new Events(
+                    $association,
+                    $event['title'],
+                    $event['description'],
+                    DateTime::createFromFormat('Y-m-d H:i:s', $event['endDate']),
+                    $id
+                );
+            }
 
             $this->db->resultToCache($query, $data, $event, true);
 

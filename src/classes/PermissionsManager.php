@@ -105,7 +105,7 @@ final class PermissionsManager
         | self::AP_ADMNI_ASSOCIATION | 0x1 << 20;
 
     public function checkPermissions(
-        int|string $userPermissions = self::P_ZERO,
+        int|string $userPermissions,
         int $requiredPermissions,
         bool $strict = true
     ): bool {
@@ -114,7 +114,7 @@ final class PermissionsManager
             : hexdec($userPermissions));
         return (bool) (
             $strict
-            ? $userPermissions == $requiredPermissions
+            ? $userPermissions & $requiredPermissions == $requiredPermissions
             : $userPermissions & $requiredPermissions
         );
     }
@@ -124,10 +124,12 @@ final class PermissionsManager
         int $requiredPermissions,
         bool $strict = true
     ): bool {
+        $userPermissions = (int) $user->getPremissions();
+
         return (bool) (
             $strict
-            ? $user->permissions == $requiredPermissions
-            : $user->permissions & $requiredPermissions
+            ? $userPermissions & $requiredPermissions == $requiredPermissions
+            : $userPermissions & $requiredPermissions
         );
     }
 

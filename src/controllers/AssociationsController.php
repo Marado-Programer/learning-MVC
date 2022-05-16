@@ -13,26 +13,15 @@ class AssociationsController extends MainController
     public function __construct(
         $parameters = array(),
         $title = 'index',
-        $permissions = PermissionsManager::P_VIEW_ASSOCIATIONS
     ) {
-        parent::__construct($parameters, $title, $permissions);
+        parent::__construct($parameters, $title);
+        $this->premissionsRequired = PermissionsManager::P_VIEW_ASSOCIATIONS;
         $this->associations = new AssociationsList();
         $this->unpublishedNews = new NewsList();
     }
 
     public function indexMain()
     {
-        if (
-            !UsersManager::getTools()->getPremissionsManager()->checkPermissions(
-                UserSession::getUser()->getPermissions(),
-                $this->premissionsRequired,
-                false
-            )
-        )
-            return;
-
-        $this->loadModel('associations/AssociationsModel');
-
         if (isset($_POST['enterAssociation']) && $data = checkArray($_POST['enterAssociation'], 'id')) {
             $this->model->enterAssocition($data);
         }
@@ -55,17 +44,17 @@ class AssociationsController extends MainController
 
     public function admni()
     {
+        $this->loginRequired = true;
+
         if (!UserSession::getUser()->isLoggedIn())
             UsersManager::getTools()->getRedirect()->redirect();
 
         if (!isset($this->parameters[0]))
             UsersManager::getTools()->getRedirect()->redirect();
 
-        $this->loadModel('associations/AssociationsAdmniModel');
+        $this->loadModel('associations/AssociationsAdmni');
 
         $this->association = $this->model->getAssociationByNickname($this->parameters[0]);
-
-        $payedDues = $this->model->userPayedQuotas();
 
         if (!isset($this->association))
             return;
@@ -97,7 +86,7 @@ class AssociationsController extends MainController
         if (isset($_POST['users']['change']))
             $this->model->changePremissionsOnAssoc();
 
-        require VIEWS_PATH . '/includes/header.php';
+        require VIEWS_PATH . '/includes/head.php';
         require VIEWS_PATH . '/includes/nav.php';
 
         require VIEWS_PATH . '/associations/admni.php';

@@ -1,5 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap');
 
+:root {
+	--magenta: hsla(328, 98%, 47%, 1);
+	--orange: hsla(29, 97%, 76%, 1);
+	--yellow: hsla(60, 100%, 80%, 1);
+	--green: hsla(120, 41%, 64%, 1);
+	--blue: hsla(214, 52%, 45%, 1);
+	--purple: hsla(265, 31%, 76%, 1);
+}
+
 * {
     font-family: 'Noto Sans JP', sans-serif;
 }

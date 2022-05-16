@@ -2,7 +2,7 @@
 
 defined('ROOT_PATH') OR exit();
 
-if (UserSession::getUser()->isLoggedIn())
+if ($this->user->isLoggedIn())
     echo '<p>Already logged in!</p>';
 
 ?>

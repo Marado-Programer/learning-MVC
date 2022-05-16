@@ -14,7 +14,7 @@
 
 <article>
 
-<link href="<?=HOME_URI?>/public/style/css/associations.css" rel="stylesheet" />
+<link  type="text/css" href="<?=STYLE_URI?>/css/associations.css" rel="stylesheet" />
 
 <table>
     <caption>

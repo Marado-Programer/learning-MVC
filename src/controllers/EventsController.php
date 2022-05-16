@@ -19,8 +19,6 @@ class EventsController extends MainController
 
     protected function indexMain()
     {
-        $this->loadModel('events/EventsModel');
-
         if (isset($_POST['search-events']))
             $this->model->getEventsByAssociationID($_POST['search-events']);
         else
@@ -34,7 +32,6 @@ class EventsController extends MainController
                 if (($user = UserSession::getUser()) instanceof Partner)
                     $this->model->joinPartnerToEvent($event['id'], $user);
         }
-        
 
         require VIEWS_PATH . '/events/index.php';
     }

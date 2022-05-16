@@ -4,10 +4,14 @@
  * 
  */
 
-require_once './config/config.php';
-
-if (!defined('ROOT_PATH'))
+if (!defined('FROM_INDEX') || !FROM_INDEX)
     exit();
+
+require_once './config/config.php';
+require_once './config/DBconfig.php';
+require_once './config/URIconfig.php';
+
+defined('ROOT_PATH') AND defined('DB_NAME') AND defined('DEBUG') OR exit();
 
 session_start();
 
@@ -23,4 +27,3 @@ require_once ROOT_PATH . '/src/global/global-functions.php';
 
 $sys = new System();
 $sys->genController();
-

@@ -1,15 +1,18 @@
 <?php
     defined('ROOT_PATH') OR exit();
-    $button = "\0";
-    $aAttrs = "\0";
+
+    $button = "";
+    $aAttrs = "";
     if (isset($_POST['search-events'])) {
         $button = '<p><button name="asAssociation" value="' . $_POST['search-events'] . '">Make part of this Event</button></p>';
         $aAttrs = ' target="_blank" rel="noopener noreferrer"';
-    } elseif (UserSession::getUser()->isLoggedIn())
+    } elseif ($this->user->isLoggedIn())
         foreach ($event->associations as $association)
-            if (in_array(UserSession::getUser(), $association->getPartners()))
+            if (in_array($this->user, $association->getPartners()))
+                if (empty($event->registrations))
+                    $button = '<p><button name="asPartner">Buy ticket</button></p>';
                 foreach ($event->registrations as $registration) {
-                    if ($registration->getIdPartner() != UserSession::getUser()->getID()) {
+                    if ($registration->getIdPartner() != $this->user->getID()) {
                        $button = '<p><button name="asPartner">Buy ticket</button></p>';
 
                         break;

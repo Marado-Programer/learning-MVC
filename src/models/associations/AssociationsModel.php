@@ -9,8 +9,8 @@ class AssociationsModel extends MainModel
     public function search()
     {
         if (
-            !UsersManager::getTools()->getPremissionsManager()->checkPermissions(
-                UserSession::getUser()->getPermissions(),
+            !UsersManager::getTools()->getPremissionsManager()->checkUserPermissions(
+                $this->controller->user,
                 PermissionsManager::P_VIEW_ASSOCIATIONS,
                 false
             )
@@ -44,10 +44,9 @@ class AssociationsModel extends MainModel
     public function createAssociation()
     {
         if (
-            !UsersManager::getTools()->getPremissionsManager()->checkPermissions(
-                UserSession::getUser()->getPermissions(),
+            !$this->controller->tools->getPremissionsManager()->checkUserPermissions(
+                $this->controller->user,
                 PermissionsManager::P_CREATE_ASSOCIATIONS,
-                false
             )
         )
             return;
@@ -72,10 +71,9 @@ class AssociationsModel extends MainModel
         if (!$association['address'])
             unset($association['address']);
 
-        if ($association['phone'] == 'yours' && null === UserSession::getUser()->getTelephone())
+        if ($association['phone'] == 'yours' && null === $this->controller->user->getTelephone())
             return;
-
-        if ($association['phone'] == 'new' && !isset($association['int'], $association['number']))
+        elseif ($association['phone'] == 'new' && !isset($association['int'], $association['number']))
             return;
 
         $association['telephone'] = $association['phone'] == 'new'
@@ -91,12 +89,14 @@ class AssociationsModel extends MainModel
             $association['telephone'],
             $association['taxpayerNumber'],
         );
+
+        $this->controller->userSession->checkUserLogin();
     }
 
     public function enterAssocition($id)
     {
         $association = $this->instancer->instanceAssociationByID($id);
 
-        $association->newPartner(UserSession::getUser());
+        $association->newPartner($this->controller->user);
     }
 }

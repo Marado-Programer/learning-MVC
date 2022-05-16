@@ -14,12 +14,8 @@
     <fieldset>
         <legend>Phone Number</legend>
         <p>
-            <label> <input type="radio" name="create[phone]" value="new" checked /> </label>&nbsp;<label>
-                <select name="create[int]">
-                <option value="351">+351 &#x1F1F5;&#x1F1F9;</option>
-                <option value="1">+1 &#x1F1FA;&#x1F1F8;</option>
-                <option value="256">+256 &#x1F1FA;&#x1F1EC;</option>
-                </select>
+            <label> <input type="radio" name="create[phone]" value="new" checked /></label>&nbsp;<label>
+                <select name="create[int]"><?php require VIEWS_PATH . '/countryCallingCodes.html'?></select>
             </label>
             <label> <input type="tel" name="create[number]" maxlength="15"/> </label>
         </p>
