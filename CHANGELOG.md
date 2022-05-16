@@ -2,6 +2,12 @@
 
 All notable changes to this publication will be documented in this file.
 
+## 1.0.2 - 2022-01-06
+Changed phpass to a more recent version.
+Separated configs.
+HTML and CSS changes.
+Tiny improvements, mostly on sign in.
+
 ## 1.0.1 - 2022-01-06
 Start improving the project looks.
 
