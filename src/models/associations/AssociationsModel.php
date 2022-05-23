@@ -98,5 +98,7 @@ class AssociationsModel extends MainModel
         $association = $this->instancer->instanceAssociationByID($id);
 
         $association->newPartner($this->controller->user);
+
+        $this->controller->userSession->checkUserLogin();
     }
 }

@@ -104,65 +104,10 @@ class Association
             foreach ($partners as $partner) {
                 if ($partner['user'] == $this->president->getID())
                     continue;
-    
-                $extends = 'Partner';
-    
-                $extendsQuery = $db->createQuery('SELECT * FROM `associationWPresident` WHERE `president` = ?;');
-    
-                $isPresident = $db->query($extendsQuery, [$partner['user']])->fetchAll(PDO::FETCH_ASSOC);
-    
-                if ($isPresident)
-                    $extends = 'President';
-    
-                $userQuery = $db->createQuery('SELECT * FROM `users` WHERE `id` = ?;');
-                $data = [$partner['user']];
-    
-                if (UserSession::getUser()->getID() == $partner['user'])
-                    $user = UserSession::getUser();
-                else
-                    $user = $db->query($userQuery, $data);
 
-                if (!$user instanceof User) {
-                    $user = $user->fetch(PDO::FETCH_ASSOC);
-    
-                    if (!$user)
-                        throw new Exception('Error fiding user');
-    
-                    $userRoles = $db->query(
-                        $db->createQuery("SELECT `role` FROM `usersAssociations` WHERE `user` = ?;"),
-                        [$user['id']]
-                    )->fetchAll(PDO::FETCH_ASSOC);
-    
-                    if (count($userRoles) > 0) {
-                        foreach ($userRoles as $role) 
-                            if (
-                                UsersManager::getTools()->getPremissionsManager()->checkPermissions(
-                                    $role['role'],
-                                    PermissionsManager::AP_PRESIDENT,
-                                    false
-                                )
-                            ) {
-                                $extends = 'President';
-                                break;
-                            }
-                    }
-    
-                    $user = new $extends(
-                        $user['id'],
-                        $user['username'],
-                        null,
-                        $user['realName'],
-                        $user['email'],
-                        $user['telephone'],
-                        $user['wallet'] ?? 0,
-                        $user['permissions'],
-                        false
-                    );
-                }
+                $instanceator = Instanceator::getInstanceator($db);
 
-                $db->resultToCache($userQuery, $data, $user, true);
-    
-                $this->partners[] = clone $user;
+                $this->partners[] = $instanceator->instanceUserByID($partner['user']);
             }
         } catch (Exception $e) {
             die($e);

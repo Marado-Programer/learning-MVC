@@ -19,7 +19,7 @@ $values = $_SESSION['sign-up-values'] ?? [];
 
         <p><label><span class="required">Username</span>: <input type="text" name="register[username]" maxlength="32" minlength="4" required value="<?=htmlspecialchars(checkArray($values, 'username'))?>" /></label></p>
         <p><label>Real&nbsp;name: <input type="text" name="register[realName]" maxlength="80" value="<?=htmlspecialchars(checkArray($values, 'realName'))?>" /></label></p>
-        <p><label><span class="required">e-mail</span>: <input type="email" name="register[email]" maxlength="320" minlength="3" required value="<?=htmlspecialchars(checkArray($values, 'email'))?> "/></label></p>
+        <p><label><span class="required">e&#x2011;mail</span>: <input type="email" name="register[email]" maxlength="320" minlength="3" required value="<?=htmlspecialchars(checkArray($values, 'email'))?> "/></label></p>
 
         <fieldset>
             <legend>Telephone:</legend>
