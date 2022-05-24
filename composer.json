@@ -1,4 +1,13 @@
 {
+    "name": "marado/learning-mvc",
+    "description": "MVC framework",
+    "license": "AGPL-3.0-or-later",
+    "require": {
+        "php": ">=7.4",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
+        "ext-mysqli": "*"
+    },
     "require-dev": {
         "pds/skeleton": "^1.0"
     }
