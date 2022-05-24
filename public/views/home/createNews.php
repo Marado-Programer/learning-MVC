@@ -1,4 +1,11 @@
-<?php defined('ROOT_PATH') OR exit() ?>
+<?php
+defined('ROOT_PATH') OR exit();
+
+$iterator = $this->userAssociations->getIterator(AssociationsList::$USER_CAN_WRITE_NEWS_ORDER);
+
+$iterator->valid() OR exit(); // if is valid there are associations the user can write news to
+
+?>
 
 <section>
 
@@ -48,7 +55,7 @@ $assocsCanPublish = [];
             <label>What association is this news too?:
                 <select name="create[association]" value="<?=checkArray($create, 'association')?>">
                 <?php
-                    $iterator = $this->userAssociations->getIterator(AssociationsList::$USER_CAN_WRITE_NEWS_ORDER);
+                    $iterator->rewind();
                     while ($iterator->valid()) {
                         $association = $iterator->current();
 

@@ -720,14 +720,22 @@ class AssociationsAdmniModel extends MainModel
                 if ($onoff)
                     $role |= $permission;
 
-            $this->db->update(
-                'usersAssociations',
-                [
-                    'user' => $k,
-                    'association' => $assoc->getID()
-                ],
-                ['role' => dechex($role)]
-            );
+            if (
+                !$this->controller->tools->getPremissionsManager()->checkPermissions(
+                    $role,
+                    PermissionsManager::AP_PARTNER
+                )
+            )
+                $assoc->deletePartnerByID($k);
+            else
+                $this->db->update(
+                    'usersAssociations',
+                    [
+                        'user' => $k,
+                        'association' => $assoc->getID()
+                    ],
+                    ['role' => dechex($role)]
+                );
         }
     }
 }

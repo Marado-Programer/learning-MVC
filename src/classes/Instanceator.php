@@ -70,9 +70,9 @@ class Instanceator
                     $user['permissions'],
                     false
                 );
-            }
 
-            $this->db->resultToCache($userQuery, $data, $user, true);
+                $this->db->resultToCache($userQuery, $data, $user, true);
+            }
 
             return $user;
         } catch (Exception $e) {

@@ -84,7 +84,7 @@ class DBConnection implements DBMethods
         return self::$cache[$statement];
     }
 
-private function checkForSQLInjections(array $userInput = []) {
+    private function checkForSQLInjections(array $userInput = []) {
         foreach ($userInput as $param)
             foreach ($this->invalidPatterns as $pattern)
                 if (preg_match($pattern, $param))
@@ -155,7 +155,7 @@ private function checkForSQLInjections(array $userInput = []) {
         $where = " WHERE";
         $i = 0;
         foreach ($where_params as $key => $val) {
-            if ($i++ > 0)
+            if ($i++)
                 $where .= " AND";
             $where .= " `$key` = ? ";
         }
@@ -181,18 +181,23 @@ private function checkForSQLInjections(array $userInput = []) {
         return;
     }
 
-    public function delete($table, $whereField, $whereFieldValue)
+    public function delete($table, array $where_params)
     {
-        if (empty($table) || empty($whereField) || empty($whereFieldVal))
+        if (empty($table) || empty($where_params))
             return;
 
+        $where = " WHERE";
+        $i = 0;
+        foreach ($where_params as $key => $val) {
+            if ($i++)
+                $where .= " AND";
+            $where .= " `$key` = ? ";
+        }
+
         $stmt = "DELETE FROM `$table`";
-        $where = " WHERE `$whereField` = ? ";
         $stmt .= $where;
 
-        $values = array($whereFieldValue);
-
-        $delete = $this->query($this->createQuery($stmt), $values);
+        $delete = $this->query($this->createQuery($stmt), array_values($where_params));
 
         if ($delete)
             return $delete;

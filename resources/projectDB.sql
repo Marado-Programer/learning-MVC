@@ -142,8 +142,8 @@ CREATE VIEW `associationWPresident` AS
 SELECT `associations`.*, `usersAssociations`.`user` AS `president`
 FROM `associations` INNER JOIN `usersAssociations`
 ON `associations`.`id` = `usersAssociations`.`association`
-WHERE `usersAssociations`.`role` = (
-	SELECT MAX(`role`)
+WHERE CAST(CONV(`usersAssociations`.`role`, 16, 10) AS INT) = (
+	SELECT MAX(CAST(CONV(`role`, 16, 10) AS INT))
 	FROM `usersAssociations`
 );
 

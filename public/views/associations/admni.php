@@ -36,7 +36,7 @@ if ($pm->checkPermissions(
     PermissionsManager::AP_ADMNI_PARTNERS,
     false
 )): ?>
-<p>User P</p>
+<p>User Premissions</p>
 <form method="post"
     action="#">
 <?php $pNames = [
@@ -71,7 +71,7 @@ if ($pm->checkPermissions(
 <?php foreach ($this->association->getPartners() as $partner): ?>
 <?php $p = $this->model->userAdmniPermissions($partner, $this->association); ?>
 <tr>
-    <td> <?=$partner->username?>
+    <td> <?=$partner->username?><input type="hidden" name="users[p][<?=$partner->getID()?>][0]" />
     <?php for ($i = 1, $j = 0; $i <= PermissionsManager::AP_PRESIDENT; $i <<= 1, $j++): ?>
 <?php
     $radio = false;

@@ -101,19 +101,54 @@ class Association
             if (!$partners)
                 throw new Exception('Failed to load partners');
 
+            $pm = new PermissionsManager();
+
             foreach ($partners as $partner) {
+                if (!$pm->checkPermissions(
+                    $partner['role'],
+                    PermissionsManager::AP_PARTNER
+                )) {
+                    $this->deletePartnerByID($partner['user']);
+                    continue;
+                }
+
                 if ($partner['user'] == $this->president->getID())
                     continue;
 
                 $instanceator = Instanceator::getInstanceator($db);
 
-                $this->partners[] = $instanceator->instanceUserByID($partner['user']);
+                $this->partners[$partner['user']] = $instanceator->instanceUserByID($partner['user']);
             }
         } catch (Exception $e) {
             die($e);
         }
     
         $this->updateQuotas();
+    }
+
+    public function deletePartnerByID(int $user) {
+        try {
+            $db = new DBConnection();
+
+            $db->checkAccess();
+
+            $db->beginTransaction();
+
+            $db->delete(
+                'usersAssociations',
+                [
+                    'user' => $user,
+                    'association' => $this->id
+                ]
+            );
+
+            unset($this->partners[$user]);
+
+            $db->commit();
+        } catch (Exception $e) {
+            $db->rollBack();
+            die($e);
+        }
     }
 
     public function getPartners()
