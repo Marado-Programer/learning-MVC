@@ -15,4 +15,8 @@
 ?>
 </ol>
 
+<footer>
+<p><a href="<?=HOME_URI?>/news/create">Create a News for an Association!</a></p>
+</footer>
+
 </main>

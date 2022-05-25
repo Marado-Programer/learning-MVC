@@ -16,6 +16,12 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-l
 
+RewriteRule ^news\/create index.php?path=news/create [L]
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-l
+
 RewriteRule ^news\/(.+)\/?$ index.php?path=news/index/$1 [L]
 
 RewriteCond %{REQUEST_FILENAME} !-d

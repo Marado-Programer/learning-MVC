@@ -10,6 +10,8 @@ class NewsController extends MainController
     public $date;
     public $use;
 
+    public $userAssociations;
+
     public function __construct(
         $parameters = array(),
         $title = 'index',
@@ -19,12 +21,12 @@ class NewsController extends MainController
         $this->news = new NewsList();
         $this->date = new DateTime();
         $this->use = 'Y';
+
+        $this->userAssociations = new AssociationsList();
     }
 
     protected function indexMain()
     {
-        $this->loadModel('news/NewsModel');
-
         if(empty($this->parameters))
             $this->model->getNews($this->parameters);
         else
@@ -35,11 +37,31 @@ class NewsController extends MainController
 
     public function article()
     {
-        $this->loadModel('news/NewsModel');
+        $this->loadModel('news/News');
 
         $this->model->getNewsByID($this->parameters[0]);
         
         require VIEWS_PATH . '/news/article.php';
+    }
+
+    public function create()
+    {
+        $this->user->isLoggedIn() && !$this->loginRequired
+            OR $this->user instanceof Partner
+            OR exit();
+
+        $this->loadModel('home/Home');
+
+        $this->model->getUserAssociations();
+
+        $this->loadModel('home/News');
+
+        require VIEWS_PATH . '/includes/head.php';
+        require VIEWS_PATH . '/includes/nav.php';
+
+        require VIEWS_PATH . '/news/createNews.php';
+
+        require VIEWS_PATH . '/includes/footer.php';
     }
 }
 

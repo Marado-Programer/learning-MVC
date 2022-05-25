@@ -12,7 +12,7 @@
 <h2>Your Associations</h2>
 </header>
 
-<article>
+<article id="assocs">
 
 <link  type="text/css" href="<?=STYLE_URI?>/css/associations.css" rel="stylesheet" />
 
@@ -49,6 +49,7 @@
 </table>
 <footer>
 <p><a href="<?=HOME_URI?>/associations#create">Create an Association!</a></p>
+<p><a href="<?=HOME_URI?>/news/create">Create a News for an Association!</a></p>
 </footer>
 
 </article>
@@ -56,9 +57,4 @@
 </section>
 
 <?php endif ?>
-
-<?php
-if (UserSession::getUser() instanceof Partner)
-    require VIEWS_PATH . '/home/createNews.php';
-?>
 
