@@ -3,14 +3,13 @@ defined('ROOT_PATH') OR exit();
 
 $iterator = $this->userAssociations->getIterator(AssociationsList::$USER_CAN_WRITE_NEWS_ORDER);
 
-$iterator->valid() OR exit(); // if is valid there are associations the user can write news to
-
+$iterator->valid() OR exit("No associations that you can write news for.\nTry joining one, or maybe you just don't have premissions or you need to pay your quotas!"); // if is valid there are associations the user can write news to
 ?>
 
-<section>
+<section id="<?php echo !isset($SESSION_['editNews']) ? 'create' : 'edit' ?>">
 
 <header>
-<h2>Create News</h2>
+<h1><?php echo !isset($SESSION_['editNews']) ? 'Create' : 'Edit' ?> News</h1>
 </header>
 
 <?php
@@ -59,7 +58,7 @@ $assocsCanPublish = [];
                     while ($iterator->valid()) {
                         $association = $iterator->current();
 
-                        echo '<option value="' . $association->getID() . '">' . $association->name . '</option>';
+                        echo '<option value="' . $association->getID() . '"' . (isset($this->parameters[0]) && $this->parameters[0] === $association->nickname ? ' selected' : '') . '>' . $association->name . '</option>';
 
                         if ($iterator->canPublish($association))
                             $assocsCanPublish[] = $association->getID();

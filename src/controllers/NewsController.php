@@ -54,6 +54,10 @@ class NewsController extends MainController
 
         $this->model->getUserAssociations();
 
+
+        if (isset($_POST['create']))
+            $this->model->createNews();
+
         $this->loadModel('home/News');
 
         require VIEWS_PATH . '/includes/head.php';
@@ -64,4 +68,3 @@ class NewsController extends MainController
         require VIEWS_PATH . '/includes/footer.php';
     }
 }
-

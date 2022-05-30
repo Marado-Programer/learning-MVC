@@ -19,12 +19,7 @@ class HomeController extends MainController
 
     protected function indexMain()
     {
-        $this->loadModel('home/HomeModel');
-
         $this->model->getUserAssociations();
-
-        if (isset($_POST['create']))
-            $this->model->createNews();
 
         require VIEWS_PATH . '/home/home.php';
     }

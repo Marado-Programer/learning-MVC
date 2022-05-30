@@ -14,6 +14,7 @@ class AssociationsUserCanWriteNewsIterator implements Iterator
     private $db;
 
     private $query;
+    private $role;
     
     public function __construct($list)
     {
@@ -22,7 +23,18 @@ class AssociationsUserCanWriteNewsIterator implements Iterator
         $this->permissionsChecker = UsersManager::getTools()->getPremissionsManager();
         $this->db = new DBConnection();
 
-        $this->query = $this->db->createQuery('SELECT `role` FROM `usersAssociations` WHERE `user` = ? AND `association` = ?;');
+        $this->query = $this->db->createQuery('
+            SELECT `usersAssociations`.`role`
+            FROM `usersAssociations`
+            INNER JOIN `quotas`
+            ON `usersAssociations`.`user` = `quotas`.`partner`
+            WHERE `usersAssociations`.`user` = ?
+            AND `usersAssociations`.`association` = ?
+            AND NOT (
+                `quotas`.`payed` < `quotas`.`price`
+                AND `quotas`.`endDate` <= ?
+            );
+        ');
 
         $this->rewind();
     }
@@ -43,14 +55,16 @@ class AssociationsUserCanWriteNewsIterator implements Iterator
             $this->pos++;
             if (!$this->valid())
                 break;
-        } while (!$this->canWrite($this->current()));
+            $this->setRole($this->current());
+        } while (!$this->canWrite());
     }
 
     public function rewind(): void
     {
         $this->pos = 0;
 
-        if (!$this->canWrite($this->current()))
+        $this->setRole($this->current());
+        if (!$this->canWrite())
             $this->next();
     }
 
@@ -59,37 +73,37 @@ class AssociationsUserCanWriteNewsIterator implements Iterator
         return isset($this->list->getList()[$this->key()]);
     }
 
-    private function canWrite(Association $association): bool
+    private function setRole(Association $association)
     {
-        $role = $this->db->query(
+        $this->role = $this->db->query(
             $this->query,
-            [$this->user->getID(), $association->getID()]
+            [
+                $this->user->getID(),
+                $association->getID(),
+                (new DateTime())->format('Y-m-d H:i:s')
+            ]
         )->fetch(PDO::FETCH_ASSOC);
+    }
 
-        if (!$role)
+    private function canWrite(): bool
+    {
+        if (!$this->role)
             return false;
 
         return $this->permissionsChecker->checkPermissions(
-            $role['role'],
+            $this->role['role'],
             PermissionsManager::AP_CREATE_NEWS,
-            false
         );
     }
 
-    public function canPublish(Association $association): bool
+    public function canPublish(): bool
     {
-        $role = $this->db->query(
-            $this->query,
-            [$this->user->getID(), $association->getID()]
-        )->fetch(PDO::FETCH_ASSOC);
-
-        if (!$role)
+        if (!$this->role)
             return false;
 
         return $this->permissionsChecker->checkPermissions(
-            $role['role'],
+            $this->role['role'],
             PermissionsManager::AP_PUBLISH_NEWS,
-            false
         );
     }
 }
