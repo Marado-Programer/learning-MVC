@@ -186,7 +186,7 @@ class HomeModel extends MainModel
             return;
         }
 
-        $user = UserSession::getUser();
+        $user = $this->controller->user;
         if (!method_exists($user, 'createNews'))
             die('No permissions');
 
