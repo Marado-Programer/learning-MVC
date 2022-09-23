@@ -16,4 +16,4 @@ define('HOME_URI', 'http://' . $_SERVER['SERVER_NAME'] . '/learning-MVC');
 define('STYLE_URI', HOME_URI . '/public/styles');
 define('SCRIPT_URI', HOME_URI . '/public/scripts');
 
-define('NOT_FOUND', ROOT_PATH . '/public/404.php');
+define('NOT_FOUND', ROOT_PATH . '/public/404.html');
